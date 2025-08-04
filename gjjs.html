@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>高级检索 | WDL学术平台</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f2f7fc url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat fixed;
+      min-height: 100vh;
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      margin: 0;
+      color: #294168;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(230,245,255, 0.80);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .logo-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 70px;
+      background: transparent;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      padding-left: 35px;
+      padding-top: 5px;
+      user-select: none;
+    }
+    .logo-bar .logo-img {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fff;
+      margin-right: 15px;
+      box-shadow: 0 2px 6px 0 rgba(170,200,255,.10);
+    }
+    .logo-bar .name {
+      font-size: 26px;
+      color: #1676e6;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 12px rgba(180,220,250,0.09);
+      margin-right: 13px;
+    }
+    .logo-bar .subname {
+      color: #6198db;
+      font-size: 17px;
+      letter-spacing: .7px;
+      font-weight: 400;
+    }
+
+    .main-content-up {
+      min-height: 90vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1;
+      position: relative;
+      width: 100vw;
+    }
+    .main-center-zone {
+      width: 100vw;
+      margin-top: 86px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 48px;
+      position: relative;
+      z-index: 1;
+    }
+    .adv-search-card {
+      min-width: 420px; max-width: 490px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 2px 22px 0 rgba(76,146,229,0.12);
+      padding: 45px 36px 34px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .adv-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1576e6;
+      letter-spacing: 1.2px;
+      margin-bottom: 27px;
+      display: flex; align-items: center; gap: 10px;
+      align-self: flex-start;
+    }
+    .adv-title i { color:#69a6ff;font-size:26px;}
+    .adv-form {
+      width: 100%;
+    }
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 16px;
+      flex-wrap: nowrap;
+    }
+    .search-row select, .search-row input {
+      padding: 10px 14px;
+      border: 1px solid #d4e8fa;
+      border-radius: 8px;
+      font-size: 17px;
+      outline: none;
+      background: #f5faff;
+      margin-right: 0;
+      min-width: 95px;
+      max-width: 145px;
+    }
+    .search-row input[type="text"] {
+      width: 170px;
+      max-width: 250px;
+      flex: 1;
+      font-size: 17px;
+    }
+    .logic-bar {
+      display: flex;
+      flex-direction: row;
+      gap: 7px;
+      min-width: 180px;
+      flex-shrink: 0;
+    }
+    .search-row .logic-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      background: #eaf3ff;
+      border: none;
+      color: #2071f8;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background .14s;
+      min-width: 55px;
+      margin-right: 0;
+    }
+    .search-row .logic-btn.active, .search-row .logic-btn:hover {
+      background: #2071f8;
+      color: #fff;
+    }
+    .add-row-btn {
+      color: #1aa7b4;
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-top: 3px;
+      margin-bottom: 17px;
+      display: flex; align-items: center;
+      transition: color 0.16s;
+    }
+    .add-row-btn i {margin-right:5px;}
+    .add-row-btn:hover { color:#0c75cc;}
+    .search-row .del-btn {
+      background: #fff5f6;
+      color: #eb5858;
+      border: none;
+      border-radius: 7px;
+      padding: 6px 12px;
+      cursor: pointer;
+      margin-left: 4px;
+      transition: background .13s;
+      font-size: 16px;
+    }
+    .search-row .del-btn:hover { background: #ffeaea; }
+    .adv-search-btn {
+      margin-top: 7px;
+      width: 100%;
+      padding: 15px 0;
+      background: #2071f8;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 11px 0 rgba(80,136,255,0.08);
+      transition: background .17s;
+      letter-spacing: 2px;
+    }
+    .adv-search-btn:hover { background: #1576e6;}
+    /* 右侧说明卡片 */
+    .search-tips-card {
+      min-width: 280px; max-width: 370px;
+      background: #eaf5ff;
+      border-radius: 19px;
+      box-shadow: 0 2px 13px 0 rgba(120,180,250,0.09);
+      padding: 34px 25px 21px 27px;
+      color: #28486a;
+      font-size: 16px;
+      line-height: 1.7;
+      border: 1px solid #d1e7f7;
+      align-self: flex-start;
+      margin-top: 10px;
+      margin-left: 12px;
+    }
+    .tips-title {
+      font-weight: 700;
+      color: #226add;
+      font-size: 18px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .tips-title i {color:#3fa5e8;}
+    .tips-list {
+      padding-left: 18px;
+      margin-top: 0;
+    }
+    .tips-list li {
+      margin-bottom: 7px;
+      font-size: 15px;
+    }
+    @media (max-width: 1050px) {
+      .main-center-zone { flex-direction: column; align-items: center; gap: 28px;}
+      .search-tips-card { margin-left: 0; margin-top: 0;}
+      .adv-search-card {margin-bottom: 8px;}
+    }
+    @media (max-width: 700px) {
+      .adv-search-card, .search-tips-card { width: 98vw; min-width: 0; max-width: 99vw; padding: 5vw 2vw;}
+      .adv-title { font-size: 17px;}
+      .search-row select, .search-row input {font-size: 15px;}
+      .search-row input[type="text"] {width: 56vw;max-width:unset;}
+      .logic-bar {min-width: 0; gap: 2px;}
+      .search-row .logic-btn {padding:6px 11px; font-size:14px;}
+      .search-tips-card {font-size: 13px;}
+      .logo-bar {padding-left: 12px;}
+      .logo-bar .logo-img {width: 28px; height: 28px;}
+      .logo-bar .name {font-size: 18px;}
+      .logo-bar .subname {font-size: 13px;}
+      .adv-search-btn {font-size: 16px; padding: 10px 0;}
+      .main-content-up {align-items: center;}
+    }
+    .footer {
+      width: 100vw;
+      background: #324051;
+      color: #c9dbf8;
+      padding: 13px 0 10px 0;
+      text-align: center;
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin-top: 38px;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部LOGO+产品名 -->
+  <div class="logo-bar">
+    <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" alt="Logo" class="logo-img">
+    <span class="name">WDL 学术平台</span>
+    <span class="subname">New Academic</span>
+  </div>
+  <div class="main-content-up">
+    <div class="main-center-zone">
+      <!-- 高级检索卡片 -->
+      <div class="adv-search-card">
+        <div class="adv-title"><i class="ri-equalizer-line"></i>高级检索</div>
+        <form class="adv-form" id="advForm" autocomplete="off" onsubmit="return false;">
+          <div id="advRows"></div>
+          <button type="button" class="add-row-btn" onclick="addRow()"><i class="ri-add-line"></i>添加检索条件</button>
+          <button type="submit" class="adv-search-btn">搜索</button>
+        </form>
+      </div>
+      <!-- 检索说明 -->
+      <div class="search-tips-card">
+        <div class="tips-title"><i class="ri-lightbulb-line"></i>高级检索须知：</div>
+        <ul class="tips-list">
+          <li>1. 每个输入框默认支持英文逗号，不支持分句全文检索。</li>
+          <li>2. 可选择标题、作者、关键词、导师、学科、学校、关键信息、摘要、出版年份、语种和所用检索逻辑。</li>
+          <li>3. 高级检索支持多个检索项同时拼接，系统智能处理 “AND、OR、NOT” 的逻辑关系，查重去重。</li>
+        </ul>
+      </div>
+    </div>
+    <div style="height:60px"></div>
+  </div>
+  <!-- 页脚 -->
+  <div class="footer">
+    © 2025 WDL学术论文智能检索平台 ｜ 北京某某千帆科技有限公司
+  </div>
+  <!-- 动态交互JS -->
+  <script>
+    // 支持的字段
+    const fields = [
+      {label: '标题', value: 'title'},
+      {label: '作者', value: 'author'},
+      {label: '关键词', value: 'keyword'},
+      {label: '导师', value: 'tutor'},
+      {label: '学科', value: 'subject'},
+      {label: '学校', value: 'school'},
+      {label: '关键信息', value: 'info'},
+      {label: '摘要', value: 'abstract'},
+      {label: '出版年份', value: 'year'},
+      {label: '语种', value: 'language'}
+    ];
+    // 支持的逻辑
+    const logics = ['AND', 'OR', 'NOT'];
+    // 检索项
+    let rows = [
+      {field: 'title', logic: 'AND', value: ''}
+    ];
+    function renderRows() {
+      const wrap = document.getElementById('advRows');
+      wrap.innerHTML = '';
+      rows.forEach((row, idx) => {
+        const fieldSel = `<select onchange="changeRow(${idx},'field',this.value)">` +
+          fields.map(f=>`<option value="${f.value}"${row.field===f.value?' selected':''}>${f.label}</option>`).join('') + '</select>';
+        const input = `<input type="text" placeholder="请输入检索词" value="${row.value||''}" oninput="changeRow(${idx},'value',this.value)">`;
+        const logicBtns = `<div class="logic-bar">` +
+          logics.map(l =>
+            `<button type="button" class="logic-btn${row.logic===l?' active':''}" onclick="changeRow(${idx},'logic','${l}')">${l}</button>`
+          ).join('') + `</div>`;
+        const delBtn = rows.length>1?`<button type="button" class="del-btn" onclick="delRow(${idx})"><i class="ri-delete-bin-6-line"></i></button>`:'';
+        wrap.innerHTML += `<div class="search-row">${fieldSel}${input}${logicBtns}${delBtn}</div>`;
+      });
+    }
+    function addRow() {
+      rows.push({field:'title', logic:'AND', value:''});
+      renderRows();
+    }
+    function delRow(idx) {
+      rows.splice(idx, 1);
+      renderRows();
+    }
+    function changeRow(idx, k, v) {
+      rows[idx][k]=v;
+      renderRows();
+    }
+    renderRows();
+    document.getElementById('advForm').onsubmit = function(){
+      alert('高级检索提交：' + JSON.stringify(rows, null, 2));
+      return false;
+    }
+  </script>
+</body>
+</html>
