@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>学术论文详情页</title>
+  <meta name="viewport" content="width=1200">
+  <style>
+    body {
+      margin: 0;
+      background: #f7faff;
+      font-family: 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+      color: #222;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      padding: 24px 60px 10px 60px;
+    }
+    .nav img {
+      height: 38px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .nav .brand {
+      font-weight: bold;
+      color: #1677ff;
+      font-size: 1.5rem;
+      margin-right: 10px;
+    }
+    .nav .desc {
+      color: #a7b2c3;
+      font-size: 14px;
+      margin-left: 8px;
+    }
+    .main-wrap {
+      max-width: 950px;
+      margin: 0 auto;
+      padding-top: 18px;
+    }
+    .paper-title-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+    .paper-title {
+      font-size: 2rem;
+      color: #1677ff;
+      font-weight: bold;
+      word-break: break-all;
+      line-height: 1.28;
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+    .full-link-btn {
+      background: linear-gradient(90deg, #3786fd, #5fb8f8 85%);
+      color: #fff;
+      padding: 8px 34px;
+      border-radius: 999px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      box-shadow: 0 4px 16px 0 #3786fd1a;
+      border: none;
+      outline: none;
+      transition: background .18s, box-shadow .2s;
+      cursor: pointer;
+      text-decoration: none;
+      margin-left: 16px;
+      display: inline-block;
+    }
+    .full-link-btn:hover {
+      background: linear-gradient(90deg, #1677ff 60%, #3786fd 100%);
+      box-shadow: 0 4px 24px 0 #1677ff30;
+    }
+    .doi {
+      color: #999;
+      font-size: 16px;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+    .doi a { color: #1677ff; text-decoration: underline; }
+    .fields-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px #3677fd11;
+      padding: 44px 56px 24px 56px;
+      margin-bottom: 34px;
+    }
+    .fields-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .fields-table td {
+      vertical-align: top;
+      padding: 6px 4px;
+    }
+    .field-label {
+      color: #8b9fb0;
+      font-weight: 500;
+      text-align: right;
+      width: 120px;
+      white-space: nowrap;
+      font-size: 16px;
+    }
+    .field-value {
+      color: #26333d;
+      font-size: 16px;
+      min-width: 320px;
+    }
+    .tag {
+      display: inline-block;
+      background: linear-gradient(90deg, #e3efff 0%, #cbe2fc 100%);
+      color: #2e68b7;
+      border-radius: 14px;
+      padding: 3px 15px;
+      margin-right: 10px;
+      font-size: 13px;
+      margin-bottom: 4px;
+      margin-top: 1px;
+      transition: background 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .tag:hover {
+      background: linear-gradient(90deg, #d3e3ff 0%, #98c6fa 100%);
+      color: #1677ff;
+      text-decoration: underline;
+    }
+    .field-link {
+      color: #1677ff;
+      text-decoration: underline;
+      margin-left: 2px;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .field-link:hover {
+      color: #1d4ed8;
+    }
+    .fold-btn {
+      background: #f1f5ff;
+      color: #1677ff;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 22px;
+      font-size: 14px;
+      margin-top: 12px;
+      margin-left: 3px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #1677ff15;
+      transition: background .16s;
+    }
+    .fold-btn:hover {
+      background: #e8efff;
+      color: #3786fd;
+    }
+    .abs-card {
+      background: #f7faff;
+      border-radius: 14px;
+      padding: 18px 36px 18px 36px;
+      margin-bottom: 30px;
+      font-size: 16px;
+      color: #264b6a;
+      line-height: 1.8;
+      position: relative;
+      box-shadow: 0 2px 12px 0 #1677ff08;
+    }
+    .abs-card .show-all {
+      color: #3786fd;
+      cursor: pointer;
+      font-size: 15px;
+      margin-left: 8px;
+      font-weight: 500;
+      text-decoration: underline;
+      transition: color .18s;
+      user-select: none;
+    }
+    .abs-card .show-all:hover {
+      color: #1677ff;
+    }
+    .tabs-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 24px #1677ff15;
+      padding: 12px 40px 26px 40px;
+      margin-bottom: 38px;
+    }
+    .tabs-bar {
+      display: flex;
+      border-bottom: 1px solid #e5eaf2;
+      margin-bottom: 14px;
+    }
+    .tabs-bar button {
+      font-size: 18px;
+      padding: 8px 36px;
+      background: none;
+      border: none;
+      outline: none;
+      color: #96a4b7;
+      font-weight: 500;
+      border-bottom: 2.5px solid transparent;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      margin-right: 18px;
+      transition: color .16s, border .2s, background .2s;
+    }
+    .tabs-bar .tab-active {
+      color: #1677ff;
+      background: #f1f7ff;
+      border-bottom: 2.5px solid #1677ff;
+    }
+    .tabs-panel ul {
+      padding-left: 10px;
+      margin: 0;
+    }
+    .tabs-panel li {
+      margin-bottom: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #e5eaf2;
+      list-style: none;
+    }
+    .tabs-panel .paper-title-row {
+      color: #2771cc;
+      font-weight: 500;
+      font-size: 16px;
+    }
+    .tabs-panel .paper-title-row a {
+      color: #2771cc;
+      text-decoration: underline;
+      margin-left: 2px;
+    }
+    .tabs-panel .paper-title-row a:hover {
+      color: #1677ff;
+    }
+    .tabs-panel .meta {
+      color: #6d7e99;
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #a3adc3;
+      font-size: 13px;
+      padding: 18px 0 24px 0;
+      border-top: 0px solid #f0f0f0;
+    }
+    @media (max-width: 1000px) {
+      .main-wrap {max-width: 99vw; padding: 6vw;}
+      .fields-card, .tabs-card {padding: 5vw;}
+      .abs-card {padding: 18px 2vw;}
+      .paper-title-wrap {flex-direction: column;}
+      .full-link-btn {margin: 18px 0 0 0;}
+      .tabs-bar button {font-size: 16px; padding: 8px 12px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <div class="nav">
+    <img src="https://cdn.jsdelivr.net/gh/wdxu/CDN@master/logo/wdl_icon.svg" alt="logo">
+    <span class="brand">WDL</span>
+    <span class="desc">New Academic</span>
+  </div>
+
+  <div class="main-wrap">
+    <!-- 论文标题及全文链接 -->
+    <div class="paper-title-wrap">
+      <h1 class="paper-title">深度学习驱动的脑影像分析及其疾病辅助诊断研究</h1>
+      <a href="https://arxiv.org/pdf/2402.00001.pdf" class="full-link-btn" target="_blank">阅读全文</a>
+    </div>
+    <div class="doi">
+      DOI: <a href="https://doi.org/10.1234/abcd.56789" target="_blank">10.1234/abcd.56789</a>
+    </div>
+
+    <!-- 字段区域 -->
+    <div class="fields-card">
+      <table class="fields-table" id="fields-table">
+        <tbody>
+          <tr>
+            <td class="field-label">研究主题：</td>
+            <td class="field-value">医学影像、深度学习、辅助诊断</td>
+          </tr>
+          <tr>
+            <td class="field-label">作者：</td>
+            <td class="field-value">
+              <a class="field-link" href="https://orcid.org/0000-0002-3456-7890" target="_blank">张三</a>
+              <a class="field-link" href="https://orcid.org/0000-0002-3456-7890" target="_blank">ORCID: 0000-0002-3456-7890</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="field-label">导师：</td>
+            <td class="field-value">
+              <a class="field-link" href="https://crcid.example.com/C000123" target="_blank">李四</a>
+              <a class="field-link" href="https://crcid.example.com/C000123" target="_blank">CRCID: C000123</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="field-label">学位授予日期：</td>
+            <td class="field-value">2024-06-15</td>
+          </tr>
+          <tr>
+            <td class="field-label">论文公开日期：</td>
+            <td class="field-value">2024-07-01</td>
+          </tr>
+          <tr>
+            <td class="field-label">院校名称：</td>
+            <td class="field-value">
+              <a class="field-link" href="https://ror.org/012abc123" target="_blank">清华大学</a>
+              <a class="field-link" href="https://ror.org/012abc123" target="_blank">ROR: 012abc123</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="field-label">授予院校地址：</td>
+            <td class="field-value">北京市海淀区清华园1号</td>
+          </tr>
+          <tr>
+            <td class="field-label">所属二级院校名称：</td>
+            <td class="field-value">医学院</td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">答辩委员会成员：</td>
+            <td class="field-value">
+              <a class="field-link" href="#">王五</a>,
+              <a class="field-link" href="#">赵六</a>,
+              <a class="field-link" href="#">钱七</a>
+            </td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">ISBN号：</td>
+            <td class="field-value"><a class="field-link" href="#">978-7-5678-1234-5</a></td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">ISSN号：</td>
+            <td class="field-value"><a class="field-link" href="#">1234-5678</a></td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">开放获取状态：</td>
+            <td class="field-value"><span style="color: #16c05a;">是</span></td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">学位名称：</td>
+            <td class="field-value">博士</td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">专业研究方向：</td>
+            <td class="field-value">生物医学工程</td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">资助情况：</td>
+            <td class="field-value">
+              <details>
+                <summary style="color:#1677ff;cursor:pointer;">查看详情</summary>
+                <div style="padding-left:12px; color:#8ca8c7;font-size:14px">
+                  资助机构：<a class="field-link" href="#">国家科学基金</a><br>
+                  资助项目：脑疾病辅助诊断关键技术<br>
+                  资助编号：<a class="field-link" href="#">62200001</a>
+                </div>
+              </details>
+            </td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">附件材料：</td>
+            <td class="field-value">
+              <a class="field-link" href="#">论文数据.zip</a>
+              <span style="color:#c0c6d0;margin:0 8px;">|</span>
+              <a class="field-link" href="#">实验录像.rar</a>
+            </td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">页数：</td>
+            <td class="field-value">168</td>
+          </tr>
+          <tr class="field-hide">
+            <td class="field-label">图片：</td>
+            <td class="field-value"><a class="field-link" href="#">查看图表</a></td>
+          </tr>
+          <tr>
+            <td class="field-label">关键词：</td>
+            <td class="field-value">
+              <a href="#" class="tag">深度学习</a>
+              <a href="#" class="tag">医学影像</a>
+              <a href="#" class="tag">脑疾病</a>
+              <a href="#" class="tag">辅助诊断</a>
+              <a href="#" class="tag">自动分割</a>
+              <a href="#" class="tag">多模态分析</a>
+            </td>
+          </tr>
+          <tr>
+            <td class="field-label">中文关键词：</td>
+            <td class="field-value">
+              <a href="#" class="tag">医学图像</a>
+              <a href="#" class="tag">人工智能</a>
+              <a href="#" class="tag">脑科学</a>
+              <a href="#" class="tag">病灶检测</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="fold-btn" id="foldBtn" onclick="toggleFields()">显示全部字段</button>
+    </div>
+
+    <!-- 摘要 -->
+    <div class="abs-card" id="absCard">
+      <b>摘要：</b>
+      <span id="absShort">
+        本文针对脑影像分析领域中的关键科学问题，提出了一系列基于深度学习的方法，显著提升了多种脑疾病的自动辅助诊断能力。研究内容包含脑结构分割、病灶检测及进展预测等方面，并在真实临床数据集上取得优异效果。
+      </span>
+      <span id="absAll" style="display:none;">
+        本文针对脑影像分析领域中的关键科学问题，提出了一系列基于深度学习的方法，显著提升了多种脑疾病的自动辅助诊断能力。研究内容包含脑结构分割、病灶检测及进展预测等方面，并在真实临床数据集上取得优异效果。本文主要创新点包括：（1）提出多尺度神经网络结构，显著提高了分割精度；（2）利用迁移学习与注意力机制提升了病灶检测的灵敏度和鲁棒性；（3）构建大规模多模态医学影像数据集，为后续研究提供了重要资源。结论显示，该研究成果可为脑疾病的早期诊断及临床治疗决策提供可靠依据。
+      </span>
+      <a class="show-all" id="showAbsBtn" href="javascript:void(0);" onclick="toggleAbs()">全部摘要</a>
+    </div>
+
+    <!-- 被引用情况/相关文章Tab -->
+    <div class="tabs-card">
+      <div class="tabs-bar">
+        <button id="tabCited" class="tab-active" onclick="showTab('cited')">被引用情况</button>
+        <button id="tabRelated" onclick="showTab('related')">相关文章</button>
+      </div>
+      <div class="tabs-panel" id="panelCited">
+        <ul>
+          <li>
+            <div class="paper-title-row"><a href="#">基于深度学习的脑肿瘤自动分割研究</a></div>
+            <div class="meta">作者：李伟　年份：2022</div>
+          </li>
+          <li>
+            <div class="paper-title-row"><a href="#">多模态医学图像配准方法综述</a></div>
+            <div class="meta">作者：赵颖　年份：2021</div>
+          </li>
+        </ul>
+      </div>
+      <div class="tabs-panel" id="panelRelated" style="display:none;">
+        <ul>
+          <li>
+            <div class="paper-title-row"><a href="#">医学影像中的深度卷积神经网络</a></div>
+            <div class="meta">作者：王强　年份：2023</div>
+          </li>
+          <li>
+            <div class="paper-title-row"><a href="#">辅助诊断系统的设计与实现</a></div>
+            <div class="meta">作者：孙晓　年份：2020</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2025 WDL New Academic 学术论文智能检索平台 | 北京盈科千信科技有限公司
+  </div>
+  <script>
+    // 折叠字段
+    function toggleFields() {
+      var btn = document.getElementById("foldBtn");
+      var hides = document.querySelectorAll(".field-hide");
+      var showing = hides[0].style.display !== "none";
+      for (var i = 0; i < hides.length; i++) {
+        hides[i].style.display = showing ? "none" : "";
+      }
+      btn.innerText = showing ? "显示全部字段" : "收起部分字段";
+    }
+    // 默认折叠
+    window.onload = function() {
+      toggleFields();
+    }
+    // 摘要展开
+    function toggleAbs() {
+      var shortSpan = document.getElementById('absShort');
+      var allSpan = document.getElementById('absAll');
+      var btn = document.getElementById('showAbsBtn');
+      if(allSpan.style.display === "none"){
+        allSpan.style.display = "";
+        shortSpan.style.display = "none";
+        btn.innerText = "收起摘要";
+      }else{
+        allSpan.style.display = "none";
+        shortSpan.style.display = "";
+        btn.innerText = "全部摘要";
+      }
+    }
+    // Tab切换
+    function showTab(type) {
+      document.getElementById('panelCited').style.display = (type==='cited'?'':'none');
+      document.getElementById('panelRelated').style.display = (type==='related'?'':'none');
+      document.getElementById('tabCited').classList.toggle('tab-active', type==='cited');
+      document.getElementById('tabRelated').classList.toggle('tab-active', type==='related');
+    }
+  </script>
+</body>
+</html>
