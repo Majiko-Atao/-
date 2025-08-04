@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>学术论文智能平台 - 登录</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #e7f2fd url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat fixed;
+    }
+    body::before {
+      content: '';
+      position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(230,245,255, 0.82);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .main-content {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .login-container {
+      width: 370px;
+      background: rgba(255,255,255,0.65);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px 0 rgba(32,113,248,0.18), 0 1.5px 0.5px 0 rgba(70,186,255,0.05);
+      padding: 46px 40px 36px 40px;
+      margin-top: 7vh;
+      margin-bottom: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(85,175,255,0.12);
+      transition: box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+    .logo-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 32px;
+      z-index: 2;
+    }
+    .logo-bar img {
+      height: 36px;
+      margin-right: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px 0 rgba(120,170,255,0.15);
+    }
+    .logo-bar span {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2071f8;
+      letter-spacing: 1.5px;
+    }
+    .login-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 26px;
+      color: #1a3c62;
+      text-align: center;
+      z-index: 2;
+    }
+    .form-group { width: 100%; margin-bottom: 19px; z-index: 2;}
+    label { font-size: 15px; color: #34495e; display: block; margin-bottom: 6px; }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      height: 43px;
+      border: 1px solid #e3eaf4;
+      border-radius: 8px;
+      padding: 0 13px;
+      font-size: 16px;
+      background: #f7fafd;
+      transition: border 0.2s;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none; border: 1.5px solid #2071f8; background: #fff;
+    }
+    .login-btn {
+      width: 100%; height: 44px;
+      background: linear-gradient(90deg,#2071f8,#52a9fa 95%);
+      border: none; border-radius: 8px;
+      color: #fff; font-size: 18px; font-weight: 600; letter-spacing: 2px;
+      cursor: pointer; margin-top: 8px;
+      box-shadow: 0 2px 10px rgba(32, 113, 248, 0.11);
+      transition: background 0.2s, box-shadow 0.18s; z-index: 2;
+    }
+    .login-btn:hover {
+      background: linear-gradient(90deg,#2071f8,#1da7fc 95%);
+      box-shadow: 0 4px 20px 0 rgba(32,113,248,0.16);
+    }
+    .login-tip {
+      text-align: center; font-size: 14px; color: #b2bac7;
+      margin-top: 15px; letter-spacing: 1px; z-index: 2;
+    }
+
+    /* 单卡片轮播核心功能 */
+    .features-carousel-block {
+      width: 530px; max-width: 97vw;
+      min-height: 182px;
+      background: rgba(255,255,255,0.96);
+      border-radius: 19px;
+      box-shadow: 0 2px 18px 0 rgba(56, 122, 206, 0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px 20px 20px;
+      position: relative;
+      margin-bottom: 22px;
+    }
+    .feature-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 145px;
+      animation: fadeIn 0.65s cubic-bezier(0.52,0.11,0.18,1.13);
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(24px);}
+      100% { opacity: 1; transform: none;}
+    }
+    .feature-card .card-icon {
+      font-size: 44px;
+      margin-bottom: 18px;
+      color: #2071f8;
+      background: linear-gradient(120deg, #e3f1ff, #d3eafd 90%);
+      border-radius: 50%;
+      padding: 14px 15px 10px 15px;
+      box-shadow: 0 2px 18px 0 rgba(32,113,248,0.08);
+    }
+    .feature-card .card-title {
+      font-size: 22px;
+      color: #1870d4;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      text-align: center;
+      text-shadow: 0 1px 0 #e6f1ff;
+    }
+    .feature-card .card-desc {
+      color: #3f5473;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      line-height: 1.7;
+      font-weight: 400;
+      text-align: center;
+      padding: 0 15px;
+      min-height: 36px;
+    }
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      margin-top: 17px;
+      gap: 13px;
+    }
+    .carousel-dot {
+      width: 13px; height: 13px;
+      background: #e3f2fd;
+      border-radius: 50%;
+      border: 2.5px solid #c9e2fe;
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: background 0.16s, border 0.13s;
+      position: relative;
+    }
+    .carousel-dot.active {
+      background: #2071f8;
+      border-color: #77b8ff;
+      box-shadow: 0 0 0 3px #deedfd;
+    }
+    @media (max-width: 650px) {
+      .login-container { width: 97vw; padding: 15px 2vw 18px 2vw; }
+      .features-carousel-block { width: 98vw; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <div class="login-container">
+      <div class="logo-bar">
+        <img src="https://files.catbox.moe/yedof7.png" alt="Logo">
+        <span>WDL</span>
+      </div>
+      <div class="login-title">学术论文智能平台登录</div>
+      <form autocomplete="off">
+        <div class="form-group">
+          <label for="username">账号</label>
+          <input type="text" id="username" name="username" placeholder="请输入账号">
+        </div>
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input type="password" id="password" name="password" placeholder="请输入密码">
+        </div>
+        <button type="submit" class="login-btn">登录</button>
+      </form>
+      <div class="login-tip">仅限授权用户访问</div>
+    </div>
+    <!-- 轮播功能卡片 -->
+    <div class="features-carousel-block">
+      <div class="feature-card" id="featureCard">
+        <!-- 这里JS自动填充 -->
+      </div>
+      <div class="carousel-dots" id="carouselDots"></div>
+    </div>
+  </div>
+  <script>
+    // 功能卡片内容
+    const features = [
+      {
+        icon: 'ri-search-eye-line',
+        title: 'AI语义检索',
+        desc: '基于大模型技术，支持自然语言长文本学术需求的智能理解，助力更快发现目标论文。'
+      },
+      {
+        icon: 'ri-file-text-line',
+        title: '全文一键获取',
+        desc: '快速获取论文全文，涵盖主流数据库和开放资源，实现便捷一站式学术阅读体验。'
+      },
+      {
+        icon: 'ri-user-star-line',
+        title: '智能推荐关联文献',
+        desc: 'AI智能推荐相关文献，结合引用、主题、作者等多维度，拓展学术视野与知识网络。'
+      },
+      {
+        icon: 'ri-bar-chart-2-line',
+        title: '学科分析与趋势洞察',
+        desc: '多维度学科结构分析，发现研究热点与前沿趋势，为选题和科研决策提供有力数据支持。'
+      }
+    ];
+    let curr = 0, timer = null;
+
+    function renderCard(idx) {
+      const c = features[idx];
+      document.getElementById('featureCard').innerHTML =
+        `<div class="card-icon"><i class="${c.icon}"></i></div>
+        <div class="card-title">${c.title}</div>
+        <div class="card-desc">${c.desc}</div>`;
+      // 圆点
+      const dots = features.map((_,i)=>
+        `<div class="carousel-dot${i===idx?' active':''}" onclick="gotoCard(${i})"></div>`).join('');
+      document.getElementById('carouselDots').innerHTML = dots;
+    }
+
+    function gotoCard(idx) {
+      curr = idx;
+      renderCard(curr);
+      clearInterval(timer);
+      timer = setInterval(nextCard, 4200);
+    }
+    function nextCard() {
+      curr = (curr+1)%features.length;
+      renderCard(curr);
+    }
+    // 初始化
+    renderCard(curr);
+    timer = setInterval(nextCard, 4200);
+    window.gotoCard = gotoCard; // for onclick
+  </script>
+</body>
+</html>
