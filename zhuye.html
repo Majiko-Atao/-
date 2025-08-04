@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>WDL 学术论文智能检索</title>
+  <meta name="viewport" content="width=1280" />
+  <style>
+    body { margin: 0; background: #f3f8fe; font-family: 'PingFang SC', 'Microsoft Yahei', Arial, sans-serif; }
+    .header { display: flex; align-items: center; height: 58px; padding: 0 48px 0 24px; }
+    .logo { height: 38px; width: 38px; margin-right: 10px; object-fit: contain;}
+    .logo-text { color: #1677ff; font-weight: bold; font-size: 24px; margin-right: 8px;}
+    .logo-desc { color: #b5c7e3; font-size: 15px; margin-left: 7px;}
+    .school-list-btn {
+      background: #1677ff; color: #fff; border: none; border-radius: 7px;
+      padding: 5px 16px; font-size: 13px; cursor: pointer;
+      float: right; margin-left: auto; margin-top: 3px;
+    }
+    .main { min-height: 700px; display: flex; flex-direction: column; align-items: center; }
+    .title { margin-top: 28px; font-size: 32px; font-weight: 700; color: #1677ff; letter-spacing: 1.2px; text-align: center;}
+    .subtitle { margin-top: 8px; font-size: 14px; color: #666; letter-spacing: 1px; text-align: center; margin-bottom: 24px;}
+    .main-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 26px rgba(22,119,255,0.07);
+      width: 920px; max-width: 98vw;
+      margin: 0 auto 34px auto;
+      padding: 0 0 32px 0;
+      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+      min-height: 530px;
+      /* 让主框体居中（与参考红框对齐） */
+    }
+    .card-tab-row {
+      display: flex; align-items: center; gap: 24px;
+      justify-content: center;
+      width: 100%; padding-top: 22px;
+    }
+    .main-tab {
+      font-size: 15px; font-weight: 500; border: none; outline: none; color: #1677ff; background: #f4f8ff; border-radius: 16px;
+      padding: 5px 24px; cursor: pointer; transition: background 0.13s, color 0.1s; letter-spacing: 0.5px;
+    }
+    .main-tab.active, .main-tab:hover {
+      background: linear-gradient(90deg, #1677ff 0%, #69b5ff 100%);
+      color: #fff; box-shadow: 0 2px 8px 0 rgba(22,119,255,0.10);
+    }
+    .mode-btn-row {
+      display: flex; gap: 12px;
+      width: 97%; margin: 24px auto 0 auto;
+      justify-content: flex-end;
+    }
+    .mode-btn {
+      font-size: 13px; border: none; border-radius: 7px; padding: 3px 15px;
+      background: #f4f8ff; color: #1677ff; cursor: pointer;
+      transition: background .13s, color .11s;
+    }
+    .mode-btn.active, .mode-btn:hover {
+      background: #1677ff; color: #fff;
+    }
+    /* 浅蓝色检索区 */
+    .search-block {
+      width: 94%; min-height: 126px;
+      margin: 0 auto 0 auto;
+      background: #f0f6fe;
+      border-radius: 15px;
+      position: relative;
+      display: flex; flex-direction: column; align-items: stretch;
+      margin-top: 16px;
+    }
+    .search-area {
+      width: 100%; height: 100%;
+      position: relative;
+      padding: 28px 34px 38px 34px;
+      min-height: 90px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .search-icon { font-size: 22px; margin-right: 13px; color: #1677ff; margin-top: 6px;}
+    .search-input {
+      border: none; outline: none; background: transparent; font-size: 15px; flex: 1;
+      margin-right: 8px; color: #222; padding: 15px 0 12px 0; min-height: 32px;
+      min-width: 300px; max-width: 100%; resize: none; line-height: 1.65; font-family: inherit;
+      overflow-y: auto;
+    }
+    .search-input::placeholder { color: #aaa; font-size: 13px; }
+    /* 搜索按钮绝对贴紧检索区右下角 */
+    .search-btn {
+      background: #1677ff; color: #fff; border: none; border-radius: 0 0 12px 0;
+      padding: 0 19px; font-size: 15px; font-weight: 500; cursor: pointer; height: 36px;
+      position: absolute; right: 0; bottom: 0;
+      box-shadow: 0 1px 4px 0 rgba(22,119,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+      margin: 0;
+      transition: background 0.14s;
+    }
+    .search-btn:active { background: #225db4; }
+    /* 热门标签缩小+底部居中（检索区外，主卡片内） */
+    .hot-tags-wrap {
+      width: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      margin-top: 20px;
+    }
+    .hot-tags {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 14px;
+      margin-bottom: 4px;
+    }
+    .tag-btn {
+      background: #e6f1ff; color: #1677ff; border: none; border-radius: 8px; padding: 4px 12px;
+      font-size: 13px; cursor: pointer; margin-bottom: 2px;
+      transition: background .11s;
+    }
+    .tag-btn:hover { background: #c7e3ff; }
+    .search-desc {
+      color: #7a8ca8; font-size: 12px; margin: 10px 0 0 0; text-align: center;
+      width: 100%; letter-spacing: 1px;
+    }
+    .feature-card {
+      margin: 28px auto 0 auto;
+      background: #f9fbfe;
+      border-radius: 12px;
+      padding: 13px 0 6px 0;
+      width: 360px;
+      text-align: center;
+      font-size: 14px;
+      color: #4071b3;
+      letter-spacing: 1px;
+      box-shadow: 0 1px 5px 0 rgba(22,119,255,0.04);
+    }
+    .feature-links { margin: 8px 0 0 0; font-size: 13px;}
+    .feature-links a { margin: 0 14px; color: #1677ff; text-decoration: underline;}
+    .footer {
+      margin-top: 45px; width: 100%; background: #27384a; color: #fff;
+      text-align: center; font-size: 15px; letter-spacing: 1.2px; padding: 18px 0 12px 0;
+    }
+    @media (max-width: 1200px) {
+      .main-card { width: 99vw;}
+      .search-block, .search-area { width: 99vw !important; }
+    }
+    @media (max-width: 900px) {
+      .main-card, .search-block, .search-area { width: 100vw !important; }
+      .search-area { padding: 16px 1vw 40px 1vw; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 头部 logo -->
+  <div class="header">
+    <img class="logo" src="https://raw.githubusercontent.com/github/explore/main/topics/openai/openai.png" alt="Logo">
+    <span class="logo-text">WDL</span>
+    <span class="logo-desc">New Academic</span>
+    <button class="school-list-btn">学校列表</button>
+  </div>
+  <div class="main">
+    <div class="title">学术论文智能检索</div>
+    <div class="subtitle">AI语义理解、长文本、复杂命题也能一键高效检索</div>
+    <div class="main-card">
+      <!-- Tab区 -->
+      <div class="card-tab-row">
+        <button class="main-tab active">论文</button>
+        <button class="main-tab">作者</button>
+        <button class="main-tab">机构</button>
+        <button class="main-tab">学科</button>
+      </div>
+      <!-- 检索模式按钮 独立一行、紧贴浅蓝检索区上方 -->
+      <div class="mode-btn-row">
+        <button class="mode-btn active">语义检索</button>
+        <button class="mode-btn">高级检索</button>
+        <button class="mode-btn">常规检索</button>
+      </div>
+      <!-- 浅蓝底检索区 -->
+      <div class="search-block">
+        <div class="search-area" style="position:relative; min-height:80px; padding-bottom:46px;">
+          <span class="search-icon">🔍</span>
+          <textarea class="search-input" placeholder="请输入论文标题、作者、关键词、DOI或用自然语言描述学术需求（可多行输入，支持语义检索）"></textarea>
+          <!-- 搜索按钮绝对贴紧右下角，始终在蓝色区内部 -->
+          <button class="search-btn"
+            style="position:absolute; right:0; bottom:0; border-radius: 0 0 12px 0; height:36px;">搜索</button>
+        </div>
+      </div>
+      <!-- 热门标签区和说明 -->
+      <div class="hot-tags-wrap">
+        <div class="hot-tags">
+          <button class="tag-btn">大模型</button>
+          <button class="tag-btn">AI in Education</button>
+          <button class="tag-btn">量子计算</button>
+          <button class="tag-btn">生物医学</button>
+          <button class="tag-btn">知识图谱</button>
+          <button class="tag-btn">深度学习</button>
+          <button class="tag-btn">可持续发展</button>
+        </div>
+        <div class="search-desc">
+          支持 AND、OR、NOT 多条件布尔检索，支持标题/作者/关键词/DOI/摘要/语义长句 | <a style="color:#1677ff;" href="#">检索说明</a>
+        </div>
+      </div>
+      <!-- 平台说明 -->
+      <div class="feature-card">
+        支持多学科、多语种论文检索，AI自动摘要、PDF一键下载，布尔多条件高级检索等功能。<br>
+        <div class="feature-links">
+          <a href="#">我的收藏</a> | <a href="#">使用帮助</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      © 2025 WDL New Academic 学术论文智能检索平台 | 北京某某千帆科技有限公司
+    </div>
+  </div>
+</body>
+</html>
