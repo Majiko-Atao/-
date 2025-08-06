@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>学术论文筛选页面-终极版</title>
+  <style>
+    /* 左侧+右侧全部样式合并版 */
+    body { font-family: 'Segoe UI', '微软雅黑', Arial, sans-serif; background: #f4f7fa; margin: 0;}
+    .layout-main {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      width: 100vw;
+      gap: 44px;
+      box-sizing: border-box;
+    }
+    .sidebar-filter {
+      width: 520px; padding: 52px 0 52px 60px; background: #f7fafb;
+      display: flex; flex-direction: column; gap: 36px; min-height: 100vh; box-sizing: border-box;
+      border-right: 1.5px solid #e8ebef;
+    }
+    .filter-panel, .filter-section {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 6px 32px 0 rgba(56, 101, 191, 0.09);
+      padding: 38px 44px 38px 44px;
+      min-width: 0;
+      margin-bottom: 0;
+    }
+    .filter-panel { margin-bottom: 28px;}
+    .filter-title { color: #176be6; font-size: 26px; font-weight: 700; margin-bottom: 30px; letter-spacing: 2px;}
+    .filter-label { color: #1a1a1a; font-size: 20px; font-weight: 700; margin-top: 22px; margin-bottom: 13px; letter-spacing: 1px;}
+    .date-row { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; justify-content: center;}
+    .year-input { width: 180px; height: 44px; padding: 0 18px; border: 2px solid #e1e7f2; border-radius: 12px; cursor: pointer; background: #f6faff; text-align: center; font-size: 18px; font-weight: 500; transition: border .18s; outline: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box;}
+    .year-input:focus { border: 2px solid #176be6; }
+    .year-picker-dropdown { position: absolute; z-index: 100; background: #fff; border: 2px solid #dbe6f5; border-radius: 11px; box-shadow: 0 8px 44px #176be62a; max-height: 300px; overflow-y: auto; width: 180px; margin-top: 7px;}
+    .year-option { padding: 13px 0; text-align: center; cursor: pointer; font-size: 18px; font-weight: 500; transition: background .2s;}
+    .year-option:hover, .year-option.selected { background: #e6f0ff; color: #176be6; }
+    .quick-btns { margin-top: 6px; display: flex; gap: 22px; margin-bottom: 20px; width: 100%; justify-content: center; flex-wrap: nowrap;}
+    .quick-btn { display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; border: 2px solid #176be6; border-radius: 10px; color: #176be6; background: #fafdff; cursor: pointer; font-size: 19px; font-weight: 700; height: 48px; min-width: 135px; flex: 1; transition: background .15s, border .15s; box-sizing: border-box; text-align: center;}
+    .quick-btn:hover { background: #e6f0ff; border-color: #176be6; }
+    .relative { position: relative; }
+    .filter-section { margin-bottom: 28px; }
+    .section-title { font-size: 19px; font-weight: 700; margin-bottom: 18px;}
+    .dropdown-btn-row { display: flex; align-items: center; justify-content: flex-start; gap: 0; margin-bottom: 8px; width: 100%;}
+    .filter-toggle, .lang-toggle, .degree-toggle { color: #216ef1; font-size: 19px; cursor: pointer; background: none; border: none; margin: 0 10px 0 0; display: flex; align-items: center; justify-content: center; padding: 0 6px; height: 40px; width: 40px; border-radius: 8px; transition: background .16s;}
+    .filter-toggle:hover, .lang-toggle:hover, .degree-toggle:hover { background: #e6f0ff;}
+    .filter-more, .lang-more, .degree-more { color: #216ef1; font-size: 15px; cursor: pointer; background: none; border: none; padding: 0; margin-left: 6px; margin-top: 0;}
+    .filter-list, .lang-list, .degree-list { margin-bottom: 0; }
+    .row { display: flex; align-items: center; margin-bottom: 14px; font-size: 18px; line-height: 1.65; min-height: 38px; font-family: inherit;}
+    .row input[type="checkbox"] { margin-right: 14px; width: 19px; height: 19px; accent-color: #176be6; flex-shrink: 0;}
+    .row .name { flex: 1; text-align: left; font-family: inherit;}
+    .row .count { color: #666; font-size: 15px; margin-left: 15px;}
+    .degree-tabs { display: flex; gap: 18px; margin-bottom: 20px; justify-content: center; width: 100%;}
+    .degree-tab { display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #5a5a5a; background: #f6f8fa; border: 2px solid #e6ebf4; border-radius: 10px; height: 48px; min-width: 122px; padding: 0 26px; margin: 0; cursor: pointer; transition: all .18s; outline: none; box-shadow: none; box-sizing: border-box;}
+    .degree-tab.active { color: #176be6; background: #fff; border: 2px solid #176be6; box-shadow: 0 3px 13px 0 #176be62d;}
+    .modal-mask { position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,.14); display: none; align-items: center; justify-content: center;}
+    .modal-content { background: #fff; border-radius: 18px; box-shadow: 0 6px 50px #0002; min-width: 650px; max-width: 900px; min-height: 410px; padding: 30px 36px 24px 36px; position: relative; display: flex; flex-direction: column; font-family: 'Segoe UI', '微软雅黑', Arial, sans-serif;}
+    .modal-close { position: absolute; top: 18px; right: 18px; font-size: 32px; color: #666; cursor: pointer; background: none; border: none; z-index: 2; padding: 0 4px; line-height: 1;}
+    .modal-search-row { display: flex; align-items: center; width: 100%; margin-bottom: 11px;}
+    .modal-search-bar { width: 320px; height: 40px; margin-bottom: 0; padding: 0 15px; border: 1.5px solid #d0d8e0; border-radius: 8px 0 0 8px; font-size: 17px; background: #fafbfc; font-family: inherit; outline: none; box-sizing: border-box; border-right: none; line-height: 40px;}
+    .modal-search-btn { height: 40px; width: 44px; display: flex; align-items: center; justify-content: center; border-radius: 0 8px 8px 0; border: 1.5px solid #d0d8e0; border-left: none; background: #fafbfc; cursor: pointer; color: #5c6ea9; font-size: 20px; transition: background .15s; margin-left: 0; padding: 0;}
+    .modal-search-btn svg { display: block; }
+    .modal-az-row { display: flex; flex-direction: row; align-items: flex-end; justify-content: center; margin-bottom: 13px; user-select: none; padding-bottom: 5px; border-bottom: 1.5px solid #f3f3f6; flex-wrap: nowrap; overflow-x: hidden; min-width: 630px;}
+    .az-letter-h { display: inline-block; width: 27px; height: 30px; text-align: center; line-height: 30px; margin-right: 5px; border-radius: 6px; cursor: pointer; font-size: 17px; font-weight: 600; color: #b0bad2; margin-bottom: 0; transition: background .18s,color .18s, margin-top .12s;}
+    .az-letter-h.active, .az-letter-h.enabled:hover { background: #216ef1; color: #fff; }
+    .az-letter-h.enabled { color: #216ef1; cursor: pointer;}
+    .az-letter-h.disabled { color: #c6c9d6; cursor: default;}
+    .az-letter-h:last-child { margin-right: 0;}
+    .modal-list-header { font-size: 17px; font-weight: 700; color: #444; margin-bottom: 10px; display: flex; align-items: center;}
+    .modal-list-header input { margin-right: 10px;}
+    .modal-list { flex: 1; max-height: 325px; overflow-y: auto; background: #fff; border-radius: 7px; border: 1px solid #f2f3fa; padding: 7px 0;}
+    .modal-list-row { display: flex; align-items: center; margin-bottom: 5px; justify-content: space-between; padding: 0 8px 0 2px; font-size: 17px; min-height: 38px; border-radius: 6px; font-family: inherit;}
+    .modal-list-main { display: flex; align-items: center; flex: 1;}
+    .modal-list-checkbox { margin-right: 15px; width: 19px; height: 19px; accent-color: #176be6;}
+    .modal-list-count { color: #999; font-size: 16px; min-width: 72px; text-align: right; flex-shrink: 0; font-family: inherit;}
+    .modal-list-row:hover { background: #f2f6fa; }
+    .modal-list-row.selected { background: #e6f0ff; }
+    .modal-btns { display: flex; flex-direction: row; justify-content: flex-end; margin-top: 22px; gap: 16px;}
+    .modal-btn { padding: 8px 34px; border-radius: 9px; border: none; font-size: 18px; cursor: pointer; font-family: inherit;}
+    .modal-btn-cancel { background: #f2f5fa; color: #60666f;}
+    .modal-btn-confirm { background: #216ef1; color: #fff;}
+    .modal-btn-cancel:hover { background: #e3e8f2;}
+    .modal-btn-confirm:hover { background: #1759c6;}
+
+    /* 右侧检索功能区样式 */
+    .main-content-outer { flex: 1; min-width: 480px; max-width: 920px; display: flex; flex-direction: column; align-items: flex-end; margin-left: 0; background: #f4f7fa;}
+    .search-area-wrap { width: 100%; max-width: 920px; display: flex; flex-direction: column; align-items: flex-end;}
+    .search-bar-card { background: #fff; border-radius: 18px; box-shadow: 0 3px 16px #1a4fff14; padding: 40px 36px 32px 36px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; position: relative; min-width: 480px;}
+    .search-input-box { position: relative; width: 100%; min-height: 98px; display: flex; flex-direction: column; margin-bottom: 0;}
+    .semantic-input-area { font-size: 18px; min-height: 90px; max-height: 120px; line-height: 1.7; width: 100%; border: none; outline: none; border-radius: 12px; background: #f6faff; color: #232c3d; padding: 19px 55px 34px 18px; resize: none; box-sizing: border-box; box-shadow: 0 0 0 1.5px #e2eafc inset; transition: box-shadow .14s; font-family: inherit; overflow-y: auto;}
+    .semantic-input-area:focus { box-shadow: 0 0 0 2px #176be6 inset; }
+    .search-send-btn { position: absolute; right: 18px; bottom: 17px; border: none; background: none; cursor: pointer; padding: 0; border-radius: 8px; z-index: 2; transition: background .14s;}
+    .search-send-btn svg { width: 30px; height: 30px;}
+    .search-send-btn:hover { background: #f2f8fe; }
+    .search-type-group { position: absolute; right: 36px; bottom: -64px; display: flex; flex-direction: row; gap: 18px; z-index: 3;}
+    .search-type-btn { background: #fff; border: 2px solid #176be6; color: #176be6; font-size: 16px; padding: 10px 32px; border-radius: 10px; font-weight: 700; cursor:pointer; box-shadow: 0 2px 10px #176be610; transition: background .15s, color .13s, border .13s; outline: none;}
+    .search-type-btn.active, .search-type-btn:hover { background: #176be6; color: #fff; border: 2px solid #176be6;}
+    .search-suggest-row { display: flex; flex-direction: row; align-items: center; margin-top: 88px; gap: 12px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 18px; min-height: 38px;}
+    .suggest-label { color: #99a2b6; font-size: 15px; font-weight: 500; margin-right: 2px; flex-shrink: 0;}
+    .suggest-tag { background: #f5f8fa; color: #337ad5; border-radius: 20px; font-size: 15px; padding: 5px 19px; margin-right: 0; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; margin-bottom: 0; border: 1.2px solid #eef1f4; transition: background .12s; flex-shrink: 0;}
+    .suggest-tag:hover { background: #e7eef9; }
+    .current-filters-row { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 40px; margin-bottom: 18px;}
+    .filter-tag { background: #eaf3ff; color: #176be6; border-radius: 18px; font-size: 15px; padding: 6px 19px 6px 13px; margin-right: 0; margin-bottom: 6px; border: 1.3px solid #b1d1f7; display: flex; align-items: center; gap: 4px; font-weight: 500; position: relative; white-space: nowrap; max-width: 245px;}
+    .filter-tag .filter-x { margin-left: 4px; color: #4880cf; font-size: 15px; background: none; border: none; cursor: pointer; font-weight: 700; border-radius: 12px; padding: 2px 5px; transition: background .13s; line-height: 1; display: flex; align-items: center;}
+    .filter-tag .filter-x:hover { background: #e1edfd; color: #205aa5; }
+    .clear-all-btn { margin-left: 12px; background: #f5f8fa; color: #ff4d4f; border: 1.5px solid #ffc6c9; border-radius: 16px; font-size: 14.5px; font-weight: 600; padding: 5px 18px; cursor: pointer; transition: background .15s, color .13s, border .13s; outline: none; margin-bottom: 5px;}
+    .clear-all-btn:hover { background: #fff0f1; color: #d91d22; border: 1.5px solid #ff4d4f; }
+    .header-card { width: 850px; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px #0001; margin-bottom: 24px; padding: 24px 36px 18px 36px; display: flex; flex-direction: column; align-items: flex-start;}
+    .result-header { width: 100%; display: flex; align-items: center; justify-content: space-between;}
+    .result-title { font-size: 2rem; font-weight: bold; color: #1567e1; letter-spacing: 1px;}
+    .sort-select { font-size: 1rem; padding: 6px 12px; border-radius: 8px; border: 1px solid #d6e5fa; background: #fff; outline: none; color: #444;}
+    .result-total { color: #888; margin: 10px 0 0 0; font-size: 1.07rem; width: 100%;}
+    .paper-card { width: 850px; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px #0001; margin-bottom: 28px; padding: 32px 36px 28px 36px; position: relative; transition: box-shadow .18s;}
+    .paper-card:hover { box-shadow: 0 10px 32px #1366e131;}
+    .full-link-btn { position: absolute; top: 30px; right: 36px; background: #176be6; color: #fff; border: none; border-radius: 7px; font-size: 1rem; font-weight: 600; padding: 7px 20px; cursor: pointer; box-shadow: 0 2px 8px #1567e140; transition: background .16s; z-index: 1;}
+    .full-link-btn:hover { background: #0848aa;}
+    .paper-title { font-size: 1.3rem; font-weight: bold; color: #176be6; margin-bottom: 15px; text-decoration: none; display: block;}
+    .meta-list { display: flex; flex-direction: column; gap: 3px; font-size: 1rem; margin-bottom: 18px;}
+    .meta-row a { color: #176be6; text-decoration: none; cursor: pointer;}
+    .meta-label { color: #666; margin-right: 5px;}
+    .meta-value { color: #222; font-weight: 500;}
+    .abstract-row { font-size: 1.07rem; line-height: 1.8; color: #2e2e2e; margin-bottom: 18px; min-height: 70px; position: relative; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; text-overflow: ellipsis;}
+    .show-more-btn { background: none; border: none; color: #176be6; cursor: pointer; font-size: 1rem; margin-left: 8px; text-decoration: underline; padding: 0;}
+    .abstract-row.expanded { -webkit-line-clamp: unset; max-height: unset; overflow: visible;}
+    .img-row { margin-bottom: 22px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
+    .img-thumb-wrap { display: inline-block; border-radius: 10px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 8px #1567e110; transition: box-shadow .13s;}
+    .img-thumb-wrap:hover { box-shadow: 0 6px 24px #1567e130;}
+    .img-thumb { width: 76px; height: 56px; object-fit: cover; display: block; border-radius: 10px; border: 1px solid #e6e8ee;}
+    .img-slider { display: flex; overflow-x: auto; gap: 10px; scrollbar-width: thin; max-width: 440px;}
+    .img-slider::-webkit-scrollbar { height: 7px; background: #e9f0fa;}
+    .img-slider::-webkit-scrollbar-thumb { background: #b7c9ea; border-radius: 6px;}
+    .img-modal { display: none; position: fixed; z-index: 20; left: 0; top: 0; right: 0; bottom: 0; background: rgba(32,46,60,0.81); align-items: center; justify-content: center;}
+    .img-modal.active { display: flex; }
+    .img-modal img { max-width: 90vw; max-height: 86vh; border-radius: 16px; box-shadow: 0 6px 44px #0008; background: #fff;}
+    .img-modal-close { position: fixed; top: 34px; right: 54px; font-size: 2.3rem; color: #fff; background: none; border: none; cursor: pointer; z-index: 22;}
+    @media (max-width: 1100px) {
+      .layout-main { gap: 8px; }
+      .main-content-outer, .search-area-wrap, .search-bar-card { max-width: 99vw; min-width: 0;}
+      .search-type-group { right: 14px;}
+      .header-card, .paper-card { width: 99vw;}
+    }
+    @media (max-width: 800px) {
+      .sidebar-filter { display: none; }
+      .main-content-outer { margin-left: 0; }
+      .header-card, .paper-card { padding: 8px 1vw;}
+    }
+  </style>
+</head>
+<body>
+<div class="layout-main">
+  <!-- 左侧筛选栏 -->
+  <div class="sidebar-filter">
+    <div class="filter-panel">
+      <div class="filter-title">筛选</div>
+      <!-- 论文公开日期 -->
+      <div class="filter-label">论文公开日期</div>
+      <div class="date-row">
+        <div class="relative">
+          <input class="year-input" id="pubStart" readonly placeholder="起始年份" onclick="showYearPicker('pubStart')" />
+          <div class="year-picker-dropdown" id="dropdown_pubStart" style="display:none"></div>
+        </div>
+        <span style="font-size:22px;font-weight:bold;">-</span>
+        <div class="relative">
+          <input class="year-input" id="pubEnd" readonly placeholder="结束年份" onclick="showYearPicker('pubEnd')" />
+          <div class="year-picker-dropdown" id="dropdown_pubEnd" style="display:none"></div>
+        </div>
+      </div>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="setQuickYears('pub', 1)">近一年</button>
+        <button class="quick-btn" onclick="setQuickYears('pub', 3)">近三年</button>
+        <button class="quick-btn" onclick="setQuickYears('pub', 5)">近五年</button>
+      </div>
+      <!-- 学位授予日期 -->
+      <div class="filter-label">学位授予日期</div>
+      <div class="date-row">
+        <div class="relative">
+          <input class="year-input" id="degreeStart" readonly placeholder="起始年份" onclick="showYearPicker('degreeStart')" />
+          <div class="year-picker-dropdown" id="dropdown_degreeStart" style="display:none"></div>
+        </div>
+        <span style="font-size:22px;font-weight:bold;">-</span>
+        <div class="relative">
+          <input class="year-input" id="degreeEnd" readonly placeholder="结束年份" onclick="showYearPicker('degreeEnd')" />
+          <div class="year-picker-dropdown" id="dropdown_degreeEnd" style="display:none"></div>
+        </div>
+      </div>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="setQuickYears('degree', 1)">近一年</button>
+        <button class="quick-btn" onclick="setQuickYears('degree', 3)">近三年</button>
+        <button class="quick-btn" onclick="setQuickYears('degree', 5)">近五年</button>
+      </div>
+    </div>
+    <!-- 筛选模块-语种 -->
+    <div class="filter-section">
+      <div class="section-title">语种</div>
+      <div id="langBox"></div>
+      <div class="dropdown-btn-row">
+        <button class="filter-toggle" onclick="toggleShow('lang')">&#9660;</button>
+        <button class="filter-more" onclick="openModal('lang')">查看更多</button>
+      </div>
+    </div>
+    <!-- 国际版学科 -->
+    <div class="filter-section">
+      <div class="section-title">国际版学科</div>
+      <div id="subjectBox"></div>
+      <div class="dropdown-btn-row">
+        <button class="filter-toggle" onclick="toggleShow('subject')">&#9660;</button>
+        <button class="filter-more" onclick="openModal('subject')">查看更多</button>
+      </div>
+    </div>
+    <!-- 院校国家/地区 -->
+    <div class="filter-section">
+      <div class="section-title">院校国家/地区</div>
+      <div id="countryBox"></div>
+      <div class="dropdown-btn-row">
+        <button class="filter-toggle" onclick="toggleShow('country')">&#9660;</button>
+        <button class="filter-more" onclick="openModal('country')">查看更多</button>
+      </div>
+    </div>
+    <!-- 院校名称 -->
+    <div class="filter-section">
+      <div class="section-title">院校名称</div>
+      <div id="univBox"></div>
+      <div class="dropdown-btn-row">
+        <button class="filter-toggle" onclick="toggleShow('univ')">&#9660;</button>
+        <button class="filter-more" onclick="openModal('univ')">查看更多</button>
+      </div>
+    </div>
+    <!-- 学位类型 -->
+    <div class="filter-section">
+      <div class="section-title">学位类型</div>
+      <div class="degree-tabs">
+        <button class="degree-tab active" id="tabBachelor" onclick="switchDegreeTab('bachelor')">学士</button>
+        <button class="degree-tab" id="tabMaster" onclick="switchDegreeTab('master')">硕士</button>
+        <button class="degree-tab" id="tabDoctor" onclick="switchDegreeTab('doctor')">博士</button>
+      </div>
+      <div id="degreeBox"></div>
+      <div class="dropdown-btn-row">
+        <button class="degree-toggle" onclick="toggleShow('degree')">&#9660;</button>
+        <button class="degree-more" onclick="openModal('degree')">查看更多</button>
+      </div>
+    </div>
+  </div>
+  <!-- 右侧检索主内容区 -->
+  <div class="main-content-outer">
+    <div class="search-area-wrap">
+      <!-- 检索输入卡片 -->
+      <div class="search-bar-card">
+        <div class="search-input-box">
+          <textarea class="semantic-input-area"
+            id="semanticSearchInput"
+            rows="3" maxlength="600"
+            placeholder="输入关键词 或 长文本 进行检索"></textarea>
+          <button class="search-send-btn" title="搜索" onclick="alert('检索功能开发中')">
+            <svg viewBox="0 0 32 32"><path d="M5 27L27 16L5 5v7l14 4l-14 4z" fill="#176be6"/></svg>
+          </button>
+          <div class="search-type-group">
+            <button class="search-type-btn active" id="btnSemantic" onclick="switchSearchType(true)">语义检索</button>
+            <button class="search-type-btn" id="btnTraditional" onclick="switchSearchType(false)">传统检索</button>
+          </div>
+        </div>
+        <div class="search-suggest-row" id="suggestRow">
+          <span class="suggest-label">推荐关键词：</span>
+          <span class="suggest-tag">深度学习在脑电识别</span>
+          <span class="suggest-tag">神经反馈训练系统</span>
+          <span class="suggest-tag">非侵入式脑机接口</span>
+          <span class="suggest-tag">神经康复机器人</span>
+          <span class="suggest-tag">神经可塑性调控</span>
+          <span class="suggest-tag">大模型文本生成</span>
+          <span class="suggest-tag">...</span>
+        </div>
+        <div class="current-filters-row" id="currentFilters">
+        </div>
+      </div>
+      <!-- 统计+排序卡片 -->
+      <div class="header-card">
+        <div class="result-header">
+          <div class="result-title">学位论文检索结果</div>
+          <select class="sort-select">
+            <option>相关性排序</option>
+            <option>时间倒序</option>
+            <option>时间正序</option>
+            <option>引用量</option>
+            <option>被引用量</option>
+          </select>
+        </div>
+        <div class="result-total">共 2321 条结果</div>
+      </div>
+      <!-- 论文卡片展示 -->
+      <div class="paper-card">
+        <a class="full-link-btn" href="https://xxx.fulltext.com/xxx" target="_blank">全文链接</a>
+        <a class="paper-title" href="#" target="_blank">A Study of Machine Learning in Education</a>
+        <div class="meta-list">
+          <div class="meta-row">
+            <span class="meta-label">专业/方向：</span>
+            <span class="meta-value">人工智能与教育技术</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">作者：</span>
+            <a href="#">王小明</a>
+            <span style="color:#bbb;">，</span>
+            <a href="#">李教授</a>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">导师：</span>
+            <a href="#">李教授</a>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">学位授予日期：</span>
+            <span class="meta-value">2024</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">院校名称：</span>
+            <a href="#">清华大学</a>
+          </div>
+        </div>
+        <div class="abstract-row" id="abs0">
+          本⽂系统梳理了机器学习在教育技术中的应⽤与前景，提出了基于深度学习的个性化学习系统模型，并通过实证研究验证了模型有效性。该模型通过⾃适应算法⾃动调整学习进度，提升了学习效率和学业表现。实验结果表明，基于深度学习的学习系统在促进个体差异化学习、优化教学策略等方面具有重要价值。
+          <button class="show-more-btn" onclick="showMore(0)">显示更多</button>
+        </div>
+        <div class="img-row img-slider">
+          <span class="img-thumb-wrap"><img class="img-thumb" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" onclick="openImg(0,0)"/></span>
+          <span class="img-thumb-wrap"><img class="img-thumb" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" onclick="openImg(0,1)"/></span>
+          <span class="img-thumb-wrap"><img class="img-thumb" src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" onclick="openImg(0,2)"/></span>
+          <span class="img-thumb-wrap"><img class="img-thumb" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" onclick="openImg(0,3)"/></span>
+          <span class="img-thumb-wrap"><img class="img-thumb" src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" onclick="openImg(0,4)"/></span>
+          <span class="img-thumb-wrap"><img class="img-thumb" src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" onclick="openImg(0,5)"/></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== 弹窗 ===== -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-search-row">
+      <input class="modal-search-bar" id="modalSearch" placeholder="输入关键词搜索">
+      <button class="modal-search-btn" onclick="triggerModalSearch()">
+        <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="9" cy="9" r="7" stroke="#5c6ea9" stroke-width="2" fill="none"/><line x1="15" y1="15" x2="19" y2="19" stroke="#5c6ea9" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-az-row" id="modalAZ" style="display:none"></div>
+    <div class="modal-list-header">
+      <input type="checkbox" id="modalCheckAll" onchange="toggleModalCheckAll()">
+      <span>全选</span>
+    </div>
+    <div class="modal-list" id="modalList"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeModal()">取消</button>
+      <button class="modal-btn modal-btn-confirm" onclick="confirmModal()">确认</button>
+    </div>
+  </div>
+</div>
+<!-- 图片大图弹窗 -->
+<div class="img-modal" id="imgModal">
+  <button class="img-modal-close" onclick="closeImgModal()">×</button>
+  <img src="" id="imgModalPic" />
+</div>
+<script>
+/* ===== 左侧功能区/弹窗JS ===== */
+const LANGUAGES = [
+  {name: '英语', count: 234483, py: 'Y'},
+  {name: '中文', count: 28685, py: 'Z'},
+  {name: '西班牙语', count: 4247, py: 'X'},
+  {name: '德语', count: 3565, py: 'D'},
+  {name: '葡萄牙语', count: 2890, py: 'P'},
+  {name: '韩语', count: 2668, py: 'H'},
+  {name: '日语', count: 2487, py: 'R'},
+  {name: '法语', count: 2159, py: 'F'},
+  {name: '俄语', count: 1798, py: 'E'},
+  {name: '印尼语', count: 1426, py: 'Y'},
+  {name: '阿拉伯语', count: 876, py: 'A'},
+  {name: '土耳其语', count: 654, py: 'T'}
+];
+const SUBJECTS = [
+  {name: 'Computer Science', count: 32348, py: 'C'},
+  {name: 'Engineering', count: 22254, py: 'E'},
+  {name: 'Biology', count: 17780, py: 'B'},
+  {name: 'Physics', count: 14456, py: 'P'},
+  {name: 'Mathematics', count: 13022, py: 'M'},
+  {name: 'Medicine', count: 11056, py: 'M'},
+  {name: 'Chemistry', count: 10824, py: 'C'},
+  {name: 'Economics', count: 9844, py: 'E'},
+  {name: 'Education', count: 8830, py: 'E'},
+  {name: 'Law', count: 6761, py: 'L'},
+  {name: 'Sociology', count: 5432, py: 'S'},
+  {name: 'Philosophy', count: 4320, py: 'P'},
+  {name: 'Psychology', count: 3987, py: 'P'},
+  {name: 'Art', count: 2934, py: 'A'}
+];
+const COUNTRIES = [
+  {name: '美国', count: 48321, py: 'M'},
+  {name: '中国', count: 28856, py: 'Z'},
+  {name: '英国', count: 15587, py: 'Y'},
+  {name: '德国', count: 11234, py: 'D'},
+  {name: '法国', count: 10321, py: 'F'},
+  {name: '日本', count: 9910, py: 'R'},
+  {name: '澳大利亚', count: 7721, py: 'A'},
+  {name: '加拿大', count: 6680, py: 'J'},
+  {name: '韩国', count: 4212, py: 'H'},
+  {name: '俄罗斯', count: 3987, py: 'E'},
+  {name: '意大利', count: 3598, py: 'Y'},
+  {name: '印度', count: 3333, py: 'Y'},
+  {name: '西班牙', count: 2912, py: 'X'},
+  {name: '巴西', count: 2305, py: 'B'}
+];
+const UNIVERSITIES = [
+  {name: 'Harvard University', count: 3244, py: 'H'},
+  {name: 'Stanford University', count: 2986, py: 'S'},
+  {name: 'MIT', count: 2690, py: 'M'},
+  {name: 'University of Cambridge', count: 2510, py: 'U'},
+  {name: 'Peking University', count: 2476, py: 'P'},
+  {name: 'Tsinghua University', count: 2261, py: 'T'},
+  {name: 'University of Oxford', count: 2215, py: 'U'},
+  {name: 'Fudan University', count: 2108, py: 'F'},
+  {name: 'Yale University', count: 1986, py: 'Y'},
+  {name: 'Columbia University', count: 1943, py: 'C'},
+  {name: 'Princeton University', count: 1821, py: 'P'},
+  {name: 'ETH Zurich', count: 1720, py: 'E'}
+];
+const DEGREE_TYPES = {
+  bachelor: [
+    {name: 'Bachelor of Arts', count: 18455},
+    {name: 'Bachelor of Science', count: 17332},
+    {name: 'Bachelor of Engineering', count: 14220},
+    {name: 'Bachelor of Medicine', count: 9234},
+    {name: 'Bachelor of Law', count: 8200},
+    {name: 'Bachelor of Management', count: 7855},
+    {name: 'Bachelor of Fine Arts', count: 6440},
+    {name: 'Bachelor of Philosophy', count: 5988}
+  ],
+  master: [
+    {name: 'Master of Arts', count: 11500},
+    {name: 'Master of Science', count: 10810},
+    {name: 'Master of Engineering', count: 9520},
+    {name: 'MBA', count: 7332},
+    {name: 'Master of Medicine', count: 6311},
+    {name: 'Master of Law', count: 5830},
+    {name: 'Master of Education', count: 5178},
+    {name: 'Master of Social Work', count: 4422}
+  ],
+  doctor: [
+    {name: 'Doctor of Philosophy', count: 8560},
+    {name: 'Doctor of Science', count: 7123},
+    {name: 'Doctor of Engineering', count: 5634},
+    {name: 'MD', count: 4982},
+    {name: 'Doctor of Medicine', count: 4617},
+    {name: 'Doctor of Law', count: 3580},
+    {name: 'Doctor of Education', count: 3222},
+    {name: 'Doctor of Management', count: 2117}
+  ]
+};
+const _PAGE = { lang: 4, subject: 4, country: 4, univ: 4, degree: 4 };
+const _EXPAND = { lang: 8, subject: 8, country: 8, univ: 8, degree: 8 };
+let _showAll = { lang: false, subject: false, country: false, univ: false, degree: false };
+function renderList(type, count){
+  let data = getListData(type), html = '';
+  for(let i=0;i<Math.min(data.length,count);i++){
+    html += `<div class="row"><input type="checkbox"><span class="name">${data[i].name}</span><span class="count">(${data[i].count})</span></div>`;
+  }
+  document.getElementById(type+'Box').innerHTML = html;
+}
+function getListData(type){
+  if(type==='lang') return LANGUAGES;
+  if(type==='subject') return SUBJECTS;
+  if(type==='country') return COUNTRIES;
+  if(type==='univ') return UNIVERSITIES;
+  if(type==='degree') return DEGREE_TYPES[_activeDegreeTab];
+}
+function toggleShow(type){
+  _showAll[type]=!_showAll[type];
+  renderList(type,_showAll[type]?_EXPAND[type]:_PAGE[type]);
+}
+renderList('lang', _PAGE.lang);
+renderList('subject', _PAGE.subject);
+renderList('country', _PAGE.country);
+renderList('univ', _PAGE.univ);
+/* ====== 年份选择 ====== */
+function renderYearOptions(targetId, inputId) {
+  const now = new Date().getFullYear();
+  let html = "";
+  for (let i = 0; i < 31; i++) {
+    const y = now - i;
+    html += `<div class="year-option" onclick="selectYear('${inputId}', ${y})">${y}年</div>`;
+  }
+  document.getElementById(targetId).innerHTML = html;
+}
+function showYearPicker(inputId) {
+  hideAllDropdowns();
+  const dropdownId = 'dropdown_' + inputId;
+  renderYearOptions(dropdownId, inputId);
+  document.getElementById(dropdownId).style.display = 'block';
+  setTimeout(() => {
+    document.addEventListener('mousedown', onBodyClick);
+  }, 10);
+  function onBodyClick(e) {
+    if (!document.getElementById(dropdownId).contains(e.target) &&
+        e.target !== document.getElementById(inputId)) {
+      document.getElementById(dropdownId).style.display = 'none';
+      document.removeEventListener('mousedown', onBodyClick);
+    }
+  }
+}
+function hideAllDropdowns() {
+  document.querySelectorAll('.year-picker-dropdown').forEach(d => d.style.display = 'none');
+}
+function selectYear(inputId, y) {
+  document.getElementById(inputId).value = y + "年";
+  hideAllDropdowns();
+}
+function setQuickYears(type, years) {
+  const now = new Date().getFullYear();
+  document.getElementById(type + 'Start').value = (now - years + 1) + "年";
+  document.getElementById(type + 'End').value = now + "年";
+}
+/* ===== 学位类型tab切换/展开 ===== */
+let _activeDegreeTab = 'bachelor';
+function renderDegree(count){
+  renderList('degree',count);
+}
+function switchDegreeTab(tab){
+  _activeDegreeTab=tab;
+  document.getElementById('tabBachelor').classList.remove('active');
+  document.getElementById('tabMaster').classList.remove('active');
+  document.getElementById('tabDoctor').classList.remove('active');
+  if(tab==='bachelor') document.getElementById('tabBachelor').classList.add('active');
+  if(tab==='master') document.getElementById('tabMaster').classList.add('active');
+  if(tab==='doctor') document.getElementById('tabDoctor').classList.add('active');
+  renderDegree(_PAGE.degree);
+}
+function toggleShowDegree(){
+  _showAll.degree=!_showAll.degree;
+  renderDegree(_showAll.degree?_EXPAND.degree:_PAGE.degree);
+}
+renderDegree(_PAGE.degree);
+/* ===== 弹窗逻辑 ===== */
+let currentModalType=null, modalAZType=null, modalAZValue='', modalCheckedSet=new Set(), modalSearchText='';
+function openModal(type){
+  currentModalType=type;
+  modalAZType=['degree'].indexOf(type)===-1;
+  modalAZValue=''; modalCheckedSet=new Set();
+  modalSearchText='';
+  document.getElementById('modalSearch').value='';
+  renderModal();
+  document.getElementById('modalMask').style.display='flex';
+}
+function closeModal(){
+  document.getElementById('modalMask').style.display='none';
+}
+function getAZ(list){
+  let az = Array(26).fill(0);
+  for(const item of list){
+    const py=(item.py||item.name||'').toUpperCase();
+    let idx = /^[A-Z]/.test(py)?py[0].charCodeAt(0)-65:-1;
+    if(idx>=0) az[idx]=1;
+  }
+  return az;
+}
+function renderModal(){
+  let data = getListData(currentModalType);
+  if(modalSearchText){
+    data=data.filter(x=>x.name.toLowerCase().includes(modalSearchText.toLowerCase()));
+  }
+  if(modalAZType&&modalAZValue){
+    data=data.filter(x=>((x.py||x.name||'').toUpperCase().startsWith(modalAZValue)));
+  }
+  const pageList = data.slice(0,10);
+  let html = '';
+  pageList.forEach(item=>{
+    html+=`<div class="modal-list-row${modalCheckedSet.has(item.name)?' selected':''}">
+      <div class="modal-list-main">
+        <input class="modal-list-checkbox" type="checkbox" ${modalCheckedSet.has(item.name)?'checked':''} onchange="modalCheck('${item.name}')">
+        <span>${item.name}</span>
+      </div>
+      <span class="modal-list-count">${item.count||''}</span>
+    </div>`;
+  });
+  document.getElementById('modalList').innerHTML=html;
+  document.getElementById('modalAZ').style.display=modalAZType?'flex':'none';
+  if(modalAZType){
+    let azArr = getAZ(getListData(currentModalType));
+    let azHtml = '';
+    for(let i=0;i<26;i++){
+      let letter=String.fromCharCode(65+i);
+      if(azArr[i]){
+        azHtml+=`<span class="az-letter-h enabled${modalAZValue==letter?' active':''}" onclick="modalSetAZ('${letter}')">${letter}</span>`;
+      }else{
+        azHtml+=`<span class="az-letter-h disabled">${letter}</span>`;
+      }
+    }
+    document.getElementById('modalAZ').innerHTML=azHtml;
+  }
+  let allChecked=pageList.length>0 && pageList.every(item=>modalCheckedSet.has(item.name));
+  document.getElementById('modalCheckAll').checked=allChecked;
+}
+function modalSetAZ(letter){
+  modalAZValue=letter;
+  renderModal();
+}
+function modalCheck(name){
+  if(modalCheckedSet.has(name)) modalCheckedSet.delete(name);
+  else modalCheckedSet.add(name);
+  renderModal();
+}
+function toggleModalCheckAll(){
+  let data=getListData(currentModalType);
+  if(modalSearchText||modalAZValue)
+    data=data.filter(x=>{
+      let pass=true;
+      if(modalSearchText) pass=x.name.toLowerCase().includes(modalSearchText.toLowerCase());
+      if(modalAZValue) pass=(x.py||x.name||'').toUpperCase().startsWith(modalAZValue);
+      return pass;
+    });
+  data=data.slice(0,10);
+  let checked= document.getElementById('modalCheckAll').checked;
+  data.forEach(x=>{
+    if(checked) modalCheckedSet.add(x.name);
+    else modalCheckedSet.delete(x.name);
+  });
+  renderModal();
+}
+function confirmModal(){ closeModal(); }
+function triggerModalSearch(){
+  modalSearchText = document.getElementById('modalSearch').value || '';
+  renderModal();
+}
+document.getElementById('modalSearch').oninput=function(e){
+  modalSearchText=e.target.value||'';
+  renderModal();
+};
+window.switchDegreeTab=switchDegreeTab;
+window.toggleShowDegree=toggleShowDegree;
+
+/* ===== 右侧交互 ===== */
+function switchSearchType(isSemantic){
+  document.getElementById('btnSemantic').classList.toggle('active', isSemantic);
+  document.getElementById('btnTraditional').classList.toggle('active', !isSemantic);
+}
+const exampleFilters = [
+  { label: '论文公开年份: 2018-2023', key: 'pubYear' },
+  { label: '学位授予年份: 2022', key: 'degreeYear' },
+  { label: '语种: 英语', key: 'lang_en' },
+  { label: '语种: 中文', key: 'lang_zh' },
+  { label: '国际学科: Computer Science', key: 'subject_cs' },
+  { label: '院校国家: 美国', key: 'nation_us' },
+  { label: '院校名称: MIT', key: 'school_mit' },
+  { label: '学位类型: 博士', key: 'degree_phd' }
+];
+let currentFilters = [...exampleFilters];
+function renderCurrentFilters() {
+  const box = document.getElementById('currentFilters');
+  box.innerHTML = '';
+  currentFilters.forEach((item, idx) => {
+    const tag = document.createElement('span');
+    tag.className = 'filter-tag';
+    tag.innerHTML = `${item.label}<button class="filter-x" onclick="removeFilter('${item.key}')">&times;</button>`;
+    box.appendChild(tag);
+  });
+  if (currentFilters.length > 0) {
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'clear-all-btn';
+    clearBtn.textContent = '全部清空';
+    clearBtn.onclick = clearAllFilters;
+    box.appendChild(clearBtn);
+  }
+}
+function removeFilter(key) {
+  currentFilters = currentFilters.filter(f => f.key !== key);
+  renderCurrentFilters();
+}
+function clearAllFilters() {
+  currentFilters = [];
+  renderCurrentFilters();
+}
+renderCurrentFilters();
+/* 论文卡片展开图片和摘要 */
+function showMore(idx) {
+  var abs = document.getElementById('abs'+idx);
+  abs.classList.add('expanded');
+  abs.querySelector('.show-more-btn').remove();
+}
+var paperImgs = [
+  [
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80"
+  ]
+];
+function openImg(paperIdx, imgIdx){
+  document.getElementById('imgModal').style.display='flex';
+  document.getElementById('imgModalPic').src=paperImgs[paperIdx][imgIdx];
+}
+function closeImgModal(){
+  document.getElementById('imgModal').style.display='none';
+}
+</script>
+</body>
+</html>
