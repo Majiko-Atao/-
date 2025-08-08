@@ -82,19 +82,59 @@
     .optimize-inline.enabled{ cursor:pointer; opacity:1; background:#eaf4ff; border-color:#bcd9ff; box-shadow:0 3px 10px rgba(54,155,255,.10); }
     .optimize-inline i{ font-size:18px; }
 
-    /* ====== 传统检索区 ====== */
+    /* ====== 传统检索区（还原旧样式 + 小号按钮在右下） ====== */
     #classicSection{ display:none; }
-    .classic-scope .main-flex{ display:flex; justify-content:center; align-items:flex-start; gap:38px; margin-top:0; }
+    .classic-scope .main-flex{ display:flex; justify-content:center; align-items:flex-start; gap:0; margin-top:0; }
     .classic-scope .container{
-      width:100%; padding:32px 32px 24px; border-radius:22px;
-      box-shadow:0 8px 32px 0 rgba(36,72,125,0.09);
-      background:#fffffffa; position:relative;
+      width:100%; padding:22px 24px 70px; border-radius:18px;
+      background:#fff; position:relative;
+      box-shadow:0 8px 32px rgba(36,72,125,.08);
+      border:1px solid #e6eefc;
     }
+    .classic-scope .adv-title-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+    .classic-scope .adv-title{ font-size:18px; font-weight:700; color:#1f66c0; display:flex; align-items:center; }
+    .classic-scope .adv-title i{ color:#2f80ff; margin-right:8px; }
+    .classic-scope .actions-bar{ display:flex; gap:8px; }
+    .classic-scope .del-all-btn{
+      background:#f5f6fa; border:1px solid #e7ecf7; color:#8d97a8; border-radius:10px; padding:6px 10px;
+      cursor:pointer; display:flex; align-items:center; gap:6px; font-size:13px;
+    }
+    .classic-scope .del-all-btn[disabled]{ opacity:.5; cursor:not-allowed; }
+    .classic-scope .tips-icon-btn{
+      background:#f5f9ff; border:1px solid #dfeafe; color:#2b6dce; border-radius:999px; width:32px; height:32px;
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    .classic-scope #advRows{ margin-bottom:12px; }
+    .classic-scope .search-row{ display:flex; gap:10px; margin-bottom:10px; }
+    .classic-scope .logic-select,
+    .classic-scope .field-select{
+      height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 10px; background:#f7faff; color:#3269c5; outline:none;
+    }
+    .classic-scope .logic-select{ min-width:84px; font-weight:700; background:#eaf3ff; }
+    .classic-scope .field-select{ min-width:96px; }
+    .classic-scope .kw-input{
+      flex:1; height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 12px; background:#fff; outline:none;
+    }
+    .classic-scope .del-btn{
+      border:none; background:#f6f7fb; color:#a6b0bf; border-radius:8px; width:32px; height:32px; cursor:pointer;
+    }
+    .classic-scope .del-btn:hover{ background:#ffeef0; color:#cf3a4a; }
+    .classic-scope .add-row-btn{
+      background:#f0f6ff; color:#2176d5; border:1px solid #d7e7ff; border-radius:10px; padding:8px 12px;
+      cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+    }
+    .classic-scope .search-btn-adv{
+      position:absolute; right:20px; bottom:16px;
+      display:inline-flex; align-items:center; gap:8px;
+      height:38px; padding:0 16px; border:none;
+      background:linear-gradient(90deg,#2f7af7,#58a7ff); color:#fff;
+      border-radius:12px; cursor:pointer; box-shadow:0 6px 18px rgba(38,127,255,.18);
+    }
+    .classic-scope .search-btn-adv i{ font-size:18px; }
+    .classic-scope .search-btn-adv:active{ transform:translateY(1px); }
 
-    /* ====== 新增：信息切换，仅显示一种（功能 / 数据量 / 样例） ====== */
-    .info-switch-row{
-      margin-top:12px; display:flex; gap:10px; align-items:center;
-    }
+    /* ====== 信息切换：只显示一种（功能 / 数据量 / 样例） ====== */
+    .info-switch-row{ margin-top:12px; display:flex; gap:10px; align-items:center; }
     .info-btn{
       padding:7px 14px; border:1px solid #cfe2fb; background:#f5f9ff; color:#2b78d3;
       border-radius:10px; cursor:pointer; font-size:.98rem; transition:all .15s ease;
@@ -173,19 +213,30 @@
         </button>
       </div>
 
-      <!-- 高级检索（保留，默认隐藏） -->
+      <!-- 传统 / 高级检索（已还原旧样式 + 小号搜索按钮右下角） -->
       <div id="classicSection" class="classic-scope">
         <div class="main-flex">
           <form id="advForm" class="container" autocomplete="off">
-            <div class="adv-title-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-              <div class="adv-title" style="font-size:1.25rem;font-weight:600;color:#1769c2;"><i class="ri-filter-3-line" style="color:#53a0fa;margin-right:8px;"></i>高级检索</div>
-              <div class="actions-bar" style="display:flex;gap:6px;">
-                <button type="button" id="delAllBtn" class="mode-btn" disabled>清空</button>
+            <div class="adv-title-row">
+              <div class="adv-title"><i class="ri-filter-3-line"></i>高级检索</div>
+              <div class="actions-bar">
+                <button type="button" id="delAllBtn" class="del-all-btn" title="清空全部条件" disabled>
+                  <i class="ri-delete-bin-6-line"></i> 清空
+                </button>
+                <button type="button" id="showTipsBtn" class="tips-icon-btn" title="使用说明">
+                  <i class="ri-question-line"></i>
+                </button>
               </div>
             </div>
+
             <div id="advRows"></div>
-            <button type="button" class="mode-btn" id="addRowBtn">+ 添加检索条件</button>
-            <button class="mode-btn selected" type="submit"><i class="ri-search-line" style="margin-right:6px;"></i>搜索</button>
+
+            <button type="button" class="add-row-btn" id="addRowBtn">
+              <i class="ri-add-line" style="font-size:1.1em"></i> 添加检索条件
+            </button>
+
+            <!-- 小号搜索按钮（右下角固定） -->
+            <button class="search-btn-adv" type="submit"><i class="ri-search-line"></i> 搜索</button>
           </form>
         </div>
       </div>
@@ -272,7 +323,7 @@
       searchInput.value = v.replace(/\s+/g,' ').replace(/[?？]*$/,'') + '（表达优化）';
     });
 
-    /* ===== 高级检索（简化保持可用） ===== */
+    /* ===== 高级检索（旧样式恢复 + 小按钮右下） ===== */
     const fields = [
       {label: '标题', value: 'title'},
       {label: '作者', value: 'author'},
@@ -292,18 +343,18 @@
       const wrap = document.getElementById('advRows');
       if(!wrap) return;
       wrap.innerHTML = advRowsData.map((row, idx) => `
-        <div class="search-row" data-row="${idx}" style="display:flex;gap:8px;margin-bottom:12px;">
+        <div class="search-row" data-row="${idx}">
           <select class="logic-select">${logics.map(l=>`<option value="${l}" ${row.logic===l?'selected':''}>${l}</option>`).join('')}</select>
           <select class="field-select">${fields.map(f=>`<option value="${f.value}" ${row.field===f.value?'selected':''}>${f.label}</option>`).join('')}</select>
           <input class="kw-input" type="text" placeholder="请输入检索词" value="${row.value||''}" />
-          ${advRowsData.length > 1 ? `<button type="button" class="mode-btn" style="padding:4px 10px" title="删除本行"><i class="ri-close-line"></i></button>` : ''}
+          ${advRowsData.length > 1 ? `<button type="button" class="del-btn" title="删除本行"><i class="ri-close-line"></i></button>` : ''}
         </div>`).join('');
 
       document.querySelectorAll('#classicSection .search-row').forEach((rowEl, idx) => {
         rowEl.querySelector('.logic-select').onchange = e => advRowsData[idx].logic = e.target.value;
         rowEl.querySelector('.field-select').onchange = e => advRowsData[idx].field = e.target.value;
         rowEl.querySelector('.kw-input').oninput = e => advRowsData[idx].value = e.target.value;
-        const del = rowEl.querySelector('.mode-btn i.ri-close-line')?.parentElement;
+        const del = rowEl.querySelector('.del-btn');
         if (del) del.onclick = () => { advRowsData.splice(idx, 1); renderAdvRows(); updateDelAllBtn(); };
       });
       updateDelAllBtn();
@@ -331,10 +382,8 @@
         blocks[k].style.display = (k===name)?'block':'none';
         btns[k].classList.toggle('active', k===name);
       });
-      // 滚到新块顶部，保证可见
       blocks[name].scrollIntoView({behavior:'smooth', block:'nearest'});
     }
-    // 公开到全局
     window.setInfoBlock = setInfoBlock;
 
     /* ===== 样例渲染 ===== */
