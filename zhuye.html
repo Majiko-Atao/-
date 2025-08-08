@@ -4,200 +4,159 @@
   <meta charset="UTF-8">
   <title>新学术全球学位论文精选整合服务平台</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; box-sizing: border-box; }
+    /* ====== 通用/首页样式 ====== */
+    html, body { height: 100%; margin: 0; box-sizing: border-box; }
     body {
       min-height: 100vh;
-      font-family: 'Segoe UI', '微软雅黑', Arial, sans-serif;
-      background: linear-gradient(135deg, #eaf3fb 0%, #d4e3f7 100%);
-      position: relative;
+      font-family: 'Segoe UI','微软雅黑',Arial,sans-serif;
+      background: linear-gradient(135deg,#eaf3fb 0%,#d4e3f7 100%);
       overflow-x: hidden;
     }
-    .center-main {
-      width: 100vw;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding-top: 110px;
-      padding-bottom: 80px;
+    .center-main{
+      width:100vw; min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:22px; padding:0;
     }
-    .product-title {
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: #2468ad;
-      text-align: center;
-      letter-spacing: 0.06em;
-      margin-bottom: 10px;
-      user-select: none;
-      width: 900px;
-      max-width: 96vw;
-      line-height: 1.25;
-      text-shadow: 0 2px 16px rgba(84, 153, 255, 0.05);
-      background: none;
+    .product-title{
+      font-size:2.5rem; font-weight:700; color:#2468ad; margin:0;
+      line-height:1.25; letter-spacing:.06em; text-align:center;
+      width:900px; max-width:96vw;
     }
-    .product-desc {
-      font-size: 1.22rem;
-      color: #4882b7;
-      text-align: center;
-      margin-bottom: 60px;
-      letter-spacing: 0.01em;
-      font-weight: 400;
-      user-select: none;
-      width: 900px;
-      max-width: 96vw;
-      line-height: 1.5;
-      background: none;
+    .product-desc{
+      font-size:1.18rem; color:#4882b7; margin:0;
+      text-align:center; width:900px; max-width:96vw;
     }
-    .input-area-wrap {
-      width: 900px;
-      max-width: 96vw;
-      position: relative;
-      margin-bottom: 60px;
-      min-height: 260px;
+
+    .input-section{
+      width:900px; max-width:96vw; margin-top:18px;
+      display:flex; flex-direction:column; gap:10px;
     }
-    .mode-switch-row {
-      position: absolute;
-      top: -62px;
-      right: 0;
-      display: flex;
-      gap: 0;
-      z-index: 2;
+    .mode-switch-row{
+      display:flex; justify-content:flex-end; gap:10px;
+      padding-right:2px;
+      filter: drop-shadow(0 2px 6px rgba(38,127,255,.08));
     }
-    .mode-btn {
-      font-size: 1.14rem;
-      padding: 9px 34px;
-      border: none;
-      border-radius: 16px 16px 0 0;
-      background: #f2f6fa;
-      color: #3281e6;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-      letter-spacing: 0.01em;
-      outline: none;
-      position: relative;
-      box-shadow: 0 1.5px 0 #e8f1fa inset;
-      margin-left: -2px;
+    .mode-btn{
+      font-size:1.02rem; padding:8px 20px;
+      border:1px solid #cfe2fb;
+      background:#f5f9ff; color:#2b78d3;
+      cursor:pointer; outline:none; border-radius:10px;
+      transition:all .15s ease;
     }
-    .mode-btn.selected {
-      background: linear-gradient(90deg, #318ffb 70%, #6fc7ff 100%);
-      color: #fff;
-      font-weight: bold;
-      box-shadow: 0 4px 16px 0 rgba(38,127,255,0.11);
-      border-radius: 18px 18px 0 0;
-      z-index: 2;
+    .mode-btn:hover:not(.selected){ background:#e6f0ff; color:#1f66c0; }
+    .mode-btn.selected{
+      background:linear-gradient(90deg,#318ffb 70%,#6fc7ff 100%);
+      color:#fff; border-color:#2a87fb; box-shadow:0 4px 12px rgba(38,127,255,.15);
     }
-    .mode-btn:hover:not(.selected) {
-      background: #d1e6fb;
-      color: #2468ad;
+
+    /* ====== 语义检索区 ====== */
+    #semanticSection { position:relative; }
+    .search-textarea{
+      width:100%; min-height:170px; max-height:260px; resize:vertical;
+      box-sizing:border-box; font-size:1.1rem; line-height:1.7;
+      padding:24px 68px 24px 54px; /* 左给优化表达 右给发送按钮 */
+      border:1.6px solid #b9d5fb; border-radius:14px; background:#fff; color:#133a60;
+      box-shadow:0 4px 20px rgba(112,168,235,.10);
+      transition:border .18s, box-shadow .18s;
+      font-family:'Segoe UI','微软雅黑',Arial,sans-serif;
     }
-    .search-textarea {
-      width: 100%;
-      min-height: 170px;
-      max-height: 260px;
-      resize: vertical;
-      box-sizing: border-box;
-      font-size: 1.16rem;
-      padding: 28px 68px 28px 26px;
-      border: 2px solid #b4d2f5;
-      border-radius: 16px;
-      background: #fff;
-      color: #133a60;
-      outline: none;
-      line-height: 1.7;
-      transition: border 0.2s, box-shadow 0.18s;
-      overflow-y: auto;
-      font-family: 'Segoe UI', '微软雅黑', Arial, sans-serif;
-      word-break: break-all;
-      box-shadow: 0 4px 28px 0 rgba(112,168,235,0.10);
+    .search-textarea:focus{ border-color:#46a2ff; box-shadow:0 8px 28px rgba(70,162,255,.10); }
+    .search-btn{
+      position:absolute; bottom:16px; right:16px;
+      width:48px; height:48px; border:none; border-radius:12px;
+      background:linear-gradient(90deg,#318fff 80%,#6fc7ff 100%);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 6px 20px rgba(38,127,255,.16);
+      cursor:pointer; transition:transform .12s ease;
     }
-    .search-textarea:focus {
-      border: 2px solid #46a2ff;
-      background: #fff;
-      box-shadow: 0 8px 32px 0 rgba(70,162,255,0.10);
+    .search-btn:active{ transform:scale(.97); }
+    .search-btn svg{ width:24px; height:24px; fill:#fff; }
+
+    .optimize-inline{
+      position:absolute; left:12px; bottom:14px;
+      display:flex; align-items:center; gap:6px;
+      padding:8px 10px; height:40px;
+      border:1px solid #d7e7ff; border-radius:10px;
+      background:#f4f9ff; color:#3a79d4; font-size:.96rem; font-weight:600;
+      cursor:not-allowed; opacity:.6; user-select:none; transition:all .15s ease;
     }
-    .search-btn {
-      position: absolute;
-      bottom: 36px;
-      right: 32px;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(90deg,#318fff 80%,#6fc7ff 100%);
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 22px 0 rgba(38,127,255,0.13);
-      cursor: pointer;
-      transition: background 0.14s, box-shadow 0.12s, transform 0.14s;
-      z-index: 2;
+    .optimize-inline.enabled{ cursor:pointer; opacity:1; background:#eaf4ff; border-color:#bcd9ff; box-shadow:0 3px 10px rgba(54,155,255,.10); }
+    .optimize-inline:active.enabled{ transform:translateY(1px); }
+    .optimize-inline svg{ width:18px; height:18px; fill:currentColor; }
+
+    /* ====== 传统检索区（你的高级检索）命名空间：.classic-scope ====== */
+    #classicSection{ display:none; }
+    .classic-scope body { background:none; }
+    .classic-scope .main-flex{
+      display:flex; justify-content:center; align-items:flex-start;
+      gap:38px; margin-top:0;
     }
-    .search-btn:active {
-      background: #2468ad;
-      transform: scale(0.97);
+    .classic-scope .container{
+      width:100%; min-width:320px;
+      padding:32px 32px 24px 32px; border-radius:22px;
+      box-shadow:0 8px 32px 0 rgba(36,72,125,0.09);
+      background:#fffffffa; position:relative;
     }
-    .search-btn svg {
-      width: 25px;
-      height: 25px;
-      fill: #fff;
+    .classic-scope .adv-title-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+    .classic-scope .adv-title{ font-size:1.25rem; font-weight:600; display:flex; align-items:center; color:#1769c2; letter-spacing:1px;}
+    .classic-scope .adv-title i{ font-size:1.7rem; margin-right:10px; color:#53a0fa; }
+    .classic-scope .actions-bar{ display:flex; align-items:center; gap:6px; }
+    .classic-scope .del-all-btn{
+      background:#f5f6fa; border:none; color:#e55d5d; border-radius:7px; padding:7px 14px; font-size:1.05em;
+      cursor:pointer; margin-right:5px; transition:background .13s, color .16s; display:flex; align-items:center; gap:4px;
     }
-    .optimize-btn {
-      position: absolute;
-      left: 0;
-      bottom: -54px;
-      min-width: 136px;
-      height: 44px;
-      font-size: 1.10rem;
-      border: none;
-      border-radius: 12px;
-      background: #e4eef8;
-      color: #8ca0b7;
-      font-weight: 500;
-      cursor: not-allowed;
-      box-shadow: 0 2px 8px 0 rgba(128,153,185,0.08);
-      transition: background 0.18s, color 0.14s, box-shadow 0.18s;
-      z-index: 1;
-      letter-spacing: 0.01em;
-      outline: none;
-      opacity: 1;
-      border: 1.2px solid #b4d2f5;
+    .classic-scope .del-all-btn[disabled]{ background:#f1f3f7; color:#b9c2c9; cursor:not-allowed; }
+    .classic-scope .del-all-btn:not([disabled]):hover{ background:#ffebec; color:#bc3242; }
+    .classic-scope .tips-icon-btn{
+      background:#f0f7ff; border:none; border-radius:50%; width:34px; height:34px; color:#3c78d6; font-size:1.35em; cursor:pointer;
+      margin-left:5px; box-shadow:0 2px 12px #c5dbff3a; transition:background .18s, color .18s; display:flex; align-items:center; justify-content:center;
     }
-    .optimize-btn.enabled {
-      background: linear-gradient(90deg,#eaf5ff 60%,#c5e4ff 100%);
-      color: #1762bb;
-      cursor: pointer;
-      opacity: 1;
-      border: 1.2px solid #71bbf7;
-      box-shadow: 0 4px 12px 0 rgba(54,155,255,0.09);
+    .classic-scope .tips-icon-btn:hover{ background:#dbe8f6; color:#235ea5; }
+    .classic-scope #advRows{ margin-bottom:10px; }
+    .classic-scope .search-row{ display:flex; align-items:center; margin-bottom:12px; gap:8px; animation:fadeIn .6s; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:none;} }
+    .classic-scope .logic-select, .classic-scope .field-select{
+      border:1px solid #dde6f3; border-radius:6px; padding:5px 16px 5px 10px; font-size:1rem; background:#f7faff; color:#3269c5; outline:none; transition:border .2s;
     }
-    .optimize-btn:active.enabled {
-      background: #d6eaff;
+    .classic-scope .logic-select{ min-width:70px; font-weight:bold; background:#e6f0ff; }
+    .classic-scope .field-select{ min-width:88px; }
+    .classic-scope .kw-input{
+      flex:1; border:1.2px solid #dde6f3; border-radius:6px; padding:6px 10px; font-size:1rem; background:#f8fbff; color:#222; outline:none; transition:border .2s;
     }
-    .tip-row {
-      width: 900px;
-      max-width: 96vw;
-      margin-top: 56px;
-      text-align: center;
-      color: #7c92b1;
-      font-size: 1.13rem;
-      letter-spacing: 0.02em;
-      user-select: none;
-      background: none;
+    .classic-scope .kw-input:focus{ border:1.5px solid #66aaff; }
+    .classic-scope .del-btn{ background:none; border:none; color:#d73a49; font-size:1.35rem; cursor:pointer; padding:2px 7px; margin-left:2px; border-radius:50%; transition:background .13s; }
+    .classic-scope .del-btn:hover{ background:#fbe6ea; }
+    .classic-scope .add-row-btn{
+      display:inline-block; background:#f0f6ff; color:#2176d5; border:none; font-size:1rem; padding:7px 18px 7px 12px;
+      margin-bottom:12px; border-radius:8px; cursor:pointer; transition:background .18s; margin-top:4px; margin-left:2px;
     }
-    @media (max-width: 1100px) {
-      .product-title, .product-desc, .input-area-wrap, .tip-row {width: 98vw; min-width: 0;}
-      .input-area-wrap {padding-left: 1vw; padding-right: 1vw;}
+    .classic-scope .add-row-btn:hover{ background:#e5effb; color:#155fa0; }
+    .classic-scope .search-btn-adv{
+      width:100%; background:linear-gradient(90deg,#2486ea,#3474dc 85%); color:#fff; font-size:1.15rem; font-weight:bold; padding:12px 0;
+      border-radius:12px; border:none; box-shadow:0 4px 24px rgba(70,132,222,0.08); cursor:pointer; transition:background .16s;
+      display:flex; align-items:center; justify-content:center; gap:12px; letter-spacing:2px;
     }
-    @media (max-width: 600px) {
-      .center-main {padding-top: 48px;}
-      .product-title, .product-desc, .tip-row {width: 98vw;}
-      .input-area-wrap {width: 98vw;}
-      .search-btn {right: 10px; bottom: 12px;}
-      .search-textarea {padding: 16px 40px 16px 10px;}
-      .tip-row {font-size: 0.97rem; margin-top: 32px;}
+    .classic-scope .search-btn-adv:hover{ background:linear-gradient(90deg,#309afc,#4d7adf 85%); }
+    .classic-scope .tips-box{
+      background:#ebf4fff7; border-radius:20px; box-shadow:0 8px 24px rgba(110,170,222,0.07);
+      padding:20px 18px 12px; color:#3765aa; font-size:14px; line-height:1.7; letter-spacing:.5px; margin-top:14px; position:relative; animation:fadeIn .7s;
+    }
+    .classic-scope .tips-box.hide{ display:none; }
+    .classic-scope .tips-box strong{ color:#2266ad; }
+    .classic-scope .tips-box li{ margin-bottom:7px; }
+    .classic-scope .close-tips{ position:absolute; right:10px; top:8px; background:none; border:none; color:#8ea9c7; font-size:1.4em; cursor:pointer; padding:0 7px; }
+    .classic-scope .close-tips:hover{ color:#db3a4c; }
+
+    @media (max-width:1100px){
+      .product-title,.product-desc,.input-section{ width:98vw; }
+    }
+    @media (max-width:600px){
+      .search-textarea{ padding:16px 44px 54px 48px; }
+      .search-btn{ right:10px; bottom:10px; }
+      .optimize-inline{ left:10px; bottom:10px; }
     }
   </style>
 </head>
@@ -205,54 +164,172 @@
   <div class="center-main">
     <div class="product-title">新学术全球学位论文精选整合服务平台</div>
     <div class="product-desc">覆盖全球高质量学位论文资源，支持语义检索与一站式发现，助力学术创新与科研突破</div>
-    <div class="input-area-wrap">
+
+    <div class="input-section">
+      <!-- 切换按钮 -->
       <div class="mode-switch-row">
         <button class="mode-btn selected" id="semanticBtn" onclick="setMode('semantic')">语义检索</button>
         <button class="mode-btn" id="classicBtn" onclick="setMode('classic')">传统检索</button>
       </div>
-      <textarea
-        id="searchInput"
-        class="search-textarea"
-        maxlength="2000"
-        placeholder="输入完整研究主题或问题，支持语义检索"
-        rows="7"></textarea>
-      <button class="search-btn" id="searchBtn" title="搜索">
-        <!-- 飞机/发送图标 SVG -->
-        <svg viewBox="0 0 24 24">
-          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-        </svg>
-      </button>
-      <button class="optimize-btn" id="optimizeBtn" disabled>优化表达</button>
-    </div>
-    <div class="tip-row">
-      输入完整研究主题或问题进行语义检索，例如‘新能源电池技术进展综述’
+
+      <!-- 语义检索区 -->
+      <div id="semanticSection">
+        <textarea id="searchInput" class="search-textarea" maxlength="2000" placeholder="输入完整研究主题或问题，支持语义检索" rows="7"></textarea>
+        <button class="optimize-inline" id="optimizeInline" disabled title="优化表达">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15.73 3.29a1 1 0 0 1 1.41 0l3.56 3.56a1 1 0 0 1 0 1.41l-9.9 9.9a1 1 0 0 1-1.41 0l-3.56-3.56a1 1 0 0 1 0-1.41l9.9-9.9zM5 20l2.5-2.5 1.5 1.5L6.5 21 5 20zm12-14L7 16l1 1 10-10-1-1zM4 8h2v2H4V8zm14 10h2v2h-2v-2zM2 2h2v2H2V2zm18 4h2v2h-2V6zM8 2h2v2H8V2z"/>
+          </svg>
+          优化表达
+        </button>
+        <button class="search-btn" id="searchBtn" title="搜索">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+
+      <!-- 传统检索区（你的高级检索） -->
+      <div id="classicSection" class="classic-scope">
+        <div class="main-flex">
+          <form id="advForm" class="container" autocomplete="off">
+            <div class="adv-title-row">
+              <div class="adv-title"><i class="ri-filter-3-line"></i>高级检索</div>
+              <div class="actions-bar">
+                <button type="button" id="delAllBtn" class="del-all-btn" title="清空全部条件" disabled>
+                  <i class="ri-delete-bin-6-line"></i>清空
+                </button>
+                <button type="button" id="showTipsBtn" class="tips-icon-btn" title="使用说明">
+                  <i class="ri-question-line"></i>
+                </button>
+              </div>
+            </div>
+
+            <div id="advRows"></div>
+
+            <button type="button" class="add-row-btn" id="addRowBtn">
+              <i class="ri-add-line" style="font-size:1.1em"></i> 添加检索条件
+            </button>
+
+            <button class="search-btn-adv" type="submit"><i class="ri-search-line"></i>搜索</button>
+          </form>
+
+          <div id="tipsBox" class="tips-box hide">
+            <button class="close-tips" id="closeTipsBtn" title="收起说明"><i class="ri-close-line"></i></button>
+            <strong><i class="ri-lightbulb-flash-line"></i> 高级检索须知：</strong>
+            <ul>
+              <li>1. 每个输入框默认支持英文逗号，不支持分句全文检索。</li>
+              <li>2. 可选择标题、作者、关键词、导师、学科、学校、关键信息、摘要、出版年份、语种和所用检索逻辑。</li>
+              <li>3. 高级检索支持多个检索项同时拼接，系统智能处理 “AND、OR、NOT” 的逻辑关系，查重去重。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- /classic -->
     </div>
   </div>
+
   <script>
-    // 检索方式切换
-    function setMode(mode) {
-      document.getElementById('semanticBtn').classList.remove('selected');
-      document.getElementById('classicBtn').classList.remove('selected');
-      if (mode === 'semantic') {
-        document.getElementById('semanticBtn').classList.add('selected');
-      } else {
-        document.getElementById('classicBtn').classList.add('selected');
+    // ====== 模式切换 ======
+    const semanticBtn  = document.getElementById('semanticBtn');
+    const classicBtn   = document.getElementById('classicBtn');
+    const semanticSec  = document.getElementById('semanticSection');
+    const classicSec   = document.getElementById('classicSection');
+
+    function setMode(mode){
+      if(mode === 'classic'){
+        classicBtn.classList.add('selected');
+        semanticBtn.classList.remove('selected');
+        classicSec.style.display = 'block';
+        semanticSec.style.display = 'none';
+      }else{
+        semanticBtn.classList.add('selected');
+        classicBtn.classList.remove('selected');
+        semanticSec.style.display = 'block';
+        classicSec.style.display = 'none';
       }
     }
-    // 优化表达按钮启用/禁用
-    const searchInput = document.getElementById('searchInput');
-    const optimizeBtn = document.getElementById('optimizeBtn');
-    searchInput.addEventListener('input', function() {
-      if (this.value.trim().length > 0) {
-        optimizeBtn.classList.add('enabled');
-        optimizeBtn.disabled = false;
-        optimizeBtn.style.cursor = "pointer";
-      } else {
-        optimizeBtn.classList.remove('enabled');
-        optimizeBtn.disabled = true;
-        optimizeBtn.style.cursor = "not-allowed";
-      }
+
+    // ====== 语义检索：启用“优化表达” ======
+    const searchInput   = document.getElementById('searchInput');
+    const optimizeInline= document.getElementById('optimizeInline');
+    searchInput.addEventListener('input', () => {
+      const hasText = searchInput.value.trim().length > 0;
+      optimizeInline.disabled = !hasText;
+      optimizeInline.classList.toggle('enabled', hasText);
     });
+    optimizeInline.addEventListener('click', () => {
+      if (optimizeInline.disabled) return;
+      const v = searchInput.value.trim();
+      if (!v) return;
+      searchInput.value = v.replace(/\s+/g,' ').replace(/[?？]*$/,'') + '（表达优化）';
+    });
+
+    // ====== 传统检索（你的逻辑原样集成） ======
+    const fields = [
+      {label: '标题', value: 'title'},
+      {label: '作者', value: 'author'},
+      {label: '关键词', value: 'keyword'},
+      {label: '导师', value: 'tutor'},
+      {label: '学科', value: 'subject'},
+      {label: '学校', value: 'school'},
+      {label: '关键信息', value: 'info'},
+      {label: '摘要', value: 'abstract'},
+      {label: '出版年份', value: 'year'},
+      {label: '语种', value: 'language'}
+    ];
+    const logics = ['AND', 'OR', 'NOT'];
+    let advRowsData = [{logic: 'AND', field:'title', value:''}];
+
+    const advRows = () => document.getElementById('advRows');
+    const delAllBtn = () => document.getElementById('delAllBtn');
+
+    function renderAdvRows() {
+      const rows = advRowsData.map((row, idx) => {
+        return `
+        <div class="search-row" data-row="${idx}">
+          <select class="logic-select" style="margin-right:7px;">
+            ${logics.map(l => `<option value="${l}"${row.logic===l?' selected':''}>${l}</option>`).join('')}
+          </select>
+          <select class="field-select">
+            ${fields.map(f => `<option value="${f.value}"${row.field===f.value?' selected':''}>${f.label}</option>`).join('')}
+          </select>
+          <input class="kw-input" type="text" placeholder="请输入检索词" value="${row.value||''}" />
+          ${advRowsData.length > 1 ? `<button type="button" class="del-btn" title="删除本行"><i class="ri-close-line"></i></button>` : ''}
+        </div>
+        `;
+      }).join('');
+      advRows().innerHTML = rows;
+      document.querySelectorAll('#classicSection .search-row').forEach((rowEl, idx) => {
+        rowEl.querySelector('.logic-select').onchange = e => advRowsData[idx].logic = e.target.value;
+        rowEl.querySelector('.field-select').onchange = e => advRowsData[idx].field = e.target.value;
+        rowEl.querySelector('.kw-input').oninput = e => advRowsData[idx].value = e.target.value;
+        const del = rowEl.querySelector('.del-btn');
+        if (del) del.onclick = () => { advRowsData.splice(idx, 1); renderAdvRows(); updateDelAllBtn(); };
+      });
+      updateDelAllBtn();
+    }
+    function addRow() { advRowsData.push({logic:'AND', field:'title', value:''}); renderAdvRows(); }
+    function deleteAllRows() { advRowsData = [{logic:'AND', field:'title', value:''}]; renderAdvRows(); }
+    function updateDelAllBtn() { delAllBtn().disabled = advRowsData.length <= 1; }
+
+    // 事件绑定（放到切换之外，随时可用）
+    document.getElementById('addRowBtn').onclick = addRow;
+    delAllBtn().onclick = function(){
+      if(this.disabled) return;
+      if(confirm("确认清空全部检索条件？")) deleteAllRows();
+    };
+    document.getElementById('advForm').onsubmit = function(){
+      alert('高级检索条件：\n' + JSON.stringify(advRowsData, null, 2));
+      return false;
+    };
+
+    // 说明区
+    const tipsBox = document.getElementById('tipsBox');
+    document.getElementById('showTipsBtn').onclick = () => tipsBox.classList.remove('hide');
+    document.getElementById('closeTipsBtn').onclick = () => tipsBox.classList.add('hide');
+    tipsBox.classList.add('hide'); // 初始隐藏
+    renderAdvRows();               // 初始渲染高级检索
+
+    // 默认语义模式
+    setMode('semantic');
   </script>
 </body>
 </html>
