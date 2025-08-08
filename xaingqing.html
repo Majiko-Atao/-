@@ -157,7 +157,7 @@
       background: #f7faff;
       border-radius: 14px;
       padding: 18px 36px 18px 36px;
-      margin-bottom: 30px;
+      margin-bottom: 18px;
       font-size: 16px;
       color: #264b6a;
       line-height: 1.8;
@@ -177,6 +177,44 @@
     .abs-card .show-all:hover {
       color: #1677ff;
     }
+
+    /* 图片平铺画廊 */
+    .gallery {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 24px #1677ff15;
+      padding: 16px 20px 20px 20px;
+      margin-bottom: 38px;
+    }
+    .gallery-title {
+      color: #7d91a8;
+      font-size: 15px;
+      margin: 2px 0 10px 2px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+    .thumb {
+      width: 100%;
+      height: 96px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #e6e8ee;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #1567e110;
+      transition: transform .12s, box-shadow .12s;
+      display: block;
+    }
+    .thumb:hover { transform: translateY(-2px); box-shadow: 0 6px 18px #1567e130; }
+
+    /* 图片查看大图弹窗 */
+    .img-modal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(32,46,60,0.85); align-items: center; justify-content: center; }
+    .img-modal.active { display: flex; }
+    .img-modal img { max-width: 92vw; max-height: 86vh; border-radius: 16px; box-shadow: 0 6px 44px #0008; background: #fff; }
+    .img-modal-close { position: fixed; top: 30px; right: 44px; font-size: 2.2rem; color: #fff; background: none; border: none; cursor: pointer; z-index: 1001; }
+
     .tabs-card {
       background: #fff;
       border-radius: 16px;
@@ -251,6 +289,8 @@
       .paper-title-wrap {flex-direction: column;}
       .full-link-btn {margin: 18px 0 0 0;}
       .tabs-bar button {font-size: 16px; padding: 8px 12px;}
+      .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+      .thumb { height: 22vw; }
     }
   </style>
 </head>
@@ -294,10 +334,8 @@
               <a class="field-link" href="https://crcid.example.com/C000123" target="_blank">CRCID: C000123</a>
             </td>
           </tr>
-          <tr>
-            <td class="field-label">学位授予日期：</td>
-            <td class="field-value">2024-06-15</td>
-          </tr>
+          <!-- 学位授予日期：按要求已删除 -->
+
           <tr>
             <td class="field-label">论文公开日期：</td>
             <td class="field-value">2024-07-01</td>
@@ -320,8 +358,8 @@
           <tr class="field-hide">
             <td class="field-label">答辩委员会成员：</td>
             <td class="field-value">
-              <a class="field-link" href="#">王五</a>,
-              <a class="field-link" href="#">赵六</a>,
+              <a class="field-link" href="#">王五</a>、
+              <a class="field-link" href="#">赵六</a>、
               <a class="field-link" href="#">钱七</a>
             </td>
           </tr>
@@ -370,10 +408,9 @@
             <td class="field-label">页数：</td>
             <td class="field-value">168</td>
           </tr>
-          <tr class="field-hide">
-            <td class="field-label">图片：</td>
-            <td class="field-value"><a class="field-link" href="#">查看图表</a></td>
-          </tr>
+
+          <!-- “图片”字段（查看图表）按要求已删除 -->
+
           <tr>
             <td class="field-label">关键词：</td>
             <td class="field-value">
@@ -411,11 +448,19 @@
       <a class="show-all" id="showAbsBtn" href="javascript:void(0);" onclick="toggleAbs()">全部摘要</a>
     </div>
 
-    <!-- 被引用情况/参考文献Tab -->
+    <!-- 摘要下方的图片平铺画廊 -->
+    <div class="gallery">
+      <div class="gallery-title">图像（点击查看大图）</div>
+      <div class="gallery-grid" id="galleryGrid">
+        <!-- 缩略图由 JS 填充 -->
+      </div>
+    </div>
+
+    <!-- 参考文献 / 相关文章 Tab -->
     <div class="tabs-card">
       <div class="tabs-bar">
-        <button id="tabCited" class="tab-active" onclick="showTab('cited')">被引用情况</button>
-        <button id="tabRelated" onclick="showTab('related')">参考文献</button>
+        <button id="tabCited" class="tab-active" onclick="showTab('cited')">参考文献</button>
+        <button id="tabRelated" onclick="showTab('related')">相关文章</button>
       </div>
       <div class="tabs-panel" id="panelCited">
         <ul>
@@ -447,11 +492,19 @@
   <div class="footer">
     © 2025 WDL New Academic 学术论文智能检索平台 | 北京盈科千信科技有限公司
   </div>
+
+  <!-- 图片大图弹窗 -->
+  <div class="img-modal" id="imgModal">
+    <button class="img-modal-close" onclick="closeImgModal()">×</button>
+    <img src="" id="imgModalPic" alt="preview" />
+  </div>
+
   <script>
     // 折叠字段
     function toggleFields() {
       var btn = document.getElementById("foldBtn");
       var hides = document.querySelectorAll(".field-hide");
+      if (!hides.length) return; // 没有可折叠项时直接返回
       var showing = hides[0].style.display !== "none";
       for (var i = 0; i < hides.length; i++) {
         hides[i].style.display = showing ? "none" : "";
@@ -459,9 +512,12 @@
       btn.innerText = showing ? "显示全部字段" : "收起部分字段";
     }
     // 默认折叠
-    window.onload = function() {
+    window.addEventListener('load', function () {
       toggleFields();
-    }
+      // 渲染画廊
+      renderGallery();
+    });
+
     // 摘要展开
     function toggleAbs() {
       var shortSpan = document.getElementById('absShort');
@@ -477,12 +533,59 @@
         btn.innerText = "全部摘要";
       }
     }
-    // Tab切换
+
+    // Tab切换（“被引用情况”已更名为“参考文献”）
     function showTab(type) {
       document.getElementById('panelCited').style.display = (type==='cited'?'':'none');
       document.getElementById('panelRelated').style.display = (type==='related'?'':'none');
       document.getElementById('tabCited').classList.toggle('tab-active', type==='cited');
       document.getElementById('tabRelated').classList.toggle('tab-active', type==='related');
+    }
+
+    // ==== 画廊 & 大图预览 ====
+    var galleryImages = [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1495562569060-2eec283d3391?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=800&q=80"
+    ];
+
+    function renderGallery() {
+      var grid = document.getElementById('galleryGrid');
+      var html = '';
+      for (var i = 0; i < galleryImages.length; i++) {
+        html += '<img class="thumb" src="'+galleryImages[i]+'" alt="thumb'+i+'" onclick="openImgModal('+i+')" />';
+      }
+      grid.innerHTML = html;
+    }
+
+    function openImgModal(idx) {
+      var modal = document.getElementById('imgModal');
+      var pic = document.getElementById('imgModalPic');
+      pic.src = galleryImages[idx];
+      modal.classList.add('active');
+      // 点击遮罩关闭
+      modal.onclick = function(e){
+        if (e.target === modal) closeImgModal();
+      };
+      // Esc 关闭
+      document.addEventListener('keydown', escCloseOnce);
+    }
+    function escCloseOnce(e){
+      if(e.key === 'Escape'){ closeImgModal(); }
+    }
+    function closeImgModal(){
+      var modal = document.getElementById('imgModal');
+      modal.classList.remove('active');
+      document.removeEventListener('keydown', escCloseOnce);
     }
   </script>
 </body>
