@@ -1,274 +1,176 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>学术论文智能平台 - 登录</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: "Microsoft YaHei", Arial, sans-serif;
-      background: #e7f2fd url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat fixed;
+    :root{
+      --brand:#2068f8; --brand-2:#4aa3ff;
+      --ink:#1f2a44; --muted:#6c7a92;
+      --bg:#f5f7fb; --card:#ffffff; --line:#e8edf6;
+      --shadow:0 6px 26px rgba(28,79,168,.08);
+      --radius:18px; --gap:36px; --container:1180px;
+      --topbar-h:60px; /* 顶部高度（用于主体垂直居中计算） */
     }
-    body::before {
-      content: '';
-      position: fixed; left: 0; top: 0; right: 0; bottom: 0;
-      background: rgba(230,245,255, 0.82);
-      z-index: 0;
-      pointer-events: none;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:"Microsoft YaHei","PingFang SC",Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);}
+
+    /* 顶部品牌条 —— 固定在页面顶部，不参与主体居中 */
+    .topbar{
+      height:var(--topbar-h);
+      max-width:var(--container);
+      margin:0 auto;
+      padding:0 22px;
+      display:flex;align-items:center;gap:10px;
     }
-    .main-content {
-      min-height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 1;
-    }
-    .login-container {
-      width: 370px;
-      background: rgba(255,255,255,0.65);
-      border-radius: 24px;
-      box-shadow: 0 8px 32px 0 rgba(32,113,248,0.18), 0 1.5px 0.5px 0 rgba(70,186,255,0.05);
-      padding: 46px 40px 36px 40px;
-      margin-top: 7vh;
-      margin-bottom: 36px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      backdrop-filter: blur(12px);
-      border: 1.5px solid rgba(85,175,255,0.12);
-      transition: box-shadow 0.2s;
-      box-sizing: border-box;
-    }
-    .logo-bar {
-      display: flex;
-      align-items: center;
-      margin-bottom: 32px;
-      z-index: 2;
-    }
-    .logo-bar img {
-      height: 36px;
-      margin-right: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px 0 rgba(120,170,255,0.15);
-    }
-    .logo-bar span {
-      font-size: 24px;
-      font-weight: bold;
-      color: #2071f8;
-      letter-spacing: 1.5px;
-    }
-    .login-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 26px;
-      color: #1a3c62;
-      text-align: center;
-      z-index: 2;
-    }
-    .form-group { width: 100%; margin-bottom: 19px; z-index: 2;}
-    label { font-size: 15px; color: #34495e; display: block; margin-bottom: 6px; }
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      height: 43px;
-      border: 1px solid #e3eaf4;
-      border-radius: 8px;
-      padding: 0 13px;
-      font-size: 16px;
-      background: #f7fafd;
-      transition: border 0.2s;
-      box-sizing: border-box;
-    }
-    input[type="text"]:focus, input[type="password"]:focus {
-      outline: none; border: 1.5px solid #2071f8; background: #fff;
-    }
-    .login-btn {
-      width: 100%; height: 44px;
-      background: linear-gradient(90deg,#2071f8,#52a9fa 95%);
-      border: none; border-radius: 8px;
-      color: #fff; font-size: 18px; font-weight: 600; letter-spacing: 2px;
-      cursor: pointer; margin-top: 8px;
-      box-shadow: 0 2px 10px rgba(32, 113, 248, 0.11);
-      transition: background 0.2s, box-shadow 0.18s; z-index: 2;
-    }
-    .login-btn:hover {
-      background: linear-gradient(90deg,#2071f8,#1da7fc 95%);
-      box-shadow: 0 4px 20px 0 rgba(32,113,248,0.16);
-    }
-    .login-tip {
-      text-align: center; font-size: 14px; color: #b2bac7;
-      margin-top: 15px; letter-spacing: 1px; z-index: 2;
+    .brand-dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));box-shadow:0 0 0 4px rgba(74,163,255,.12);}
+    .brand-name{font-weight:800;letter-spacing:1px;color:var(--brand)}
+    .brand-desc{color:#9aa6bd;font-size:13px;margin-left:6px}
+
+    /* 主体整体垂直居中：用视口高度减去顶部条高度 */
+    .page-wrapper{
+      min-height:calc(100vh - var(--topbar-h));
+      display:flex;align-items:center; /* 竖直居中 */
     }
 
-    /* 单卡片轮播核心功能 */
-    .features-carousel-block {
-      width: 530px; max-width: 97vw;
-      min-height: 182px;
-      background: rgba(255,255,255,0.96);
-      border-radius: 19px;
-      box-shadow: 0 2px 18px 0 rgba(56, 122, 206, 0.10);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 20px 20px 20px;
-      position: relative;
-      margin-bottom: 22px;
+    /* 主容器 */
+    .shell{max-width:var(--container);margin:0 auto;padding:14px 22px 40px 22px;width:100%;}
+    .columns{display:flex;align-items:flex-start;gap:var(--gap);position:relative;}
+    .columns::before{
+      content:"";position:absolute;left:calc(58% + var(--gap)/2);top:8px;bottom:8px;width:1px;background:var(--line);border-radius:1px;
     }
-    .feature-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 145px;
-      animation: fadeIn 0.65s cubic-bezier(0.52,0.11,0.18,1.13);
+
+    /* 左列 */
+    .col-left{flex:0 0 58%;min-width:420px;padding-right:calc(var(--gap)/2 + 10px);}
+    .left-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;}
+    .left-title{margin:0;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--ink);}
+    .left-sub{color:var(--muted);font-size:14px;margin-left:8px}
+
+    .feature-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 26px 18px 26px;min-height:200px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;position:relative;overflow:hidden;}
+    .feature-icon{font-size:40px;color:var(--brand);display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#eaf2ff,#e1eeff);margin-bottom:12px;box-shadow:0 4px 18px rgba(32,104,248,.12);}
+    .feature-title{font-size:20px;font-weight:700;margin:2px 0 6px 0;color:#1d3a66;}
+    .feature-desc{color:#3f5473;font-size:15px;line-height:1.8;}
+
+    .dots{display:flex;gap:10px;margin-top:16px;}
+    .dot{width:10px;height:10px;border-radius:50%;background:#dfe8f7;border:2px solid #cfe0fb;cursor:pointer;transition:all .18s ease;}
+    .dot.active{background:var(--brand);border-color:#8ec2ff;box-shadow:0 0 0 3px #e9f2ff;}
+
+    .left-mini-list{margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .mini-item{background:var(--card);border-radius:12px;padding:12px 14px;font-size:13px;color:#3c4a64;border:1px solid var(--line);}
+    .mini-item i{color:var(--brand);margin-right:6px;}
+
+    /* 右列 */
+    .col-right{flex:0 0 42%;min-width:360px;max-width:460px;padding-left:calc(var(--gap)/2 + 10px);}
+    .login-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 26px 24px 26px;}
+    .login-title{margin:0 0 16px 0;font-size:22px;font-weight:800;letter-spacing:.5px;color:#1a3c62;}
+    .form-row{margin-bottom:14px;}
+    .form-row label{display:block;font-size:14px;color:#34495e;margin-bottom:6px;}
+    .input{width:100%;height:44px;border-radius:10px;border:1px solid #e5ebf6;padding:0 12px;font-size:16px;background:#f8fbff;transition:border .16s,background .16s;}
+    .input:focus{outline:none;border:1.5px solid var(--brand);background:#fff;}
+    .login-btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(90deg,var(--brand),var(--brand-2) 95%);color:#fff;font-weight:700;font-size:17px;letter-spacing:1.2px;cursor:pointer;margin-top:6px;box-shadow:0 6px 18px rgba(32,104,248,.18);transition:transform .04s ease,box-shadow .16s ease;}
+    .login-btn:active{transform:translateY(1px);box-shadow:0 3px 12px rgba(32,104,248,.20);}
+    .login-tip{text-align:center;color:#9aa6bd;font-size:12px;margin-top:12px;}
+
+    /* 响应式 */
+    @media (max-width:1024px){
+      :root{--container:960px}
+      .columns{flex-direction:column;}
+      .columns::before{display:none}
+      .col-left,.col-right{flex:1 1 auto;min-width:0;padding:0}
+      .col-right{max-width:none}
+      .left-mini-list{grid-template-columns:repeat(2,1fr)}
     }
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(24px);}
-      100% { opacity: 1; transform: none;}
+    @media (max-width:560px){
+      .left-mini-list{grid-template-columns:1fr}
     }
-    .feature-card .card-icon {
-      font-size: 44px;
-      margin-bottom: 18px;
-      color: #2071f8;
-      background: linear-gradient(120deg, #e3f1ff, #d3eafd 90%);
-      border-radius: 50%;
-      padding: 14px 15px 10px 15px;
-      box-shadow: 0 2px 18px 0 rgba(32,113,248,0.08);
-    }
-    .feature-card .card-title {
-      font-size: 22px;
-      color: #1870d4;
-      font-weight: bold;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      text-align: center;
-      text-shadow: 0 1px 0 #e6f1ff;
-    }
-    .feature-card .card-desc {
-      color: #3f5473;
-      font-size: 16px;
-      letter-spacing: 0.5px;
-      line-height: 1.7;
-      font-weight: 400;
-      text-align: center;
-      padding: 0 15px;
-      min-height: 36px;
-    }
-    .carousel-dots {
-      display: flex;
-      justify-content: center;
-      margin-top: 17px;
-      gap: 13px;
-    }
-    .carousel-dot {
-      width: 13px; height: 13px;
-      background: #e3f2fd;
-      border-radius: 50%;
-      border: 2.5px solid #c9e2fe;
-      box-sizing: border-box;
-      cursor: pointer;
-      transition: background 0.16s, border 0.13s;
-      position: relative;
-    }
-    .carousel-dot.active {
-      background: #2071f8;
-      border-color: #77b8ff;
-      box-shadow: 0 0 0 3px #deedfd;
-    }
-    @media (max-width: 650px) {
-      .login-container { width: 97vw; padding: 15px 2vw 18px 2vw; }
-      .features-carousel-block { width: 98vw; min-width: 0; }
-    }
+
+    .fadeIn{animation:fade .5s ease;}
+    @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   </style>
 </head>
 <body>
-  <div class="main-content">
-    <div class="login-container">
-      <div class="logo-bar">
-        <img src="https://files.catbox.moe/yedof7.png" alt="Logo">
-        <span>WDL</span>
-      </div>
-      <div class="login-title">学术论文智能平台登录</div>
-      <form autocomplete="off">
-        <div class="form-group">
-          <label for="username">账号</label>
-          <input type="text" id="username" name="username" placeholder="请输入账号">
+  <!-- 顶部品牌条：固定在页面顶部 -->
+  <header class="topbar" aria-label="Top bar">
+    <span class="brand-dot" aria-hidden="true"></span>
+    <strong class="brand-name">WDL</strong>
+    <span class="brand-desc">New Academic</span>
+  </header>
+
+  <!-- 主体：在去掉顶部高度后做垂直居中 -->
+  <div class="page-wrapper">
+    <main class="shell" aria-label="Main content">
+      <section class="columns">
+        <!-- 左侧 -->
+        <div class="col-left">
+          <div class="left-header">
+            <h2 class="left-title">学术论文智能平台</h2>
+            <span class="left-sub">面向研究者的语义检索与知识洞察</span>
+          </div>
+          <div class="feature-card fadeIn">
+            <div id="featureArea"></div>
+            <div class="dots" id="dotsArea"></div>
+          </div>
+          <div class="left-mini-list">
+            <div class="mini-item"><i class="ri-shake-hands-line"></i>对接开放资源与主流数据库</div>
+            <div class="mini-item"><i class="ri-stack-line"></i>多源聚合，智能去重与规范化</div>
+            <div class="mini-item"><i class="ri-lightbulb-flash-line"></i>主题抽取、领域趋势与画像</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="password">密码</label>
-          <input type="password" id="password" name="password" placeholder="请输入密码">
-        </div>
-        <button type="submit" class="login-btn">登录</button>
-      </form>
-      <div class="login-tip">仅限授权用户访问</div>
-    </div>
-    <!-- 轮播功能卡片 -->
-    <div class="features-carousel-block">
-      <div class="feature-card" id="featureCard">
-        <!-- 这里JS自动填充 -->
-      </div>
-      <div class="carousel-dots" id="carouselDots"></div>
-    </div>
+
+        <!-- 右侧 -->
+        <aside class="col-right">
+          <div class="login-card fadeIn" role="form" aria-labelledby="loginTitle">
+            <h2 class="login-title" id="loginTitle">登录</h2>
+            <form autocomplete="off" onsubmit="event.preventDefault(); alert('演示页面：此处对接登录接口');">
+              <div class="form-row">
+                <label for="username">账号</label>
+                <input type="text" id="username" class="input" placeholder="请输入账号" />
+              </div>
+              <div class="form-row">
+                <label for="password">密码</label>
+                <input type="password" id="password" class="input" placeholder="请输入密码" />
+              </div>
+              <button type="submit" class="login-btn">登 录</button>
+              <div class="login-tip">仅限授权用户访问</div>
+            </form>
+          </div>
+        </aside>
+      </section>
+    </main>
   </div>
+
   <script>
-    // 功能卡片内容
+    // 左侧功能卡片轮播
     const features = [
-      {
-        icon: 'ri-search-eye-line',
-        title: 'AI语义检索',
-        desc: '基于大模型技术，支持自然语言长文本学术需求的智能理解，助力更快发现目标论文。'
-      },
-      {
-        icon: 'ri-file-text-line',
-        title: '全文一键获取',
-        desc: '快速获取论文全文，涵盖主流数据库和开放资源，实现便捷一站式学术阅读体验。'
-      },
-      {
-        icon: 'ri-user-star-line',
-        title: '智能推荐关联文献',
-        desc: 'AI智能推荐相关文献，结合引用、主题、作者等多维度，拓展学术视野与知识网络。'
-      },
-      {
-        icon: 'ri-bar-chart-2-line',
-        title: '学科分析与趋势洞察',
-        desc: '多维度学科结构分析，发现研究热点与前沿趋势，为选题和科研决策提供有力数据支持。'
-      }
+      {icon:'ri-search-eye-line', title:'AI 语义检索', desc:'基于大模型的语义理解，支持自然语言长文本输入，更快定位目标论文与研究主题。'},
+      {icon:'ri-user-star-line', title:'智能推荐关联文献', desc:'结合引用关系、主题相似度与作者网络，自动推荐高相关文献，拓展研究视野。'},
+      {icon:'ri-bar-chart-2-line', title:'学科分析与趋势洞察', desc:'多维度学科结构分析，识别研究热点与前沿方向，为选题与决策提供数据支持。'},
+      {icon:'ri-file-text-line', title:'一键获取全文', desc:'覆盖开放资源与主流数据库，整合式入口提升全文获取效率与阅读体验。'}
     ];
-    let curr = 0, timer = null;
+    const featureArea = document.getElementById('featureArea');
+    const dotsArea = document.getElementById('dotsArea');
+    let idx = 0, timer = null;
 
-    function renderCard(idx) {
-      const c = features[idx];
-      document.getElementById('featureCard').innerHTML =
-        `<div class="card-icon"><i class="${c.icon}"></i></div>
-        <div class="card-title">${c.title}</div>
-        <div class="card-desc">${c.desc}</div>`;
-      // 圆点
-      const dots = features.map((_,i)=>
-        `<div class="carousel-dot${i===idx?' active':''}" onclick="gotoCard(${i})"></div>`).join('');
-      document.getElementById('carouselDots').innerHTML = dots;
+    function renderCard(i){
+      const f = features[i];
+      featureArea.innerHTML = `
+        <div class="feature-icon"><i class="${f.icon}"></i></div>
+        <div class="feature-title">${f.title}</div>
+        <div class="feature-desc">${f.desc}</div>
+      `;
+      dotsArea.innerHTML = features.map((_,n)=>
+        `<div class="dot ${n===i?'active':''}" onclick="goto(${n})" aria-label="切换到第 ${n+1} 项"></div>`
+      ).join('');
     }
+    function next(){ idx = (idx+1)%features.length; renderCard(idx); }
+    function goto(n){ idx=n; renderCard(idx); clearInterval(timer); timer=setInterval(next,4200); }
 
-    function gotoCard(idx) {
-      curr = idx;
-      renderCard(curr);
-      clearInterval(timer);
-      timer = setInterval(nextCard, 4200);
-    }
-    function nextCard() {
-      curr = (curr+1)%features.length;
-      renderCard(curr);
-    }
-    // 初始化
-    renderCard(curr);
-    timer = setInterval(nextCard, 4200);
-    window.gotoCard = gotoCard; // for onclick
+    renderCard(idx);
+    timer=setInterval(next,4200);
+    window.goto = goto;
   </script>
 </body>
 </html>
