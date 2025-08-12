@@ -12,57 +12,33 @@
       --bg:#f5f7fb; --card:#ffffff; --line:#e8edf6;
       --shadow:0 6px 26px rgba(28,79,168,.08);
       --radius:18px; --gap:36px; --container:1180px;
-      --topbar-h:60px; /* 顶部高度（用于主体垂直居中计算） */
+      --topbar-h:60px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:"Microsoft YaHei","PingFang SC",Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);}
-
-    /* 顶部品牌条 —— 固定在页面顶部，不参与主体居中 */
-    .topbar{
-      height:var(--topbar-h);
-      max-width:var(--container);
-      margin:0 auto;
-      padding:0 22px;
-      display:flex;align-items:center;gap:10px;
-    }
+    .topbar{height:var(--topbar-h);max-width:var(--container);margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:10px;}
     .brand-dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));box-shadow:0 0 0 4px rgba(74,163,255,.12);}
     .brand-name{font-weight:800;letter-spacing:1px;color:var(--brand)}
     .brand-desc{color:#9aa6bd;font-size:13px;margin-left:6px}
-
-    /* 主体整体垂直居中：用视口高度减去顶部条高度 */
-    .page-wrapper{
-      min-height:calc(100vh - var(--topbar-h));
-      display:flex;align-items:center; /* 竖直居中 */
-    }
-
-    /* 主容器 */
+    .page-wrapper{min-height:calc(100vh - var(--topbar-h));display:flex;align-items:center;}
     .shell{max-width:var(--container);margin:0 auto;padding:14px 22px 40px 22px;width:100%;}
     .columns{display:flex;align-items:flex-start;gap:var(--gap);position:relative;}
-    .columns::before{
-      content:"";position:absolute;left:calc(58% + var(--gap)/2);top:8px;bottom:8px;width:1px;background:var(--line);border-radius:1px;
-    }
-
-    /* 左列 */
+    .columns::before{content:"";position:absolute;left:calc(58% + var(--gap)/2);top:8px;bottom:8px;width:1px;background:var(--line);border-radius:1px;}
     .col-left{flex:0 0 58%;min-width:420px;padding-right:calc(var(--gap)/2 + 10px);}
     .left-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;}
     .left-title{margin:0;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--ink);}
     .left-sub{color:var(--muted);font-size:14px;margin-left:8px}
-
     .feature-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 26px 18px 26px;min-height:200px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;position:relative;overflow:hidden;}
     .feature-icon{font-size:40px;color:var(--brand);display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#eaf2ff,#e1eeff);margin-bottom:12px;box-shadow:0 4px 18px rgba(32,104,248,.12);}
     .feature-title{font-size:20px;font-weight:700;margin:2px 0 6px 0;color:#1d3a66;}
     .feature-desc{color:#3f5473;font-size:15px;line-height:1.8;}
-
     .dots{display:flex;gap:10px;margin-top:16px;}
     .dot{width:10px;height:10px;border-radius:50%;background:#dfe8f7;border:2px solid #cfe0fb;cursor:pointer;transition:all .18s ease;}
     .dot.active{background:var(--brand);border-color:#8ec2ff;box-shadow:0 0 0 3px #e9f2ff;}
-
     .left-mini-list{margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
     .mini-item{background:var(--card);border-radius:12px;padding:12px 14px;font-size:13px;color:#3c4a64;border:1px solid var(--line);}
     .mini-item i{color:var(--brand);margin-right:6px;}
-
-    /* 右列 */
     .col-right{flex:0 0 42%;min-width:360px;max-width:460px;padding-left:calc(var(--gap)/2 + 10px);}
     .login-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 26px 24px 26px;}
     .login-title{margin:0 0 16px 0;font-size:22px;font-weight:800;letter-spacing:.5px;color:#1a3c62;}
@@ -73,8 +49,6 @@
     .login-btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(90deg,var(--brand),var(--brand-2) 95%);color:#fff;font-weight:700;font-size:17px;letter-spacing:1.2px;cursor:pointer;margin-top:6px;box-shadow:0 6px 18px rgba(32,104,248,.18);transition:transform .04s ease,box-shadow .16s ease;}
     .login-btn:active{transform:translateY(1px);box-shadow:0 3px 12px rgba(32,104,248,.20);}
     .login-tip{text-align:center;color:#9aa6bd;font-size:12px;margin-top:12px;}
-
-    /* 响应式 */
     @media (max-width:1024px){
       :root{--container:960px}
       .columns{flex-direction:column;}
@@ -83,27 +57,21 @@
       .col-right{max-width:none}
       .left-mini-list{grid-template-columns:repeat(2,1fr)}
     }
-    @media (max-width:560px){
-      .left-mini-list{grid-template-columns:1fr}
-    }
-
+    @media (max-width:560px){.left-mini-list{grid-template-columns:1fr}}
     .fadeIn{animation:fade .5s ease;}
     @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   </style>
 </head>
 <body>
-  <!-- 顶部品牌条：固定在页面顶部 -->
   <header class="topbar" aria-label="Top bar">
     <span class="brand-dot" aria-hidden="true"></span>
     <strong class="brand-name">WDL</strong>
     <span class="brand-desc">New Academic</span>
   </header>
 
-  <!-- 主体：在去掉顶部高度后做垂直居中 -->
   <div class="page-wrapper">
     <main class="shell" aria-label="Main content">
       <section class="columns">
-        <!-- 左侧 -->
         <div class="col-left">
           <div class="left-header">
             <h2 class="left-title">学术论文智能平台</h2>
@@ -120,11 +88,10 @@
           </div>
         </div>
 
-        <!-- 右侧 -->
         <aside class="col-right">
           <div class="login-card fadeIn" role="form" aria-labelledby="loginTitle">
             <h2 class="login-title" id="loginTitle">登录</h2>
-            <form autocomplete="off" onsubmit="event.preventDefault(); alert('演示页面：此处对接登录接口');">
+            <form id="loginForm" autocomplete="off" onsubmit="event.preventDefault(); alert('演示页面：此处对接登录接口');">
               <div class="form-row">
                 <label for="username">账号</label>
                 <input type="text" id="username" class="input" placeholder="请输入账号" />
@@ -133,7 +100,7 @@
                 <label for="password">密码</label>
                 <input type="password" id="password" class="input" placeholder="请输入密码" />
               </div>
-              <button type="submit" class="login-btn">登 录</button>
+              <button type="submit" class="login-btn" id="loginBtn">登 录</button>
               <div class="login-tip">仅限授权用户访问</div>
             </form>
           </div>
@@ -143,7 +110,7 @@
   </div>
 
   <script>
-    // 左侧功能卡片轮播
+    // 左侧功能卡片轮播（原有）
     const features = [
       {icon:'ri-search-eye-line', title:'AI 语义检索', desc:'基于大模型的语义理解，支持自然语言长文本输入，更快定位目标论文与研究主题。'},
       {icon:'ri-user-star-line', title:'智能推荐关联文献', desc:'结合引用关系、主题相似度与作者网络，自动推荐高相关文献，拓展研究视野。'},
@@ -153,24 +120,24 @@
     const featureArea = document.getElementById('featureArea');
     const dotsArea = document.getElementById('dotsArea');
     let idx = 0, timer = null;
-
     function renderCard(i){
       const f = features[i];
       featureArea.innerHTML = `
         <div class="feature-icon"><i class="${f.icon}"></i></div>
         <div class="feature-title">${f.title}</div>
-        <div class="feature-desc">${f.desc}</div>
-      `;
-      dotsArea.innerHTML = features.map((_,n)=>
-        `<div class="dot ${n===i?'active':''}" onclick="goto(${n})" aria-label="切换到第 ${n+1} 项"></div>`
-      ).join('');
+        <div class="feature-desc">${f.desc}</div>`;
+      dotsArea.innerHTML = features.map((_,n)=>`<div class="dot ${n===i?'active':''}" onclick="goto(${n})" aria-label="切换到第 ${n+1} 项"></div>`).join('');
     }
     function next(){ idx = (idx+1)%features.length; renderCard(idx); }
     function goto(n){ idx=n; renderCard(idx); clearInterval(timer); timer=setInterval(next,4200); }
+    renderCard(idx); timer=setInterval(next,4200); window.goto = goto;
 
-    renderCard(idx);
-    timer=setInterval(next,4200);
-    window.goto = goto;
+    /* === 新增：路由绑定（登录→主页） === */
+    document.getElementById('loginBtn').addEventListener('click', function(e){
+      e.preventDefault();               // 保持原有 alert
+      // 轻微延迟，确保 alert 完成后跳转
+      setTimeout(()=>{ window.location.href = 'https://majiko-atao.github.io/-/zhuye.html'; }, 0);
+    });
   </script>
 </body>
 </html>
