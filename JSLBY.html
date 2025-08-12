@@ -597,6 +597,23 @@ function confirmModal(){ selectedMap[currentModalType]=new Set([...modalCheckedS
 function triggerModalSearch(){ modalSearchText=document.getElementById('modalSearch').value||''; renderModal(); }
 document.getElementById('modalSearch').oninput=(e)=>{ modalSearchText=e.target.value||''; renderModal(); };
 
+/* ====== 论文标题跳转（新增，仅交互） ====== */
+(function(){
+  const DETAIL_URL = 'https://majiko-atao.github.io/-/xaingqing.html';
+  // 把所有 .paper-title 绑定跳转（保持原HTML不改）
+  document.querySelectorAll('.paper-title').forEach(a=>{
+    // 设定 href 以便右键/长按也可打开
+    a.setAttribute('href', DETAIL_URL);
+    // 同页打开，避免被浏览器弹窗拦截；如需新窗口改为 '_blank'
+    a.setAttribute('target', '_self');
+    // 兜底：有些环境会阻止默认行为，这里强制跳转
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      window.location.href = DETAIL_URL;
+    }, {capture:true});
+  });
+})();
+
 /* 默认语义检索 */
 switchSearchType(true);
 </script>
