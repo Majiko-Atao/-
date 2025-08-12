@@ -6,188 +6,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
   <style>
-    /* ====== 通用/首页样式（与你原版一致） ====== */
     html, body { height: 100%; margin: 0; box-sizing: border-box; }
-    body{
-      min-height: 100vh;
-      font-family: 'Segoe UI','微软雅黑',Arial,sans-serif;
-      background: linear-gradient(135deg,#eaf3fb 0%,#d4e3f7 100%);
-      overflow-x: hidden;
-    }
-    .center-main{
-      width:100vw; min-height:100vh;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      gap:22px; padding:0;
-    }
-    .product-title{
-      font-size:2.5rem; font-weight:700; color:#2468ad; margin:0;
-      line-height:1.25; letter-spacing:.06em; text-align:center;
-      width:900px; max-width:96vw;
-    }
-    .product-desc{
-      font-size:1.18rem; color:#4882b7; margin:0;
-      text-align:center; width:900px; max-width:96vw;
-    }
-    .input-section{
-      width:900px; max-width:96vw; margin-top:18px;
-      display:flex; flex-direction:column; gap:10px;
-    }
-    .mode-switch-row{
-      display:flex; justify-content:flex-end; gap:10px;
-      padding-right:2px;
-      filter: drop-shadow(0 2px 6px rgba(38,127,255,.08));
-    }
-    .mode-btn{
-      font-size:1.02rem; padding:8px 20px;
-      border:1px solid #cfe2fb; background:#f5f9ff; color:#2b78d3;
-      cursor:pointer; outline:none; border-radius:10px; transition:all .15s ease;
-    }
+    body{ min-height: 100vh; font-family: 'Segoe UI','微软雅黑',Arial,sans-serif; background: linear-gradient(135deg,#eaf3fb 0%,#d4e3f7 100%); overflow-x: hidden; }
+    .center-main{ width:100vw; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:0; }
+    .product-title{ font-size:2.5rem; font-weight:700; color:#2468ad; margin:0; line-height:1.25; letter-spacing:.06em; text-align:center; width:900px; max-width:96vw; }
+    .product-desc{ font-size:1.18rem; color:#4882b7; margin:0; text-align:center; width:900px; max-width:96vw; }
+    .input-section{ width:900px; max-width:96vw; margin-top:18px; display:flex; flex-direction:column; gap:10px; }
+    .mode-switch-row{ display:flex; justify-content:flex-end; gap:10px; padding-right:2px; filter: drop-shadow(0 2px 6px rgba(38,127,255,.08)); }
+    .mode-btn{ font-size:1.02rem; padding:8px 20px; border:1px solid #cfe2fb; background:#f5f9ff; color:#2b78d3; cursor:pointer; outline:none; border-radius:10px; transition:all .15s ease; }
     .mode-btn:hover:not(.selected){ background:#e6f0ff; color:#1f66c0; }
-    .mode-btn.selected{
-      background:linear-gradient(90deg,#318ffb 70%,#6fc7ff 100%);
-      color:#fff; border-color:#2a87fb; box-shadow:0 4px 12px rgba(38,127,255,.15);
-    }
-
-    /* ====== 语义检索区 ====== */
+    .mode-btn.selected{ background:linear-gradient(90deg,#318ffb 70%,#6fc7ff 100%); color:#fff; border-color:#2a87fb; box-shadow:0 4px 12px rgba(38,127,255,.15); }
     #semanticSection { position:relative; }
-    .search-textarea{
-      width:100%; min-height:170px; max-height:260px; resize:vertical;
-      box-sizing:border-box; font-size:1.1rem; line-height:1.7;
-      padding:24px 68px 24px 54px;
-      border:1.6px solid #b9d5fb; border-radius:14px; background:#fff; color:#133a60;
-      box-shadow:0 4px 20px rgba(112,168,235,.10);
-      transition:border .18s, box-shadow .18s;
-      font-family:'Segoe UI','微软雅黑',Arial,sans-serif;
-    }
+    .search-textarea{ width:100%; min-height:170px; max-height:260px; resize:vertical; box-sizing:border-box; font-size:1.1rem; line-height:1.7; padding:24px 68px 24px 54px; border:1.6px solid #b9d5fb; border-radius:14px; background:#fff; color:#133a60; box-shadow:0 4px 20px rgba(112,168,235,.10); transition:border .18s, box-shadow .18s; font-family:'Segoe UI','微软雅黑',Arial,sans-serif; }
     .search-textarea:focus{ border-color:#46a2ff; box-shadow:0 8px 28px rgba(70,162,255,.10); }
-    .search-btn{
-      position:absolute; bottom:16px; right:16px;
-      width:48px; height:48px; border:none; border-radius:12px;
-      background:linear-gradient(90deg,#318fff 80%,#6fc7ff 100%);
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 6px 20px rgba(38,127,255,.16);
-      cursor:pointer; transition:transform .12s ease;
-    }
+    .search-btn{ position:absolute; bottom:16px; right:16px; width:48px; height:48px; border:none; border-radius:12px; background:linear-gradient(90deg,#318fff 80%,#6fc7ff 100%); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(38,127,255,.16); cursor:pointer; transition:transform .12s ease; }
     .search-btn:active{ transform:scale(.97); }
     .search-btn svg{ width:24px; height:24px; fill:#fff; }
-    .optimize-inline{
-      position:absolute; left:12px; bottom:14px;
-      display:flex; align-items:center; gap:6px;
-      padding:8px 10px; height:40px;
-      border:1px solid #d7e7ff; border-radius:10px;
-      background:#f4f9ff; color:#3a79d4; font-size:.96rem; font-weight:600;
-      cursor:not-allowed; opacity:.6; user-select:none; transition:all .15s ease;
-    }
+    .optimize-inline{ position:absolute; left:12px; bottom:14px; display:flex; align-items:center; gap:6px; padding:8px 10px; height:40px; border:1px solid #d7e7ff; border-radius:10px; background:#f4f9ff; color:#3a79d4; font-size:.96rem; font-weight:600; cursor:not-allowed; opacity:.6; user-select:none; transition:all .15s ease; }
     .optimize-inline.enabled{ cursor:pointer; opacity:1; background:#eaf4ff; border-color:#bcd9ff; box-shadow:0 3px 10px rgba(54,155,255,.10); }
     .optimize-inline i{ font-size:18px; }
-
-    /* ====== 传统检索区（还原旧样式 + 小号按钮在右下） ====== */
     #classicSection{ display:none; }
     .classic-scope .main-flex{ display:flex; justify-content:center; align-items:flex-start; gap:0; margin-top:0; }
-    .classic-scope .container{
-      width:100%; padding:22px 24px 70px; border-radius:18px;
-      background:#fff; position:relative;
-      box-shadow:0 8px 32px rgba(36,72,125,.08);
-      border:1px solid #e6eefc;
-    }
+    .classic-scope .container{ width:100%; padding:22px 24px 70px; border-radius:18px; background:#fff; position:relative; box-shadow:0 8px 32px rgba(36,72,125,.08); border:1px solid #e6eefc; }
     .classic-scope .adv-title-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
     .classic-scope .adv-title{ font-size:18px; font-weight:700; color:#1f66c0; display:flex; align-items:center; }
     .classic-scope .adv-title i{ color:#2f80ff; margin-right:8px; }
     .classic-scope .actions-bar{ display:flex; gap:8px; }
-    .classic-scope .del-all-btn{
-      background:#f5f6fa; border:1px solid #e7ecf7; color:#8d97a8; border-radius:10px; padding:6px 10px;
-      cursor:pointer; display:flex; align-items:center; gap:6px; font-size:13px;
-    }
+    .classic-scope .del-all-btn{ background:#f5f6fa; border:1px solid #e7ecf7; color:#8d97a8; border-radius:10px; padding:6px 10px; cursor:pointer; display:flex; align-items:center; gap:6px; font-size:13px; }
     .classic-scope .del-all-btn[disabled]{ opacity:.5; cursor:not-allowed; }
-    .classic-scope .tips-icon-btn{
-      background:#f5f9ff; border:1px solid #dfeafe; color:#2b6dce; border-radius:999px; width:32px; height:32px;
-      display:flex; align-items:center; justify-content:center; cursor:pointer;
-    }
+    .classic-scope .tips-icon-btn{ background:#f5f9ff; border:1px solid #dfeafe; color:#2b6dce; border-radius:999px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
     .classic-scope #advRows{ margin-bottom:12px; }
     .classic-scope .search-row{ display:flex; gap:10px; margin-bottom:10px; }
-    .classic-scope .logic-select,
-    .classic-scope .field-select{
-      height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 10px; background:#f7faff; color:#3269c5; outline:none;
-    }
+    .classic-scope .logic-select, .classic-scope .field-select{ height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 10px; background:#f7faff; color:#3269c5; outline:none; }
     .classic-scope .logic-select{ min-width:84px; font-weight:700; background:#eaf3ff; }
     .classic-scope .field-select{ min-width:96px; }
-    .classic-scope .kw-input{
-      flex:1; height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 12px; background:#fff; outline:none;
-    }
-    .classic-scope .del-btn{
-      border:none; background:#f6f7fb; color:#a6b0bf; border-radius:8px; width:32px; height:32px; cursor:pointer;
-    }
+    .classic-scope .kw-input{ flex:1; height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 12px; background:#fff; outline:none; }
+    .classic-scope .del-btn{ border:none; background:#f6f7fb; color:#a6b0bf; border-radius:8px; width:32px; height:32px; cursor:pointer; }
     .classic-scope .del-btn:hover{ background:#ffeef0; color:#cf3a4a; }
-    .classic-scope .add-row-btn{
-      background:#f0f6ff; color:#2176d5; border:1px solid #d7e7ff; border-radius:10px; padding:8px 12px;
-      cursor:pointer; display:inline-flex; align-items:center; gap:6px;
-    }
-    .classic-scope .search-btn-adv{
-      position:absolute; right:20px; bottom:16px;
-      display:inline-flex; align-items:center; gap:8px;
-      height:38px; padding:0 16px; border:none;
-      background:linear-gradient(90deg,#2f7af7,#58a7ff); color:#fff;
-      border-radius:12px; cursor:pointer; box-shadow:0 6px 18px rgba(38,127,255,.18);
-    }
+    .classic-scope .add-row-btn{ background:#f0f6ff; color:#2176d5; border:1px solid #d7e7ff; border-radius:10px; padding:8px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+    .classic-scope .search-btn-adv{ position:absolute; right:20px; bottom:16px; display:inline-flex; align-items:center; gap:8px; height:38px; padding:0 16px; border:none; background:linear-gradient(90deg,#2f7af7,#58a7ff); color:#fff; border-radius:12px; cursor:pointer; box-shadow:0 6px 18px rgba(38,127,255,.18); }
     .classic-scope .search-btn-adv i{ font-size:18px; }
     .classic-scope .search-btn-adv:active{ transform:translateY(1px); }
-
-    /* ====== 信息切换：只显示一种（功能 / 数据量 / 样例） ====== */
     .info-switch-row{ margin-top:12px; display:flex; gap:10px; align-items:center; }
-    .info-btn{
-      padding:7px 14px; border:1px solid #cfe2fb; background:#f5f9ff; color:#2b78d3;
-      border-radius:10px; cursor:pointer; font-size:.98rem; transition:all .15s ease;
-    }
+    .info-btn{ padding:7px 14px; border:1px solid #cfe2fb; background:#f5f9ff; color:#2b78d3; border-radius:10px; cursor:pointer; font-size:.98rem; transition:all .15s ease; }
     .info-btn:hover:not(.active){ background:#e6f0ff; color:#1f66c0; }
-    .info-btn.active{
-      background:linear-gradient(90deg,#318ffb 70%,#6fc7ff 100%);
-      color:#fff; border-color:#2a87fb; box-shadow:0 4px 12px rgba(38,127,255,.15);
-    }
+    .info-btn.active{ background:linear-gradient(90deg,#318ffb 70%,#6fc7ff 100%); color:#fff; border-color:#2a87fb; box-shadow:0 4px 12px rgba(38,127,255,.15); }
     .info-block{ display:none; margin-top:10px; }
-
-    /* —— 功能卡片 —— */
     .feat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    .feat-card{
-      background:#ffffffee; border:1px solid #cfe2fb; border-radius:14px;
-      padding:14px; box-shadow:0 8px 28px rgba(36,104,173,.06);
-    }
+    .feat-card{ background:#ffffffee; border:1px solid #cfe2fb; border-radius:14px; padding:14px; box-shadow:0 8px 28px rgba(36,104,173,.06); }
     .feat-card .fc-head{ display:flex; align-items:center; gap:8px; font-weight:700; color:#2468ad; margin-bottom:6px; }
     .feat-card .fc-head i{ color:#2f80ff; }
     .feat-card .fc-desc{ color:#5a7fa9; font-size:.95rem; }
-
-    /* —— 数据量条 —— */
     .stats-bar{ display:flex; gap:10px; }
-    .stat-chip{
-      flex:1; display:flex; align-items:center; gap:8px;
-      background:#ffffffee; border:1px solid #cfe2fb; border-radius:12px;
-      padding:10px 12px; box-shadow:0 8px 28px rgba(36,104,173,.06);
-    }
+    .stat-chip{ flex:1; display:flex; align-items:center; gap:8px; background:#ffffffee; border:1px solid #cfe2fb; border-radius:12px; padding:10px 12px; box-shadow:0 8px 28px rgba(36,104,173,.06); }
     .stat-chip i{ font-size:1.2rem; color:#2f80ff; }
     .sc-num{ font-weight:800; color:#1b4f8f; }
     .sc-sub{ color:#6d8fb1; font-size:.9rem; }
-
-    /* —— 语义样例 —— */
-    .semantic-demo{
-      background:#ffffffee; border:1px solid #cfe2fb; border-radius:14px;
-      padding:14px 16px 16px; box-shadow:0 8px 28px rgba(36,104,173,.06);
-    }
+    .semantic-demo{ background:#ffffffee; border:1px solid #cfe2fb; border-radius:14px; padding:14px 16px 16px; box-shadow:0 8px 28px rgba(36,104,173,.06); }
     .sd-head{ display:flex; align-items:center; gap:8px; color:#1e66c0; font-weight:700; }
     .sd-head i{ color:#53a0fa; }
     .sd-desc{ color:#5d7fa8; font-size:.95rem; margin:6px 0 10px; }
     .sd-list{ display:flex; flex-wrap:wrap; gap:10px; }
-    .sd-chip{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:8px 10px; border:1px solid #d7e7ff; border-radius:10px;
-      background:#f4f9ff; color:#2f72c6; font-size:.98rem; cursor:pointer;
-      transition:transform .08s ease, background .15s ease, box-shadow .15s;
-    }
+    .sd-chip{ display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid #d7e7ff; border-radius:10px; background:#f4f9ff; color:#2f72c6; font-size:.98rem; cursor:pointer; transition:transform .08s ease, background .15s ease, box-shadow .15s; }
     .sd-chip:hover{ background:#eaf4ff; box-shadow:0 3px 10px rgba(54,155,255,.10); transform:translateY(-1px); }
-
-    @media (max-width:900px){
-      .feat-grid{ grid-template-columns:1fr; }
-      .stats-bar{ flex-direction:column; }
-    }
+    @media (max-width:900px){ .feat-grid{ grid-template-columns:1fr; } .stats-bar{ flex-direction:column; } }
   </style>
 </head>
 <body>
@@ -196,13 +78,11 @@
     <div class="product-desc">覆盖全球高质量学位论文资源，支持语义检索与一站式发现，助力学术创新与科研突破</div>
 
     <div class="input-section">
-      <!-- 顶部检索模式切换 -->
       <div class="mode-switch-row">
         <button class="mode-btn selected" id="semanticBtn" onclick="setMode('semantic')">语义检索</button>
         <button class="mode-btn" id="classicBtn" onclick="setMode('classic')">传统检索</button>
       </div>
 
-      <!-- 语义检索区 -->
       <div id="semanticSection">
         <textarea id="searchInput" class="search-textarea" maxlength="2000" placeholder="输入完整研究主题或问题，支持语义检索" rows="7"></textarea>
         <button class="optimize-inline" id="optimizeInline" disabled title="优化表达">
@@ -213,7 +93,6 @@
         </button>
       </div>
 
-      <!-- 传统 / 高级检索（已还原旧样式 + 小号搜索按钮右下角） -->
       <div id="classicSection" class="classic-scope">
         <div class="main-flex">
           <form id="advForm" class="container" autocomplete="off">
@@ -235,20 +114,17 @@
               <i class="ri-add-line" style="font-size:1.1em"></i> 添加检索条件
             </button>
 
-            <!-- 小号搜索按钮（右下角固定） -->
             <button class="search-btn-adv" type="submit"><i class="ri-search-line"></i> 搜索</button>
           </form>
         </div>
       </div>
 
-      <!-- ===== 信息切换：只显示一种 ===== -->
       <div class="info-switch-row">
         <button class="info-btn active" id="btnFeature" onclick="setInfoBlock('feature')"><i class="ri-layout-2-line"></i> 平台功能</button>
         <button class="info-btn" id="btnData" onclick="setInfoBlock('data')"><i class="ri-database-2-line"></i> 数据规模</button>
         <button class="info-btn" id="btnSample" onclick="setInfoBlock('sample')"><i class="ri-magic-line"></i> 语义检索样例</button>
       </div>
 
-      <!-- 功能（默认展示） -->
       <div class="info-block" id="featureBlock" style="display:block;">
         <div class="feat-grid">
           <div class="feat-card">
@@ -266,7 +142,6 @@
         </div>
       </div>
 
-      <!-- 数据量 -->
       <div class="info-block" id="dataBlock">
         <div class="stats-bar">
           <div class="stat-chip"><i class="ri-file-list-3-line"></i><div><div class="sc-num">3,000,000+</div><div class="sc-sub">收录学位论文</div></div></div>
@@ -276,7 +151,6 @@
         </div>
       </div>
 
-      <!-- 语义检索样例 -->
       <div class="info-block" id="sampleBlock">
         <div class="semantic-demo">
           <div class="sd-head"><i class="ri-magic-line"></i><span>语义检索样例</span></div>
@@ -284,31 +158,26 @@
           <div class="sd-list" id="sdList"></div>
         </div>
       </div>
-
     </div>
   </div>
 
   <script>
-    /* ===== 模式切换 ===== */
+    // 模式切换（原有）
     const semanticBtn  = document.getElementById('semanticBtn');
     const classicBtn   = document.getElementById('classicBtn');
     const semanticSec  = document.getElementById('semanticSection');
     const classicSec   = document.getElementById('classicSection');
     function setMode(mode){
       if(mode === 'classic'){
-        classicBtn.classList.add('selected');
-        semanticBtn.classList.remove('selected');
-        classicSec.style.display = 'block';
-        semanticSec.style.display = 'none';
+        classicBtn.classList.add('selected'); semanticBtn.classList.remove('selected');
+        classicSec.style.display = 'block';   semanticSec.style.display = 'none';
       }else{
-        semanticBtn.classList.add('selected');
-        classicBtn.classList.remove('selected');
-        semanticSec.style.display = 'block';
-        classicSec.style.display = 'none';
+        semanticBtn.classList.add('selected'); classicBtn.classList.remove('selected');
+        semanticSec.style.display = 'block';   classicSec.style.display = 'none';
       }
     }
 
-    /* ===== 语义检索：启用“优化表达” ===== */
+    // 语义检索优化按钮（原有）
     const searchInput   = document.getElementById('searchInput');
     const optimizeInline= document.getElementById('optimizeInline');
     searchInput.addEventListener('input', () => {
@@ -318,30 +187,20 @@
     });
     optimizeInline.addEventListener('click', () => {
       if (optimizeInline.disabled) return;
-      const v = searchInput.value.trim();
-      if (!v) return;
+      const v = searchInput.value.trim(); if (!v) return;
       searchInput.value = v.replace(/\s+/g,' ').replace(/[?？]*$/,'') + '（表达优化）';
     });
 
-    /* ===== 高级检索（旧样式恢复 + 小按钮右下） ===== */
+    // 高级检索（原有）
     const fields = [
-      {label: '标题', value: 'title'},
-      {label: '作者', value: 'author'},
-      {label: '关键词', value: 'keyword'},
-      {label: '导师', value: 'tutor'},
-      {label: '学科', value: 'subject'},
-      {label: '学校', value: 'school'},
-      {label: '关键信息', value: 'info'},
-      {label: '摘要', value: 'abstract'},
-      {label: '出版年份', value: 'year'},
-      {label: '语种', value: 'language'}
+      {label: '标题', value: 'title'},{label: '作者', value: 'author'},{label: '关键词', value: 'keyword'},
+      {label: '导师', value: 'tutor'},{label: '学科', value: 'subject'},{label: '学校', value: 'school'},
+      {label: '关键信息', value: 'info'},{label: '摘要', value: 'abstract'},{label: '出版年份', value: 'year'},{label: '语种', value: 'language'}
     ];
     const logics = ['AND', 'OR', 'NOT'];
     let advRowsData = [{logic: 'AND', field:'title', value:''}];
-
     function renderAdvRows() {
-      const wrap = document.getElementById('advRows');
-      if(!wrap) return;
+      const wrap = document.getElementById('advRows'); if(!wrap) return;
       wrap.innerHTML = advRowsData.map((row, idx) => `
         <div class="search-row" data-row="${idx}">
           <select class="logic-select">${logics.map(l=>`<option value="${l}" ${row.logic===l?'selected':''}>${l}</option>`).join('')}</select>
@@ -349,44 +208,30 @@
           <input class="kw-input" type="text" placeholder="请输入检索词" value="${row.value||''}" />
           ${advRowsData.length > 1 ? `<button type="button" class="del-btn" title="删除本行"><i class="ri-close-line"></i></button>` : ''}
         </div>`).join('');
-
       document.querySelectorAll('#classicSection .search-row').forEach((rowEl, idx) => {
         rowEl.querySelector('.logic-select').onchange = e => advRowsData[idx].logic = e.target.value;
         rowEl.querySelector('.field-select').onchange = e => advRowsData[idx].field = e.target.value;
         rowEl.querySelector('.kw-input').oninput = e => advRowsData[idx].value = e.target.value;
         const del = rowEl.querySelector('.del-btn');
-        if (del) del.onclick = () => { advRowsData.splice(idx, 1); renderAdvRows(); updateDelAllBtn(); };
+        if (del) del.onclick = () => { advRowsData.splice(idx, 1); renderAdvRows(); };
       });
-      updateDelAllBtn();
     }
     function addRow(){ advRowsData.push({logic:'AND', field:'title', value:''}); renderAdvRows(); }
     function deleteAllRows(){ advRowsData = [{logic:'AND', field:'title', value:''}]; renderAdvRows(); }
-    function updateDelAllBtn(){ const b=document.getElementById('delAllBtn'); if(b) b.disabled = advRowsData.length <= 1; }
     document.getElementById('addRowBtn')?.addEventListener('click', addRow);
     document.getElementById('delAllBtn')?.addEventListener('click', function(){ if(this.disabled) return; if(confirm("确认清空全部检索条件？")) deleteAllRows(); });
     document.getElementById('advForm')?.addEventListener('submit', function(e){ e.preventDefault(); alert('高级检索条件：\n' + JSON.stringify(advRowsData, null, 2)); });
 
-    /* ===== 信息区：只显示一种 ===== */
-    const blocks = {
-      feature: document.getElementById('featureBlock'),
-      data:    document.getElementById('dataBlock'),
-      sample:  document.getElementById('sampleBlock')
-    };
-    const btns = {
-      feature: document.getElementById('btnFeature'),
-      data:    document.getElementById('btnData'),
-      sample:  document.getElementById('btnSample')
-    };
+    // 信息块切换（原有）
+    const blocks = { feature: document.getElementById('featureBlock'), data: document.getElementById('dataBlock'), sample: document.getElementById('sampleBlock') };
+    const btns =   { feature: document.getElementById('btnFeature'),  data: document.getElementById('btnData'),  sample: document.getElementById('btnSample') };
     function setInfoBlock(name){
-      Object.keys(blocks).forEach(k=>{
-        blocks[k].style.display = (k===name)?'block':'none';
-        btns[k].classList.toggle('active', k===name);
-      });
+      Object.keys(blocks).forEach(k=>{ blocks[k].style.display = (k===name)?'block':'none'; btns[k].classList.toggle('active', k===name); });
       blocks[name].scrollIntoView({behavior:'smooth', block:'nearest'});
     }
     window.setInfoBlock = setInfoBlock;
 
-    /* ===== 样例渲染 ===== */
+    // 样例渲染（原有）
     const semanticSamples = [
       "量子计算在材料科学中的潜在应用与挑战",
       "人工智能如何提升高校教学质量与学习效果的实证研究",
@@ -410,10 +255,13 @@
       });
     })();
 
-    // 初始化
-    renderAdvRows();
-    setMode('semantic');        // 默认语义检索
-    setInfoBlock('feature');    // 信息区默认显示“功能”
+    // 初始化（原有）
+    renderAdvRows(); setMode('semantic'); setInfoBlock('feature');
+
+    /* === 新增：路由绑定（主页小飞机→列表页） === */
+    document.getElementById('searchBtn').addEventListener('click', function(){
+      window.location.href = 'https://majiko-atao.github.io/-/JSLBY.html';
+    });
   </script>
 </body>
 </html>
