@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>国际仲裁法律专家智能体 · 深度功能树（HTML一页版）</title>
+<style>
+  :root{
+    --bg:#f6f9fc; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5edf7;
+    --blue:#3b82f6; --green:#10b981; --orange:#f59e0b; --violet:#8b5cf6; --rose:#f43f5e;
+    --radius:14px; --shadow:0 8px 26px rgba(15,23,42,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#f7fbff 0%,#eff6ff 55%,#f9fbff 100%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--ink)}
+  /* 顶栏 */
+  .bar{position:sticky;top:0;z-index:10;display:flex;gap:10px;align-items:center;padding:14px 18px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  .bar h1{margin:0 14px 0 0;font-size:18px}
+  .btn{border:1px solid #d7e3f5;background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer}
+  .btn:hover{border-color:#c9d7ee}
+  .search{flex:1;min-width:260px;display:flex;align-items:center;gap:8px;border:1px solid #d7e3f5;background:#fff;border-radius:10px;padding:8px 12px}
+  .search input{border:0;outline:0;width:100%}
+  .hint{font-size:12px;color:var(--muted)}
+  /* 画布 */
+  .wrap{height:calc(100% - 62px);padding:22px;overflow:auto}
+  .map{min-width:1400px;width:max-content;margin:0 auto;position:relative}
+  /* 树 */
+  .tree{display:flex;gap:36px;align-items:flex-start}
+  .col{display:flex;flex-direction:column;gap:26px}
+  .group{display:flex;gap:18px;position:relative;align-items:flex-start}
+  .group::before{content:"";position:absolute;left:-18px;top:24px;width:18px;height:2px;background:#cfe0f7}
+  .node{background:var(--card);border:1px solid #e8eef7;border-left-width:6px;border-radius:12px;padding:10px 14px;box-shadow:var(--shadow);white-space:nowrap;font-size:14px;line-height:1.25;position:relative}
+  .root{font-weight:700;font-size:16px;border-left-color:#94a3b8}
+  .m-blue{border-left-color:var(--blue)}
+  .m-green{border-left-color:var(--green)}
+  .m-orange{border-left-color:var(--orange)}
+  .m-violet{border-left-color:var(--violet)}
+  .m-rose{border-left-color:var(--rose)}
+  .node .hd{display:flex;align-items:center;gap:8px}
+  .tg{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:12px;background:#eef5ff;border:1px solid #cee0ff;color:#3a6ff7;cursor:pointer;user-select:none}
+  .meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .badge{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid #e6edf7;color:#0f172a;background:#f8fbff}
+  .b-p1{border-color:#c7e6d7;background:#effaf5}
+  .b-p2{border-color:#f4e1bd;background:#fff7e6}
+  .b-phase{border-color:#cfe0ff;background:#f3f7ff}
+  .b-role{border-color:#e6d9ff;background:#faf7ff}
+  .b-dep{border-color:#ffd6e0;background:#fff1f4}
+  .b-ac{border-color:#d7e3f5;background:#f6faff}
+  .kv{margin-top:8px;color:var(--muted);font-size:12px}
+  .children{display:flex;gap:18px}
+  .collapsed>.children{display:none}
+  /* 详情卡 */
+  .details{margin-top:10px;border-top:1px dashed #e5edf7;padding-top:8px;display:grid;grid-template-columns:auto;gap:6px}
+  .dl{display:flex;gap:6px;align-items:flex-start}
+  .dl b{color:#475569}
+  .hl{outline:2px solid #f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.15)}
+  @media (max-width:1200px){.map{min-width:auto}.tree{flex-direction:column}}
+</style>
+</head>
+<body>
+  <div class="bar">
+    <h1>国际仲裁法律专家智能体 · 深度功能树</h1>
+    <button class="btn" id="expandAll">全部展开</button>
+    <button class="btn" id="collapseAll">全部折叠</button>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#64748b" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="q" placeholder="搜索：法律适用、证据链、知识图谱、评分、预测…" />
+      <span class="hint">Enter 搜索 / Esc 清除</span>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="map">
+      <div class="tree" id="tree"></div>
+    </div>
+  </div>
+
+<script>
+/** ===== 深度数据（比上一版更细：到“功能项/输入/输出/AC/依赖/阶段/角色”） ===== **/
+const DATA = {
+  name: "国际仲裁法律专家智能体",
+  color: "root",
+  children: [
+    {
+      name: "仲裁文书智能生成系统",
+      color: "m-blue",
+      children: [
+        {
+          name: "法律适用与裁书生成",
+          children: [
+            {
+              name: "法律适用建议",
+              p: "P1", phase: "2025-09",
+              roles: ["律师","仲裁秘书","仲裁员"],
+              deps: ["四地仲裁规则库","判例库"],
+              ac: [
+                "相同输入在同版本模型下结果一致性≥95%",
+                "引用均可追溯到法条/判例源"
+              ],
+              items: [
+                "解析管辖/适用法/冲突规则",
+                "强制性规范识别（公共政策、强行法）",
+                "冲突法推断与优先级建议",
+                "法条/判例可视化对照与出处锚点"
+              ],
+              inputs: [
+                "仲裁条款与适用法约定","合同全文/要约与承诺证据",
+                "仲裁地参数","争议事实要点"
+              ],
+              outputs: [
+                "适用法律清单（排序说明）",
+                "理由说明（含引用锚点）",
+                "可编辑报告（DOCX/PDF）"
+              ]
+            },
+            {
+              name: "证据链分析与事实认定",
+              p: "P1", phase: "2025-10",
+              roles: ["律师","仲裁员"],
+              deps: ["多模态识别服务","知识图谱"],
+              ac: [
+                "同一批证据生成一致性评分≥0.9",
+                "时间线冲突自动高亮并可一键定位"
+              ],
+              items: [
+                "证据去重/指纹比对/版本留痕",
+                "证据-合同-事件三向关联",
+                "可信度评分（来源/完整性/一致性）",
+                "事实要点清单自动汇总"
+              ],
+              inputs: ["证据文件（PDF/影像/音视频）","当事人陈述","事件时间点"],
+              outputs: ["证据链图谱","事实认定草案","可下载时间线（CSV/PNG）"]
+            },
+            {
+              name: "中英文仲裁裁决书起草",
+              p: "P1", phase: "2025-10",
+              roles: ["仲裁员","秘书处"],
+              deps: ["模板库","法律适用建议","事实认定"],
+              ac: [
+                "模板符合四地通用结构与编号规范",
+                "DOCX导出兼容Office/金山；支持差异对比"
+              ],
+              items: [
+                "模板选择与条款拼装（可自定义片段）",
+                "可溯源引用与自动脚注",
+                "段落风格/目录/编号规则",
+                "敏感信息脱敏、批注/红线对比"
+              ],
+              inputs: ["案件要素表","模板库","适用法输出与事实认定"],
+              outputs: ["裁决书草案（中/英）","引用/附录清单","版本对比报告"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      name: "案件智能分析系统",
+      color: "m-green",
+      children: [
+        {
+          name: "多模态证据识别",
+          children: [
+            {
+              name: "文档/图片/音视频证据识别",
+              p: "P1", phase: "2025-09",
+              roles: ["律师","证据管理员"],
+              deps: ["OCR引擎","版面分析","语音转写"],
+              ac: [
+                "中/英文OCR字段准确率≥95%",
+                "并行处理100页PDF<60秒（试运行环境）"
+              ],
+              items: [
+                "OCR+版面结构化（表格/印章/签名）",
+                "航运单据字段抽取（B/L、RECAP、SOF）",
+                "音视频转写与说话人分离",
+                "证据元数据规范化（时间/来源/校验）"
+              ],
+              inputs: ["PDF/图片/音视频/扫描件"],
+              outputs: ["结构化JSON/CSV","全文可检索文本","证据预览与标注"]
+            }
+          ]
+        },
+        {
+          name: "知识图谱",
+          children: [
+            {
+              name: "案件知识图谱构建",
+              p: "P1", phase: "2025-10",
+              roles: ["分析师","仲裁员"],
+              deps: ["向量检索","实体词典/规则"],
+              ac: [
+                "关键实体召回率≥90%",
+                "关系抽取F1≥0.80（试点集）"
+              ],
+              items: [
+                "实体识别：当事人/合同/船舶/航程/地点/金额",
+                "关系抽取：签约/履约/违约/通知/付款",
+                "图数据库建模与入库（ID去重/合并）",
+                "可视化关系图与冲突检测"
+              ],
+              inputs: ["案卷文本/证据结构化结果","抽取模型与规则"],
+              outputs: ["节点/边数据","交互式关系图/PNG快照"]
+            }
+          ]
+        },
+        {
+          name: "争议焦点",
+          children: [
+            {
+              name: "争议焦点提取",
+              p: "P1", phase: "2025-10",
+              roles: ["律师","仲裁庭"],
+              deps: ["法条要件库","知识图谱"],
+              ac: [
+                "焦点覆盖主要请求≥95%",
+                "每个焦点至少关联1条证据"
+              ],
+              items: [
+                "要件模板匹配（举证/抗辩要点）",
+                "证据-争议点映射表",
+                "一致性/矛盾项提示与追踪"
+              ],
+              inputs: ["诉辩意见/请求事项","证据链输出"],
+              outputs: ["焦点清单","要件覆盖率报告","缺口提示"]
+            }
+          ]
+        },
+        {
+          name: "预测与评估",
+          children: [
+            {
+              name: "裁决预测与风险评估",
+              p: "P2", phase: "2025-11",
+              roles: ["律师","企业法务"],
+              deps: ["相似案例检索","评估规则库"],
+              ac: [
+                "AUC≥0.75（试点库）",
+                "可解释性输出TOP5要素贡献"
+              ],
+              items: [
+                "特征工程与多模型集成（统计+LLM特征）",
+                "胜败概率与置信区间",
+                "关键风险条目与策略建议"
+              ],
+              inputs: ["案件要素表","相似案例特征向量"],
+              outputs: ["胜率区间图","风险清单","要素贡献解释卡"]
+            }
+          ]
+        },
+        {
+          name: "案例检索",
+          children: [
+            {
+              name: "相似案例检索与比对",
+              p: "P1", phase: "2025-09",
+              roles: ["律师","研究员"],
+              deps: ["BGE-M3向量库","规则/判例知识库"],
+              ac: [
+                "Top10相似度相关性人工评估≥0.8",
+                "比对报告可导出（DOCX/PDF）"
+              ],
+              items: [
+                "关键词/布尔/语义混合检索",
+                "段落级差异对照与并排阅读",
+                "一键插入引用至裁书草案"
+              ],
+              inputs: ["检索条件/上下文","案例库"],
+              outputs: ["案例列表","对照比对报告","引用片段块"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      name: "涉外法治人才培养模块",
+      color: "m-orange",
+      children: [
+        {
+          name: "模拟训练",
+          children: [
+            {
+              name: "模拟案件处理训练",
+              p: "P1", phase: "2025-11",
+              roles: ["学生","教师"],
+              deps: ["文书生成/争议焦点/检索能力"],
+              ac: [
+                "标准案例全流程跑通",
+                "评分维度≥5（事实/法律/程序/表达/时效）"
+              ],
+              items: [
+                "立案→管辖→程序→证据→裁决闭环演练",
+                "角色驱动（申请人/被申请人/书记员/仲裁员）",
+                "过程提示与关键节点纠错"
+              ],
+              inputs: ["教学案例包","评分规则"],
+              outputs: ["过程记录","评分报告","改进建议清单"]
+            }
+          ]
+        },
+        {
+          name: "自动评分",
+          children: [
+            {
+              name: "学生作业自动评分",
+              p: "P1", phase: "2025-11",
+              roles: ["教师"],
+              deps: ["要件库","模板库"],
+              ac: [
+                "与人工评分Spearman≥0.7",
+                "反馈≤60秒生成"
+              ],
+              items: [
+                "要点覆盖检测（要件/引用/格式）",
+                "逻辑结构与写作规范评分",
+                "引用合规性检查（来源/页码/锚点）"
+              ],
+              inputs: ["学生提交文档"],
+              outputs: ["评分明细","批注版文档（可下载）"]
+            }
+          ]
+        },
+        {
+          name: "对比分析",
+          children: [
+            {
+              name: "标准答案比对分析",
+              p: "P2", phase: "2025-11",
+              roles: ["学生"],
+              deps: ["相似度引擎"],
+              ac: ["关键差异召回≥90%","报告可导出/分享"],
+              items: ["逐段差异高亮","相似段落定位","补充阅读建议"],
+              inputs: ["学生稿","标准答案"],
+              outputs: ["差异报告","学习清单"]
+            }
+          ]
+        },
+        {
+          name: "个性化学习",
+          children: [
+            {
+              name: "个性化学习建议",
+              p: "P2", phase: "2025-12",
+              roles: ["学生"],
+              deps: ["知识库","推荐引擎"],
+              ac: ["推荐点击率≥20%","阶段测评提升≥10%"],
+              items: ["能力画像生成","学习路径编排","阶段性测评与复盘"],
+              inputs: ["评分与差异报告"],
+              outputs: ["个性化材料清单","阶段性测评报告"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      name: "支撑能力",
+      color: "m-violet",
+      children: [
+        {
+          name: "知识库建设",
+          children: [
+            {
+              name: "四地仲裁规则与判例整合",
+              p: "P1", phase: "2025-10",
+              roles: ["知识工程师","法研团队"],
+              deps: ["数据标注平台"],
+              ac: ["抽样质检通过率≥98%","术语覆盖核心领域≥90%"],
+              items: [
+                "法条分段与编号统一（跨地区映射）",
+                "判例如题/要旨/要点抽取与多语对齐",
+                "术语库/模板库建设（领域与程序）"
+              ],
+              inputs: ["法规/判例数据源"],
+              outputs: ["结构化知识库","术语与模板库"]
+            }
+          ]
+        },
+        {
+          name: "技术实现",
+          children: [
+            {
+              name: "语义检索与API集成",
+              p: "P1", phase: "2025-09",
+              roles: ["开发者","集成方"],
+              deps: ["向量数据库","API网关"],
+              ac: ["P95检索延迟<800ms","可用性≥99.5%"],
+              items: [
+                "BGE-M3向量化与索引构建",
+                "关键词/语义/布尔混合检索路由",
+                "鉴权、审计日志、限流/熔断"
+              ],
+              inputs: ["文本/查询","鉴权凭证"],
+              outputs: ["检索结果JSON","调用审计日志"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+/** ===== 渲染器 ===== **/
+const tree = document.getElementById('tree');
+
+function badge(txt, cls){ return `<span class="badge ${cls||''}">${txt}</span>`; }
+
+function featureDetails(f){
+  const p = f.p ? badge(f.p, f.p==='P1'?'b-p1':'b-p2') : '';
+  const ph = f.phase ? badge(f.phase,'b-phase') : '';
+  const roles = (f.roles||[]).map(r=>badge(r,'b-role')).join('');
+  const deps = (f.deps||[]).map(d=>badge(d,'b-dep')).join('');
+  const acs  = (f.ac||[]).map(a=>badge(a,'b-ac')).join('');
+
+  const li = a=>`<li>${a}</li>`;
+  const list = (arr)=>arr && arr.length ? `<ul>${arr.map(li).join('')}</ul>` : '';
+
+  return `
+    <div class="meta">${p}${ph}${roles}${deps}${acs}</div>
+    <div class="details">
+      ${f.items?.length?`<div class="dl"><b>功能项：</b> ${list(f.items)}</div>`:''}
+      ${f.inputs?.length?`<div class="dl"><b>主要输入：</b> ${list(f.inputs)}</div>`:''}
+      ${f.outputs?.length?`<div class="dl"><b>主要输出：</b> ${list(f.outputs)}</div>`:''}
+    </div>
+  `;
+}
+
+function renderNode(node, level=0){
+  const hasChildren = Array.isArray(node.children) && node.children.length;
+  const color = node.color || '';
+  const cls = `node ${color}`;
+  const toggle = hasChildren ? `<span class="tg">–</span>` : '';
+  const head = `<div class="hd">${toggle}<span>${node.name}</span></div>`;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'group';
+
+  const box = document.createElement('div');
+  box.className = cls;
+  box.dataset.label = node.name;
+
+  box.innerHTML = head + (node.items||node.inputs||node.outputs||node.ac||node.deps||node.p||node.phase ? featureDetails(node) : '');
+
+  wrap.appendChild(box);
+
+  if(hasChildren){
+    const kids = document.createElement('div');
+    kids.className = 'children';
+    node.children.forEach(ch=>{
+      const col = document.createElement('div');
+      col.className = 'col';
+      col.appendChild(renderNode(ch, level+1));
+      kids.appendChild(col);
+    });
+    wrap.appendChild(kids);
+  }
+  return wrap;
+}
+
+function render(){
+  tree.innerHTML = '';
+  const rootRow = document.createElement('div');
+  rootRow.className = 'tree';
+  const rootBox = document.createElement('div');
+  rootBox.className = 'node root';
+  rootBox.dataset.label = DATA.name;
+  rootBox.innerHTML = `<div class="hd"><span>${DATA.name}</span></div>`;
+  rootRow.appendChild(rootBox);
+
+  const col = document.createElement('div'); col.className = 'col';
+  (DATA.children||[]).forEach(m=>{
+    const c = document.createElement('div'); c.className='col';
+    c.appendChild(renderNode(m,1));
+    col.appendChild(c);
+  });
+  rootRow.appendChild(col);
+  tree.appendChild(rootRow);
+}
+render();
+
+/** ===== 交互：折叠/展开、搜索 ===== **/
+function setAll(expand=true){
+  document.querySelectorAll('.group').forEach(g=>{
+    const box = g.firstElementChild;
+    const kids = g.lastElementChild;
+    if(!kids || !kids.classList.contains('children')) return;
+    kids.style.display = expand ? '' : 'none';
+    const tg = box.querySelector('.tg'); if(tg) tg.textContent = expand ? '–' : '+';
+  });
+}
+document.addEventListener('click', e=>{
+  const tg = e.target.closest('.tg');
+  if(!tg) return;
+  const node = tg.closest('.group');
+  const kids = node.querySelector(':scope > .children');
+  if(!kids) return;
+  const collapsed = kids.style.display === 'none';
+  kids.style.display = collapsed ? '' : 'none';
+  tg.textContent = collapsed ? '–' : '+';
+});
+document.getElementById('expandAll').onclick=()=>setAll(true);
+document.getElementById('collapseAll').onclick=()=>setAll(false);
+
+const q = document.getElementById('q');
+const clearHL = ()=>document.querySelectorAll('.hl').forEach(n=>n.classList.remove('hl'));
+function openPathTo(el){
+  let p = el;
+  while(p && p!==document){
+    if(p.classList && p.classList.contains('children')){
+      p.style.display='';
+      const tg = p.previousElementSibling?.querySelector('.tg');
+      if(tg) tg.textContent='–';
+    }
+    p = p.parentElement;
+  }
+}
+function search(){
+  clearHL();
+  const val = q.value.trim().toLowerCase();
+  if(!val) return;
+  const nodes = Array.from(document.querySelectorAll('[data-label]'));
+  const matched = nodes.filter(n => n.dataset.label.toLowerCase().includes(val));
+  matched.forEach(n=>{ n.classList.add('hl'); openPathTo(n); });
+  if(matched.length){ matched[0].scrollIntoView({behavior:'smooth',block:'center',inline:'center'}); }
+}
+q.addEventListener('keydown', e=>{
+  if(e.key==='Enter') search();
+  if(e.key==='Escape'){ q.value=''; clearHL(); }
+});
+</script>
+</body>
+</html>
