@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<title>学术论文筛选页面-整合版（显示更多已修复）</title>
+<title>学术论文筛选页面-整合版（修复翻译下拉）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   :root{
@@ -31,7 +31,7 @@
   .year-option{padding:10px 0;text-align:center;cursor:pointer;font-size:16px;font-weight:700;}
   .year-option:hover{background:#e6f0ff;color:var(--blue)}
 
-  /* 近几年按钮：放大+留白，一排 */
+  /* 近几年按钮 */
   .quick-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 10px;}
   .quick-btn{display:flex;align-items:center;justify-content:center;border:2px solid var(--blue);border-radius:12px;color:var(--blue);background:#fafdff;cursor:pointer;font-size:16px;font-weight:800;height:44px;min-width:0;padding:0 10px;box-shadow:0 2px 8px rgba(23,107,230,.08);}
 
@@ -91,18 +91,17 @@
   .adv-submit svg{width:18px;height:18px;}
   .adv-tips{display:none;margin-top:6px;font-size:12px;color:#4273b6;background:#eef6ff;border:1px solid #d8e9ff;padding:8px 10px;border-radius:8px;}
 
-  /* 工具区（分卡） */
-  .card-tools{padding:10px 18px;}
+  /* 工具区（简约排序） */
   .tools{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
-  .sort-left{display:flex;gap:18px;align-items:center;flex:1 1 auto;white-space:nowrap;}
-  .sort-btn{min-width:108px;background:#fff;border:2px solid var(--blue);color:var(--blue);font-size:16px;font-weight:700;padding:8px 10px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
-  .sort-btn.active,.sort-btn:hover{background:var(--blue);color:#fff;}
-  .sort-arrows{display:flex;flex-direction:column;line-height:10px;font-size:12px;margin-left:2px;align-items:center;}
+  .sort-left{display:flex;gap:14px;align-items:center;flex:1 1 auto;white-space:nowrap;}
+  .chip{display:inline-flex;align-items:center;height:34px;padding:0 14px;border:1.5px solid var(--blue);border-radius:999px;background:#fff;color:var(--blue);font-weight:800;gap:8px;cursor:pointer;}
+  .chip .arrows{display:inline-flex;flex-direction:column;line-height:10px;font-size:11px;margin-left:2px;align-items:center;}
+  .chip.active{background:var(--blue);color:#fff;}
 
   .right-side{display:flex;align-items:center;gap:12px;margin-left:auto;}
   .result-total{color:#666;font-size:1.05rem;}
 
-  /* 翻译下拉（贴合且等宽） */
+  /* 翻译开关+菜单本体（菜单定位将由脚本改为挂载到 body） */
   .t-wrap{position:relative;display:inline-block;}
   .t-switch{display:inline-flex;align-items:center;gap:10px;border:2px solid var(--blue);border-radius:14px;padding:8px 14px;background:#fff;cursor:pointer;user-select:none;box-shadow:0 4px 18px rgba(23,107,230,.08);}
   .t-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--blue);}
@@ -117,8 +116,7 @@
 
   /* 结果列表 */
   .paper-card{background:#fff;padding:28px 28px 24px;position:relative;border-radius:16px;box-shadow:0 6px 26px rgba(0,0,0,.06);}
-  .paper-title{font-size:22px;font-weight:800;color:var(--blue);margin:0 0 18px;display:block;} /* 留白更大 */
-
+  .paper-title{font-size:22px;font-weight:800;color:var(--blue);margin:0 0 18px;display:block;}
   .meta-simple-bar{display:flex;gap:12px;align-items:center;margin-bottom:14px;font-size:15px;color:#0f60cf;flex-wrap:wrap;}
   .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid #d6e4ff;border-radius:999px;background:#f3f7ff;}
   .pill .tag{font-size:12px;font-weight:800;color:#3970ff;background:#e8f0ff;border:1px solid #cfe0ff;border-radius:6px;padding:0 6px;}
@@ -129,9 +127,9 @@
   .abstract-row{font-size:15.5px;color:#2e2e2e;margin-bottom:10px;}
   .abstract-text{line-height:1.9;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;text-overflow:ellipsis;}
   .abstract-text.expanded{-webkit-line-clamp:initial;overflow:visible;}
-
   .more-row{display:flex;align-items:center;gap:12px;margin:8px 0 6px;}
   .show-more-btn{background:none;border:none;color:var(--blue);cursor:pointer;font-size:14px;text-decoration:underline;padding:0;}
+
   .btn-sim{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #d7e6ff;background:#f7fbff;color:#1e4ed6;border-radius:12px;height:34px;padding:0 12px;cursor:pointer;}
   .btn-sim svg{width:16px;height:16px;}
 
@@ -175,8 +173,6 @@
     <div class="sidebar-filter">
       <div class="panel">
         <div class="filter-title">筛选</div>
-
-        <!-- 仅保留：学位授予日期 -->
         <div class="filter-label">学位授予日期</div>
         <div class="date-row">
           <div style="position:relative">
@@ -336,13 +332,13 @@
         </div>
       </div>
 
-      <!-- 卡2：工具区 -->
+      <!-- 卡2：工具区（简约排序 + 翻译下拉） -->
       <div class="content-card" style="margin-top:16px;">
         <div class="search-bar-card" style="padding:12px 18px;">
           <div class="tools">
             <div class="sort-left">
-              <button class="sort-btn active">相关性排序<span class="sort-arrows"><span>▲</span><span>▼</span></span></button>
-              <button class="sort-btn">按发布时间<span class="sort-arrows"><span>▲</span><span>▼</span></span></button>
+              <button class="chip active">相关性排序<span class="arrows"><span>▲</span><span>▼</span></span></button>
+              <button class="chip">按发布时间<span class="arrows"><span>▲</span><span>▼</span></span></button>
             </div>
             <div class="right-side">
               <span class="result-total">共 2321 条结果</span>
@@ -353,6 +349,7 @@
                   <span class="t-value" id="tValue">原文</span>
                   <span class="t-arrow">▼</span>
                 </span>
+                <!-- 菜单会被脚本移动到 body，避免被裁切 -->
                 <div class="t-menu" id="tMenu">
                   <div class="t-item" data-v="原文">原文</div>
                   <div class="t-item" data-v="中文">中文</div>
@@ -370,12 +367,13 @@
       <!-- 结果列表（多条示例） -->
       <div class="content-card">
         <div class="search-bar-card" style="padding-top:18px;">
+
           <!-- 列表1 -->
           <div class="paper-card">
             <a class="full-link-btn" href="#" title="下载 PDF">
               <svg class="pdf-ico" viewBox="0 0 200 200"><rect x="20" y="20" width="120" height="140" rx="10" fill="#ff5a66"/></svg>
             </a>
-            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html" target="_self">A Study of Machine Learning in Education</a>
+            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html#" target="_self">A Study of Machine Learning in Education</a>
             <div class="meta-simple-bar">
               <span class="pill"><span class="tag">作者</span> 王小明</span>
               <span class="pill tutor"><span class="tag">导师</span> 李教授</span>
@@ -395,8 +393,9 @@
               <div class="more-row">
                 <button class="show-more-btn">显示更多</button>
                 <button class="btn-sim" onclick="openSimilar('A Study of Machine Learning in Education')">
-                  <svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18" stroke="#1e4ed6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                  相似文献
+                  <!-- 放大镜 + 星（相似“搜索”） -->
+                  <svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.9 10.5l3.9 3.9-1.4 1.4-3.9-3.9A6 6 0 0 0 10 4z" fill="none" stroke="#1e4ed6" stroke-width="2" stroke-linecap="round"/><path d="M10 7l1 2 2 .2-1.6 1.3.5 2-1.9-1.1-1.9 1.1.5-2L6 9.2l2-.2z" fill="#1e4ed6"/></svg>
+                  相似搜索
                 </button>
               </div>
             </div>
@@ -413,7 +412,7 @@
             <a class="full-link-btn" href="#" title="下载 PDF">
               <svg class="pdf-ico" viewBox="0 0 200 200"><rect x="20" y="20" width="120" height="140" rx="10" fill="#ff5a66"/></svg>
             </a>
-            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html" target="_self">A Deep Learning Approach to NLP</a>
+            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html#" target="_self">A Deep Learning Approach to NLP</a>
             <div class="meta-simple-bar">
               <span class="pill"><span class="tag">作者</span> 李明</span>
               <span class="pill tutor"><span class="tag">导师</span> 王教授</span>
@@ -433,8 +432,8 @@
               <div class="more-row">
                 <button class="show-more-btn">显示更多</button>
                 <button class="btn-sim" onclick="openSimilar('A Deep Learning Approach to NLP')">
-                  <svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18" stroke="#1e4ed6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                  相似文献
+                  <svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.9 10.5l3.9 3.9-1.4 1.4-3.9-3.9A6 6 0 0 0 10 4z" fill="none" stroke="#1e4ed6" stroke-width="2" stroke-linecap="round"/><path d="M10 7l1 2 2 .2-1.6 1.3.5 2-1.9-1.1-1.9 1.1.5-2L6 9.2l2-.2z" fill="#1e4ed6"/></svg>
+                  相似搜索
                 </button>
               </div>
             </div>
@@ -451,7 +450,7 @@
             <a class="full-link-btn" href="#" title="下载 PDF">
               <svg class="pdf-ico" viewBox="0 0 200 200"><rect x="20" y="20" width="120" height="140" rx="10" fill="#ff5a66"/></svg>
             </a>
-            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html" target="_self">Non-invasive BCI for Neuro-rehabilitation</a>
+            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html#" target="_self">Non-invasive BCI for Neuro-rehabilitation</a>
             <div class="meta-simple-bar">
               <span class="pill"><span class="tag">作者</span> Zhang Wei</span>
               <span class="pill tutor"><span class="tag">导师</span> Prof. Chen</span>
@@ -468,8 +467,8 @@
               <div class="more-row">
                 <button class="show-more-btn">显示更多</button>
                 <button class="btn-sim" onclick="openSimilar('Non-invasive BCI for Neuro-rehabilitation')">
-                  <svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18" stroke="#1e4ed6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                  相似文献
+                  <svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.9 10.5l3.9 3.9-1.4 1.4-3.9-3.9A6 6 0 0 0 10 4z" fill="none" stroke="#1e4ed6" stroke-width="2" stroke-linecap="round"/><path d="M10 7l1 2 2 .2-1.6 1.3.5 2-1.9-1.1-1.9 1.1.5-2L6 9.2l2-.2z" fill="#1e4ed6"/></svg>
+                  相似搜索
                 </button>
               </div>
             </div>
@@ -486,7 +485,7 @@
             <a class="full-link-btn" href="#" title="下载 PDF">
               <svg class="pdf-ico" viewBox="0 0 200 200"><rect x="20" y="20" width="120" height="140" rx="10" fill="#ff5a66"/></svg>
             </a>
-            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html" target="_self">Generative Models for Educational Feedback</a>
+            <a class="paper-title" href="https://majiko-atao.github.io/-/xaingqing.html#" target="_self">Generative Models for Educational Feedback</a>
             <div class="meta-simple-bar">
               <span class="pill"><span class="tag">作者</span> Liu Yan</span>
               <span class="pill tutor"><span class="tag">导师</span> Prof. Wang</span>
@@ -503,8 +502,8 @@
               <div class="more-row">
                 <button class="show-more-btn">显示更多</button>
                 <button class="btn-sim" onclick="openSimilar('Generative Models for Educational Feedback')">
-                  <svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18" stroke="#1e4ed6" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-                  相似文献
+                  <svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.9 10.5l3.9 3.9-1.4 1.4-3.9-3.9A6 6 0 0 0 10 4z" fill="none" stroke="#1e4ed6" stroke-width="2" stroke-linecap="round"/><path d="M10 7l1 2 2 .2-1.6 1.3.5 2-1.9-1.1-1.9 1.1.5-2L6 9.2l2-.2z" fill="#1e4ed6"/></svg>
+                  相似搜索
                 </button>
               </div>
             </div>
@@ -576,7 +575,7 @@ function renderList(type,count){
 function toggleShow(type){_showAll[type]=!_showAll[type];renderList(type,_showAll[type]?_EXPAND[type]:_PAGE[type]);}
 function onSectionCheck(type,name,checked){if(checked)selectedMap[type].add(name);else selectedMap[type].delete(name);updateActionsVisibility(type);}
 function updateActionsVisibility(type){const el=document.getElementById('act-'+type);if(el)el.style.display=selectedMap[type].size>0?'flex':'none';}
-function applySection(type){alert('应用筛选（'+type+'）：\\n'+[...selectedMap[type]].join('；'));}
+function applySection(type){alert('应用筛选（'+type+'）：\n'+[...selectedMap[type]].join('；'));}
 function resetSection(type){selectedMap[type].clear();renderList(type,_showAll[type]?_EXPAND[type]:_PAGE[type]);}
 
 /* 年份选择 */
@@ -606,7 +605,7 @@ function setQuickYears(type,years){
   document.getElementById(type+'End').value=now+"年";
 }
 
-/* 搜索方式切换 —— 小飞机只在语义检索显示；传统检索显示高级检索块 */
+/* 搜索方式切换 */
 function switchSearchType(isSemantic){
   document.getElementById('btnSemantic').classList.toggle('active',isSemantic);
   document.getElementById('btnTraditional').classList.toggle('active',!isSemantic);
@@ -616,7 +615,7 @@ function switchSearchType(isSemantic){
   document.getElementById('planeBtn').style.display=isSemantic?'inline-flex':'none';
 }
 
-/* 高级检索行（布尔逻辑） */
+/* 高级检索行 */
 const advFields=[{label:'标题',value:'title'},{label:'作者',value:'author'},{label:'关键词',value:'keyword'},{label:'导师',value:'tutor'},{label:'学科',value:'subject'},{label:'学校',value:'school'},{label:'关键信息',value:'info'},{label:'摘要',value:'abstract'},{label:'出版年份',value:'year'},{label:'语种',value:'language'}];
 const advLogics=['AND','OR','NOT'];
 let advRowsData=[{logic:'AND',field:'title',value:''}];
@@ -640,7 +639,7 @@ renderAdvRows();
 document.getElementById('advAddBtn').onclick=()=>{advRowsData.push({logic:'AND',field:'title',value:''});renderAdvRows();};
 document.getElementById('advClearBtn').onclick=()=>{advRowsData=[{logic:'AND',field:'title',value:''}];renderAdvRows();};
 document.getElementById('advHelpBtn').onclick=()=>{const t=document.getElementById('advTips');t.style.display=t.style.display==='block'?'none':'block';};
-document.getElementById('advSubmitBtn').onclick=()=>{alert('高级检索条件：\\n'+JSON.stringify(advRowsData,null,2));};
+document.getElementById('advSubmitBtn').onclick=()=>{alert('高级检索条件：\n'+JSON.stringify(advRowsData,null,2));};
 
 /* 弹窗（语种/学科/国家/院校/研究方向） */
 let currentModalType=null,modalCheckedSet=new Set(),modalSearchText='';
@@ -679,29 +678,76 @@ function confirmModal(){ selectedMap[currentModalType]=new Set([...modalCheckedS
 function triggerModalSearch(){ modalSearchText=document.getElementById('modalSearch').value||''; renderModal(); }
 document.getElementById('modalSearch').oninput=(e)=>{ modalSearchText=e.target.value||''; renderModal(); };
 
-/* 翻译下拉（宽度等于触发按钮宽度，位置贴齐） */
-(function(){
-  const sw=document.getElementById('tSwitch');
-  const menu=document.getElementById('tMenu');
-  const val=document.getElementById('tValue');
-  function open(){
-    menu.style.width = sw.getBoundingClientRect().width + 'px';
-    menu.style.display='block';
-    menu.style.top='calc(100% + 8px)'; menu.style.bottom=''; menu.style.left='0'; menu.style.right='';
-    const r=menu.getBoundingClientRect(), vw=document.documentElement.clientWidth, vh=document.documentElement.clientHeight;
-    if(r.right>vw-8){ menu.style.left='auto'; menu.style.right='0'; }
-    if(r.bottom>vh-8){ menu.style.top=''; menu.style.bottom='calc(100% + 8px)'; }
-    setTimeout(()=>{ document.addEventListener('mousedown',onBody); document.addEventListener('keydown',onKey); },0);
+/* —— 修复：翻译下拉被 overflow:hidden 裁切 —— */
+(function () {
+  const sw   = document.getElementById('tSwitch');   // 触发器
+  const menu = document.getElementById('tMenu');     // 下拉菜单
+  const val  = document.getElementById('tValue');    // 当前值展示
+  let originParent = null;
+  let opening = false;
+
+  function open() {
+    if (opening) return;
+    opening = true;
+
+    // 记录原父节点并移动到 body，避免被任何 overflow 裁切
+    originParent = menu.parentElement;
+    document.body.appendChild(menu);
+
+    // 以按钮的可视位置定位（fixed）
+    const r  = sw.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+
+    const w = r.width;
+    let left = r.left;
+    if (left + w > vw - 8) left = r.right - w;
+    if (left < 8) left = 8;
+
+    Object.assign(menu.style, {
+      position: 'fixed',
+      display: 'block',
+      width: w + 'px',
+      top: (r.bottom + 8) + 'px',
+      left: left + 'px',
+      right: 'auto',
+      bottom: 'auto',
+      zIndex: 3000
+    });
+
+    setTimeout(() => {
+      document.addEventListener('mousedown', onBody, true);
+      document.addEventListener('keydown', onKey, true);
+      window.addEventListener('scroll', close, true);
+      window.addEventListener('resize', close, true);
+    }, 0);
   }
-  function close(){ menu.style.display='none'; document.removeEventListener('mousedown',onBody); document.removeEventListener('keydown',onKey); }
-  function onBody(e){ if(!menu.contains(e.target) && !sw.contains(e.target)) close(); }
-  function onKey(e){ if(e.key==='Escape') close(); }
-  sw.addEventListener('click',()=> menu.style.display==='block'?close():open());
-  menu.querySelectorAll('.t-item').forEach(i=> i.addEventListener('click',()=>{ val.textContent=i.dataset.v; close(); }));
-  window.addEventListener('scroll',()=>{ if(menu.style.display==='block') close(); }, {passive:true});
+
+  function close() {
+    if (!opening) return;
+    opening = false;
+
+    menu.style.display = 'none';
+    menu.style.position = 'absolute';
+    if (originParent && !originParent.contains(menu)) {
+      originParent.appendChild(menu);
+    }
+
+    document.removeEventListener('mousedown', onBody, true);
+    document.removeEventListener('keydown', onKey, true);
+    window.removeEventListener('scroll', close, true);
+    window.removeEventListener('resize', close, true);
+  }
+
+  function onBody(e) { if (!menu.contains(e.target) && !sw.contains(e.target)) close(); }
+  function onKey(e) { if (e.key === 'Escape') close(); }
+
+  sw.addEventListener('click', () => (menu.style.display === 'block' ? close() : open()));
+  menu.querySelectorAll('.t-item').forEach(i => {
+    i.addEventListener('click', () => { val.textContent = i.dataset.v; close(); });
+  });
 })();
 
-/* ✅ 摘要 “显示更多/收起” —— 事件委托（不再依赖 id/序号） */
+/* 摘要 “显示更多/收起” —— 事件委托 */
 document.addEventListener('click',function(e){
   const btn = e.target.closest('.show-more-btn');
   if(!btn) return;
@@ -712,9 +758,9 @@ document.addEventListener('click',function(e){
   btn.textContent = expanded ? '收起' : '显示更多';
 });
 
-/* 相似文献 —— 示例交互 */
+/* 相似搜索 —— 示例交互 */
 function openSimilar(title){
-  alert('打开相似文献（示例）：\n' + title);
+  alert('打开相似搜索（示例）：\n' + title);
 }
 
 /* 默认语义检索 */
