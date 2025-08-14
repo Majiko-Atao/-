@@ -1,326 +1,353 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <title>学术论文详情页</title>
-  <meta name="viewport" content="width=1200" />
-  <style>
-    :root{
-      --blue:#1677ff;
-      --blue-600:#1d5fe0;
-      --ink:#26333d;
-      --muted:#6f7f96;
-      --label:#445a70;
-      --card:#ffffff;
-      --bg:#f7faff;
-      --bd:#dbe6f6;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);font-family:'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#222}
+<meta charset="UTF-8" />
+<title>学术论文详情页</title>
+<meta name="viewport" content="width=1280" />
+<style>
+  :root{
+    --blue:#1677ff;
+    --blue-600:#1d5fe0;
+    --ink:#223042;
+    --muted:#6f7f96;
+    --label:#445a70;
+    --card:#ffffff;
+    --bg:#f6f9ff;
+    --bd:#dbe6f6;
+    --shadow:0 8px 28px rgba(22,119,255,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);font-family:'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#222}
 
-    /* 顶部 */
-    .nav{display:flex;align-items:center;padding:24px 60px 10px}
-    .nav img{height:38px;margin-right:8px}
-    .brand{font-weight:700;color:var(--blue);font-size:1.5rem;margin-right:10px}
-    .desc{color:#a7b2c3;font-size:14px;margin-left:8px}
+  /* 吸顶条：全局翻译 */
+  .topbar{position:sticky;top:0;z-index:999;background:#fff;border-bottom:1px solid #eef3fb;box-shadow:0 2px 18px rgba(10,40,90,.05);}
+  .topbar-inner{max-width:1160px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:12px}
+  .logo{height:30px;margin-right:6px}
+  .brand{font-weight:800;color:var(--blue);font-size:18px;margin-right:8px}
+  .desc{color:#9fb0c5;font-size:13px;margin-right:auto}
+  .gt-wrap{position:relative}
+  .gt-btn{border-radius:999px;padding:7px 14px;background:#f1f6ff;border:1px solid #cfe2ff;color:#2b6dce;font-weight:600;cursor:pointer}
+  .gt-menu{position:absolute;right:0;top:40px;background:#fff;border:1px solid var(--bd);border-radius:10px;box-shadow:0 8px 30px #1a2a4015;display:none;min-width:140px;z-index:99}
+  .gt-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 12px;cursor:pointer;color:#2b6dce}
+  .gt-menu button:hover{background:#f2f7ff}
 
-    .main{max-width:1000px;margin:0 auto;padding:18px 20px 40px}
-    .title-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
-    h1{margin:0;color:var(--blue);font-size:2rem;line-height:1.28}
-    .title-zh{margin-top:6px;color:#6f7f96;font-size:25px}
-    .actions{display:flex;gap:10px;justify-content:flex-end}
-    .btn{display:inline-block;border-radius:999px;padding:9px 18px;font-weight:600;text-decoration:none;cursor:pointer}
-    .btn-primary{background:linear-gradient(90deg,#3786fd,#5fb8f8 85%);color:#fff;box-shadow:0 4px 16px #3786fd1a}
-    .btn-primary:hover{background:linear-gradient(90deg,#1677ff 60%,#3786fd 100%);box-shadow:0 4px 24px #1677ff30}
-    .btn-ghost{background:#f1f6ff;color:var(--blue);border:1px solid #cfe2ff}
-    .btn-ghost:hover{background:#e8f1ff}
+  /* 主区（加宽） */
+  .main{max-width:1160px;margin:0 auto;padding:16px 18px 40px;position:relative}
 
-    /* 字段卡：单列左对齐 */
-    .card{background:var(--card);border-radius:16px;box-shadow:0 6px 32px #3677fd11;padding:18px 22px;margin-top:18px}
-    .lines{display:flex;flex-direction:column;gap:12px}
-    .line{color:var(--ink);line-height:1.9}
-    .label{color:var(--label);font-weight:700;margin-right:.35em}       /* 左对齐的字段名 */
-    .kv-link{color:var(--blue);text-decoration:none}
-    .kv-link:hover{color:var(--blue-600);text-decoration:underline}
-    .sup{position:relative;display:inline-block;margin-left:6px;vertical-align:super;font-size:11px;color:var(--blue);background:#eaf2ff;border:1px solid #cfe2ff;padding:0 4px;border-radius:6px;cursor:default}
-    .sup:hover::after{content:attr(data-tip);position:absolute;left:50%;transform:translateX(-50%);bottom:125%;white-space:nowrap;background:#1f2d3d;color:#fff;font-size:12px;padding:6px 8px;border-radius:6px;box-shadow:0 6px 18px #0004}
+  /* 标题行（按钮在右侧红框位置） */
+  .title-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:8px}
+  .title-col h1{margin:0;color:#1764e8;font-size:30px;line-height:1.28}
+  .title-zh{margin-top:6px;color:#6f7f96;font-size:18px}
+  .title-actions{display:flex;gap:10px;align-items:center}
+  .btn{display:inline-block;border-radius:999px;padding:10px 18px;font-weight:700;text-decoration:none;cursor:pointer;white-space:nowrap}
+  .btn-primary{background:linear-gradient(90deg,#3786fd,#5fb8f8 90%);color:#fff;box-shadow:0 6px 20px #3786fd2a;border:none}
+  .btn-primary:hover{background:linear-gradient(90deg,#1677ff 60%,#3786fd 100%)}
+  .btn-ghost{background:#f1f6ff;color:#2b6dce;border:1px solid #cfe2ff}
+  .btn-ghost:hover{background:#e8f1ff}
 
-    .fold{margin-top:12px}
-    .fold .btn{border-radius:8px;padding:7px 14px;background:#f3f7ff;border:1px solid var(--bd);color:var(--blue)}
-    .extra{display:none}
-    .expanded .extra{display:block}
+  /* 功能卡片 */
+  .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px;margin-top:16px}
+  .lines{display:flex;flex-direction:column;gap:10px}
+  .line{color:var(--ink);line-height:1.9}
+  .label{color:var(--label);font-weight:700;margin-right:.35em}
+  .sup{position:relative;display:inline-block;margin-left:6px;vertical-align:super;font-size:11px;color:var(--blue);background:#eaf2ff;border:1px solid #cfe2ff;padding:0 4px;border-radius:6px;cursor:default}
+  .sup:hover::after{content:attr(data-tip);position:absolute;left:50%;transform:translateX(-50%);bottom:125%;white-space:nowrap;background:#1f2d3d;color:#fff;font-size:12px;padding:6px 8px;border-radius:6px;box-shadow:0 6px 18px #0004}
+  .fold{margin-top:12px}
+  .fold .mini-btn{border-radius:9px;padding:7px 12px;background:#f3f7ff;border:1px solid var(--bd);color:#2b6dce;cursor:pointer}
+  .extra{display:none}
+  .expanded .extra{display:block}
 
-    /* 摘要 + 翻译 */
-    .abs{background:var(--card);border-radius:16px;box-shadow:0 2px 24px #1677ff15;margin-top:16px;padding:14px 16px 16px}
-    .abs-head{display:flex;align-items:center;justify-content:space-between;padding:6px}
-    .abs-title{font-weight:800;color:#244e7a}
-    .abs-ctrl{position:relative}
-    .abs-ctrl .btn{border-radius:10px;padding:6px 12px;background:#f2f7ff;border:1px solid #cfe2ff;color:#2b6dce}
-    .menu{position:absolute;right:0;top:36px;background:#fff;border:1px solid var(--bd);border-radius:10px;box-shadow:0 8px 30px #1a2a4015;display:none;min-width:140px;z-index:99}
-    .menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:8px 12px;cursor:pointer;color:#2b6dce}
-    .menu button:hover{background:#f2f7ff}
-    .abs-body{padding:0 6px 6px 6px;color:#264b6a;font-size:15px;line-height:1.8}
-    .clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;max-height:calc(1.8em*3)}
-    .more{color:#3786fd;cursor:pointer;font-size:14px;text-decoration:underline;margin-left:6px}
-    .more:hover{color:#1677ff}
-    .abs-compare{display:none;gap:16px;margin-top:10px}
-    .abs-compare.on{display:grid;grid-template-columns:1fr 1fr}
-    .abs-col{background:#f7faff;border:1px solid #e3ecfb;border-radius:12px;box-shadow:0 2px 12px #1677ff10;padding:10px}
-    .abs-col h4{margin:0 0 8px 0;color:#356b9f}
-    .abs-scroll{background:#fff;border:1px solid #e6eefb;border-radius:10px;padding:12px;max-height:320px;overflow:auto;line-height:1.8;color:#264b6a;font-size:14px}
-    .close-trans{margin-top:8px;justify-self:end;border:1px solid #d0e2ff;background:#fff;color:#2b6dce;border-radius:10px;padding:6px 10px;cursor:pointer}
+  /* 摘要 & 译文 */
+  .abs-head{font-weight:800;color:#244e7a;margin-bottom:6px}
+  .abs-body{color:#264b6a;font-size:15px;line-height:1.9}
+  .clamp-4{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;max-height:calc(1.9em*4)}
+  .more{color:#3786fd;cursor:pointer;font-size:14px;text-decoration:underline;margin-left:6px}
+  .more:hover{color:#1677ff}
+  .abs-trans{margin-top:10px;background:#f7faff;border:1px solid #e3ecfb;border-radius:12px;box-shadow:0 2px 12px #1677ff10;padding:12px;color:#264b6a;font-size:15px;line-height:1.9;display:none}
+  .abs-trans .tlabel{font-weight:700;color:#356b9f;margin-bottom:6px}
 
-    .cite{margin-top:10px;color:#6d7e99;font-size:14px}
+  /* 画廊 */
+  .gallery{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-top:18px}
+  .gallery-title{color:#7d91a8;font-size:15px;margin:0 0 10px 2px}
+  .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .thumb{width:100%;height:96px;object-fit:cover;border-radius:10px;border:1px solid #e6e8ee;cursor:pointer;box-shadow:0 2px 8px #1567e110;transition:transform .12s,box-shadow .12s}
+  .thumb:hover{transform:translateY(-2px);box-shadow:0 6px 18px #1567e130}
 
-    /* 画廊 & Tabs */
-    .gallery{background:#fff;border-radius:16px;box-shadow:0 2px 24px #1677ff15;padding:16px;margin-top:26px}
-    .gallery-title{color:#7d91a8;font-size:15px;margin:0 0 10px 2px}
-    .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-    .thumb{width:100%;height:96px;object-fit:cover;border-radius:10px;border:1px solid #e6e8ee;cursor:pointer;box-shadow:0 2px 8px #1567e110;transition:transform .12s,box-shadow .12s}
-    .thumb:hover{transform:translateY(-2px);box-shadow:0 6px 18px #1567e130}
-    .modal{display:none;position:fixed;inset:0;background:rgba(32,46,60,.85);z-index:1000;align-items:center;justify-content:center}
-    .modal.on{display:flex}
-    .modal img{max-width:92vw;max-height:86vh;border-radius:16px;box-shadow:0 6px 44px #0008;background:#fff}
-    .modal-close{position:fixed;top:30px;right:44px;font-size:2.2rem;color:#fff;background:none;border:none;cursor:pointer}
+  /* 参考文献 */
+  .refs .p{padding:10px 0;border-bottom:1px dashed #e7edf6}
+  .refs .p:last-child{border-bottom:none}
+  .refs .title a{color:#2771cc;text-decoration:underline}
+  .refs .meta{color:#90a3bb;font-size:13px;margin-top:2px}
 
-    .tabs{background:#fff;border-radius:16px;box-shadow:0 2px 24px #1677ff15;margin-top:18px;padding:12px 22px 22px}
-    .tabbar{display:flex;border-bottom:1px solid #e5eaf2;margin-bottom:12px}
-    .tabbar button{font-size:18px;padding:8px 22px;background:none;border:none;color:#96a4b7;font-weight:500;border-bottom:2.5px solid transparent;cursor:pointer;border-radius:8px 8px 0 0;margin-right:12px}
-    .tabbar .on{color:var(--blue);background:#f1f7ff;border-bottom:2.5px solid var(--blue)}
-    .panel ul{margin:0;padding-left:10px}
-    .panel li{list-style:none;padding-bottom:12px;margin-bottom:10px;border-bottom:1px dashed #e5eaf2}
-    .p-title a{color:#2771cc;text-decoration:underline}
-    .p-title a:hover{color:var(--blue)}
-    .p-meta{color:#6d7e99;font-size:14px;margin-top:2px}
+  /* 快捷引用（末尾复制） */
+  .cite{margin-top:12px;color:#6d7e99;font-size:14px}
+  .copy-inline{display:inline-flex;align-items:center;gap:6px;margin-left:10px;border:1px solid #cfe2ff;background:#fff;color:#2b6dce;border-radius:999px;padding:3px 9px;cursor:pointer}
+  .copy-inline svg{width:14px;height:14px;display:block}
 
-    .footer{margin:40px 0 24px;text-align:center;color:#a3adc3;font-size:13px}
-
-    /* 响应 */
-    @media (max-width:900px){
-      .main{max-width:96vw}
-      .grid{grid-template-columns:repeat(3,1fr)}
-      .thumb{height:22vw}
-      .abs-compare.on{grid-template-columns:1fr}
-      .title-row{grid-template-columns:1fr}
-      .actions{justify-content:flex-start}
-    }
-  </style>
+  /* 相关文章：右侧固定，顶部与左侧第一个卡片对齐 */
+  .side-related{
+    position:fixed;z-index:998; /* top 与 left 由 JS 计算设置 */
+    width:380px;max-height:78vh;overflow:auto;background:#fff;border:1px solid #e8effa;
+    border-radius:16px;box-shadow:var(--shadow);padding:14px 16px 16px;
+  }
+  .side-related h3{margin:0 0 10px 2px;font-size:17px;color:#4a5e79}
+  .side-related a{display:block;color:#2466c8;text-decoration:none;font-size:15px;line-height:1.75;margin:8px 0}
+  .side-related a:hover{text-decoration:underline}
+  .side-meta{color:#90a3bb;font-size:13px;margin-left:6px}
+  .side-related::-webkit-scrollbar{width:8px}
+  .side-related::-webkit-scrollbar-thumb{background:#dfe8f6;border-radius:999px}
+  .side-related::-webkit-scrollbar-thumb:hover{background:#cddbf3}
+  @media (max-width:1180px){ .side-related{display:none} }
+</style>
 </head>
 <body>
-  <!-- 顶部 -->
-  <div class="nav">
-    <img src="https://cdn.jsdelivr.net/gh/wdxu/CDN@master/logo/wdl_icon.svg" alt="logo" />
+
+<!-- 吸顶：全局翻译 -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <img class="logo" src="https://cdn.jsdelivr.net/gh/wdxu/CDN@master/logo/wdl_icon.svg" alt="logo">
     <span class="brand">WDL</span>
     <span class="desc">New Academic</span>
+
+    <div class="gt-wrap">
+      <button id="gtBtn" class="gt-btn">翻译：<span id="gtCur">原文</span> ▾</button>
+      <div id="gtMenu" class="gt-menu">
+        <button data-lang="origin">原文</button>
+        <button data-lang="zh">中文</button>
+        <button data-lang="en">英文</button>
+        <button data-lang="ja">日文</button>
+        <button data-lang="ko">韩文</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="main" class="main">
+  <!-- 标题 + 右侧按钮（对齐到右上角红框位置） -->
+  <div class="title-row">
+    <div class="title-col">
+      <h1>Deep Learning for Brain Imaging Analysis and Disease-Assisted Diagnosis</h1>
+      <div class="title-zh">深度学习驱动的脑影像分析及其疾病辅助诊断研究</div>
+    </div>
+    <div class="title-actions">
+      <a class="btn btn-primary" href="https://arxiv.org/pdf/2402.00001.pdf" download>全文下载</a>
+      <a class="btn btn-ghost" href="#" title="下载附件">下载附件</a>
+    </div>
   </div>
 
-  <div class="main">
-    <!-- 标题 + 右侧按钮 -->
-    <div class="title-row">
-      <div>
-        <h1>Deep Learning for Brain Imaging Analysis and Disease-Assisted Diagnosis</h1>
-        <div class="title-zh">深度学习驱动的脑影像分析及其疾病辅助诊断研究</div>
+  <!-- 字段卡（第一个功能区） -->
+  <div class="card" id="fieldCard">
+    <div class="lines">
+      <div class="line"><span class="label">研究主题：</span>医学影像；深度学习；辅助诊断</div>
+      <div class="line"><span class="label">作者：</span>张三 <span class="sup" data-tip="ORCID: 0000-0002-3456-7890">ORCID</span></div>
+      <div class="line"><span class="label">作者学位：</span>硕士</div>
+      <div class="line"><span class="label">导师：</span>李四 <span class="sup" data-tip="ORCID: 0000-0001-1111-2222">ORCID</span></div>
+      <div class="line"><span class="label">论文公开日期：</span>2024-07-01</div>
+      <div class="line"><span class="label">院校名称：</span>清华大学 <span class="sup" data-tip="ROR: 012abc123">ROR</span></div>
+      <div class="line"><span class="label">授予院校地址：</span>北京市海淀区清华园1号</div>
+      <div class="line"><span class="label">所属二级院校名称：</span>医学院</div>
+      <div class="line">
+        <span class="label">关键词：</span>
+        <a href="#" style="color:#1677ff">深度学习</a>；<a href="#" style="color:#1677ff">医学影像</a>；<a href="#" style="color:#1677ff">脑疾病</a>；<a href="#" style="color:#1677ff">辅助诊断</a>；<a href="#" style="color:#1677ff">自动分割</a>；<a href="#" style="color:#1677ff">多模态分析</a>
       </div>
-      <div class="actions">
-        <a class="btn btn-primary" target="_blank" href="https://arxiv.org/pdf/2402.00001.pdf">阅读全文</a>
-        <a class="btn btn-ghost" href="#" title="下载附件">下载附件</a>
+
+      <div class="extra">
+        <div class="line"><span class="label">答辩委员会成员：</span>王五；赵六；钱七</div>
+        <div class="line"><span class="label">ISBN编号：</span>978-7-5678-1234-5</div>
+        <div class="line"><span class="label">ISSN编号：</span>1234-5678</div>
+        <div class="line"><span class="label">专业研究方向：</span>生物医学工程</div>
+        <div class="line"><span class="label">资助情况：</span>国家自然科学基金；项目：脑疾病辅助诊断关键技术；编号：62200001</div>
+        <div class="line"><span class="label">页数：</span>168</div>
       </div>
     </div>
+    <div class="fold"><button id="toggleFields" class="mini-btn">显示全部字段</button></div>
+  </div>
 
-    <!-- 字段（单列，字段名与内容都左对齐） -->
-    <div class="card" id="fieldCard">
-      <div class="lines">
-        <!-- 折叠态应展示的9项（含“作者学位”独立一行） -->
-        <div class="line"><span class="label">研究主题：</span>医学影像；深度学习；辅助诊断</div>
-        <div class="line"><span class="label">作者：</span>张三 <span class="sup" data-tip="ORCID: 0000-0002-3456-7890">ORCID</span></div>
-        <div class="line"><span class="label">作者学位：</span>硕士</div>
-        <div class="line"><span class="label">导师：</span>李四 <span class="sup" data-tip="ORCID: 0000-0001-1111-2222">ORCID</span></div>
-        <div class="line"><span class="label">论文公开日期：</span>2024-07-01</div>
-        <div class="line"><span class="label">院校名称：</span>清华大学 <span class="sup" data-tip="ROR: 012abc123">ROR</span></div>
-        <div class="line"><span class="label">授予院校地址：</span>北京市海淀区清华园1号</div>
-        <div class="line"><span class="label">所属二级院校名称：</span>医学院</div>
-        <div class="line">
-          <span class="label">关键词：</span>
-          <a href="#" class="kv-link">深度学习</a>；<a href="#" class="kv-link">医学影像</a>；<a href="#" class="kv-link">脑疾病</a>；<a href="#" class="kv-link">辅助诊断</a>；<a href="#" class="kv-link">自动分割</a>；<a href="#" class="kv-link">多模态分析</a>
-        </div>
-
-        <!-- 展开后追加字段 -->
-        <div class="extra">
-          <div class="line"><span class="label">答辩委员会成员：</span>王五；赵六；钱七</div>
-          <div class="line"><span class="label">ISBN编号：</span>978-7-5678-1234-5</div>
-          <div class="line"><span class="label">ISSN编号：</span>1234-5678</div>
-          <div class="line"><span class="label">开放获取状态：</span><span style="color:#16c05a">是</span></div>
-          <div class="line"><span class="label">专业研究方向：</span>生物医学工程</div>
-          <div class="line"><span class="label">资助情况：</span>国家自然科学基金；项目：脑疾病辅助诊断关键技术；编号：62200001</div>
-          <div class="line"><span class="label">页数：</span>168</div>
-        </div>
+  <!-- 摘要（全局翻译控制） -->
+  <div class="card">
+    <div class="abs-head">摘要</div>
+    <div class="abs-body">
+      <div id="absOrigin" class="clamp-4">
+        本文针对脑影像分析领域中的关键科学问题，提出了一系列基于深度学习的方法，显著提升了多种脑疾病的自动辅助诊断能力。
+        研究内容包含脑结构分割、病灶检测及进展预测等方面，并在真实临床数据集上取得优异效果。在方法层面，提出了多尺度注意力网络与迁移学习策略，
+        显著提高分割精度与鲁棒性；在数据层面，构建了跨机构多模态影像样本并建立统一标注规范；在系统层面，给出了端到端的部署与评估流程，
+        支持临床可解释性与稳定性评测，具有较强的落地价值。
       </div>
-      <div class="fold"><button id="toggleFields" class="btn">显示全部字段</button></div>
-    </div>
+      <a id="btnMore" class="more">显示更多</a>
 
-    <!-- 摘要 + 翻译 -->
-    <div class="abs">
-      <div class="abs-head">
-        <div class="abs-title">摘要</div>
-        <div class="abs-ctrl">
-          <button id="btnTrans" class="btn">翻译 ▾</button>
-          <div class="menu" id="menuTrans">
-            <button data-lang="origin">原文</button>
-            <button data-lang="zh">中文</button>
-            <button data-lang="en">英文</button>
-            <button data-lang="ja">日文</button>
-          </div>
-        </div>
-      </div>
-      <div class="abs-body">
-        <div id="absText" class="clamp-3">
-          本文针对脑影像分析领域中的关键科学问题，提出了一系列基于深度学习的方法，显著提升了多种脑疾病的自动辅助诊断能力。研究内容包含脑结构分割、病灶检测及进展预测等方面，并在真实临床数据集上取得优异效果。
-          在方法层面，提出了多尺度注意力网络与迁移学习策略，显著提高分割精度与鲁棒性；在数据层面，构建了跨机构多模态影像样本并建立统一标注规范；在系统层面，给出了端到端的部署与评估流程，支持临床可解释性与稳定性评测，具有较强的落地价值。
-        </div>
-        <a id="btnMore" class="more">显示更多</a>
-      </div>
-
-      <div id="absCompare" class="abs-compare">
-        <div class="abs-col">
-          <h4>原文：</h4>
-          <div id="absOrigin" class="abs-scroll">
-Background and aims: Rowing induced muscle stress may have impact on athletes’ immune-system and lead to increased URTI symptoms. This study aimed to evaluate the capability of ABEL®-Sport test used in the field to assess susceptibility pending exercise-loads...
-          </div>
-        </div>
-        <div class="abs-col">
-          <h4 id="transLabel">译文：</h4>
-          <div id="absTrans" class="abs-scroll">
-背景与目的：赛艇运动引起的肌肉应激可能会影响运动员的免疫系统，导致上呼吸道感染（URTI）症状的发生率增加……（示例翻译）
-          </div>
-        </div>
-        <button id="btnCloseTrans" class="close-trans">关闭翻译</button>
+      <div id="absTrans" class="abs-trans">
+        <div class="tlabel">译文（<span id="absLangLabel">中文</span>）</div>
+        <div id="absTransText">（示例）本研究面向脑影像分析中的关键问题，提出一系列深度学习方法，在临床数据集上取得优异表现……</div>
       </div>
 
       <div class="cite">
-        可引用：Labedzka; Maria. <i>Immune Function Assessment with ABEL®-Sport Test in Trained Rowers</i>[D]. University Of Chester. 2017.
+        快捷引用：
+        <span id="citeText">Labedzka; Maria. <i>Immune Function Assessment with ABEL®-Sport Test in Trained Rowers</i>[D]. University Of Chester. 2017.</span>
+        <button id="copyCite" class="copy-inline" title="复制引用">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 8h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z" stroke="#2b6dce" stroke-width="1.6"/><path d="M6 14H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="#2b6dce" stroke-width="1.6"/></svg>
+          复制
+        </button>
       </div>
     </div>
-
-    <!-- 图像画廊 -->
-    <div class="gallery">
-      <div class="gallery-title">图像（点击查看大图）</div>
-      <div class="grid" id="grid"></div>
-    </div>
-
-    <!-- 参考文献 / 相关文章 -->
-    <div class="tabs">
-      <div class="tabbar">
-        <button class="on" id="tabCited">参考文献</button>
-        <button id="tabRelated">相关文章</button>
-      </div>
-      <div class="panel" id="panelCited">
-        <ul>
-          <li>
-            <div class="p-title"><a href="#">基于深度学习的脑肿瘤自动分割研究</a></div>
-            <div class="p-meta">作者：李伟　年份：2022</div>
-          </li>
-          <li>
-            <div class="p-title"><a href="#">多模态医学图像配准方法综述</a></div>
-            <div class="p-meta">作者：赵颖　年份：2021</div>
-          </li>
-        </ul>
-      </div>
-      <div class="panel" id="panelRelated" style="display:none;">
-        <ul>
-          <li>
-            <div class="p-title"><a href="#">医学影像中的深度卷积神经网络</a></div>
-            <div class="p-meta">作者：王强　年份：2023</div>
-          </li>
-          <li>
-            <div class="p-title"><a href="#">辅助诊断系统的设计与实现</a></div>
-            <div class="p-meta">作者：孙晓　年份：2020</div>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="footer">© 2025 WDL New Academic 学术论文智能检索平台 | 北京盈科千信科技有限公司</div>
   </div>
 
-  <!-- 大图弹窗 -->
-  <div id="modal" class="modal">
-    <button class="modal-close" onclick="closeModal()">×</button>
-    <img id="modalImg" src="" alt="preview" />
+  <!-- 图像画廊 -->
+  <div class="gallery">
+    <div class="gallery-title">图像（点击查看大图）</div>
+    <div class="grid" id="grid"></div>
   </div>
 
-  <script>
-    // 折叠/展开字段
-    const fieldCard=document.getElementById('fieldCard');
-    const toggleFields=document.getElementById('toggleFields');
-    let expanded=false;
-    toggleFields.addEventListener('click',()=>{
-      expanded=!expanded;
-      fieldCard.classList.toggle('expanded',expanded);
-      toggleFields.textContent = expanded ? '收起部分字段' : '显示全部字段';
+  <!-- 参考文献 -->
+  <div class="card refs" id="refs">
+    <div class="abs-head">参考文献</div>
+    <div id="refsList"></div>
+  </div>
+
+  <div class="footer">© 2025 WDL New Academic 学术论文智能检索平台 | 北京盈科千信科技有限公司</div>
+</div>
+
+<!-- 右侧固定：相关文章（JS 计算位置，与左侧第一个卡片顶部对齐） -->
+<aside id="sideRelated" class="side-related">
+  <h3>相关文章</h3>
+  <div id="relatedList"></div>
+</aside>
+
+<!-- 大图弹窗 -->
+<div id="modal" class="modal">
+  <button class="modal-close" onclick="closeModal()">×</button>
+  <img id="modalImg" src="" alt="preview" />
+</div>
+
+<script>
+  /* 展开/收起字段 */
+  const fieldCard=document.getElementById('fieldCard');
+  const toggleFields=document.getElementById('toggleFields');
+  let expanded=false;
+  toggleFields.addEventListener('click',()=>{
+    expanded=!expanded;
+    fieldCard.classList.toggle('expanded',expanded);
+    toggleFields.textContent = expanded ? '收起部分字段' : '显示全部字段';
+  });
+
+  /* 摘要更多/收起 */
+  const absOrigin=document.getElementById('absOrigin');
+  const btnMore=document.getElementById('btnMore');
+  let more=false;
+  btnMore.addEventListener('click',()=>{
+    more=!more;
+    absOrigin.classList.toggle('clamp-4',!more);
+    btnMore.textContent= more ? '收起摘要' : '显示更多';
+  });
+
+  /* 吸顶全局翻译 */
+  const gtBtn  = document.getElementById('gtBtn');
+  const gtMenu = document.getElementById('gtMenu');
+  const gtCur  = document.getElementById('gtCur');
+  const absTrans = document.getElementById('absTrans');
+  const absTransText = document.getElementById('absTransText');
+  const absLangLabel = document.getElementById('absLangLabel');
+
+  gtBtn.addEventListener('click',()=>{gtMenu.style.display=gtMenu.style.display==='block'?'none':'block';});
+  document.addEventListener('click',(e)=>{if(!gtMenu.contains(e.target)&&e.target!==gtBtn){gtMenu.style.display='none';}});
+
+  const SAMPLE_TRANS = {
+    zh:'（示例-中文）本研究面向脑影像分析的关键问题，提出一系列深度学习方法，并在临床数据集上取得优异表现，具备良好落地价值……',
+    en:'(Sample-EN) This work proposes a series of deep-learning methods for brain imaging analysis and achieves strong performance on clinical datasets…',
+    ja:'（サンプル-日本語）本研究は脳画像解析の重要課題に対し，深層学習手法を提案し，臨床データセットで優れた結果を示した……',
+    ko:'(샘플-한국어) 본 연구는 뇌 영상 분석의 핵심 과제에 대해 딥러닝 방법을 제안하고 임상 데이터셋에서 우수한 성능을 보였다…'
+  };
+
+  gtMenu.addEventListener('click',(e)=>{
+    const lang=e.target.getAttribute('data-lang'); if(!lang) return;
+    gtMenu.style.display='none';
+    gtCur.textContent = (lang==='origin'?'原文':lang==='zh'?'中文':lang==='en'?'英文':lang==='ja'?'日文':'韩文');
+    if(lang==='origin'){
+      absTrans.style.display='none';
+    }else{
+      absLangLabel.textContent = gtCur.textContent;
+      absTransText.textContent = SAMPLE_TRANS[lang] || '';
+      absTrans.style.display='block';
+    }
+  });
+
+  /* 快捷引用复制 */
+  document.getElementById('copyCite').addEventListener('click',()=>{
+    const txt=document.getElementById('citeText').innerText;
+    navigator.clipboard.writeText(txt).then(()=>{
+      const b = document.getElementById('copyCite');
+      const old = b.innerHTML;
+      b.innerHTML = '✅ 已复制';
+      setTimeout(()=>b.innerHTML=old,1200);
     });
+  });
 
-    // 摘要 显示更多/收起
-    const absText=document.getElementById('absText');
-    const btnMore=document.getElementById('btnMore');
-    let more=false;
-    btnMore.addEventListener('click',()=>{
-      more=!more;
-      absText.classList.toggle('clamp-3',!more);
-      btnMore.textContent= more ? '收起摘要' : '显示更多';
-    });
+  /* 画廊 */
+  const imgs=[
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1495562569060-2eec283d3391?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=800&q=80"
+  ];
+  const grid=document.getElementById('grid');
+  grid.innerHTML = imgs.map((u,i)=>`<img class="thumb" src="${u}" alt="thumb${i}" onclick="openModal(${i})">`).join('');
+  const modal=document.getElementById('modal'); const modalImg=document.getElementById('modalImg');
+  window.openModal=(i)=>{modalImg.src=imgs[i]; modal.classList.add('on'); modal.onclick=(e)=>{if(e.target===modal) closeModal();}; document.addEventListener('keydown',escClose);};
+  window.closeModal=()=>{modal.classList.remove('on'); document.removeEventListener('keydown',escClose);};
+  function escClose(e){ if(e.key==='Escape') closeModal(); }
 
-    // 翻译菜单 & 对照
-    const btnTrans=document.getElementById('btnTrans');
-    const menuTrans=document.getElementById('menuTrans');
-    const absCompare=document.getElementById('absCompare');
-    const transLabel=document.getElementById('transLabel');
-    const absTrans=document.getElementById('absTrans');
-    btnTrans.addEventListener('click',()=>{menuTrans.style.display=menuTrans.style.display==='block'?'none':'block';});
-    document.addEventListener('click',(e)=>{if(!menuTrans.contains(e.target)&&e.target!==btnTrans){menuTrans.style.display='none';}});
-    const LANG_LABEL={zh:'译文（中文）：',en:'Translation (English):',ja:'翻訳（日本語）：'};
-    menuTrans.addEventListener('click',(e)=>{
-      const lang=e.target.getAttribute('data-lang'); if(!lang) return;
-      if(lang==='origin'){absCompare.classList.remove('on');}
-      else{
-        transLabel.textContent=LANG_LABEL[lang]||'译文：';
-        if(lang==='zh') absTrans.innerText='背景与目的：赛艇运动引起的肌肉应激可能会影响运动员的免疫系统，导致上呼吸道感染症状的发生率增加……（中文示例）';
-        if(lang==='en') absTrans.innerText='Background & aims translated to English (sample translation)…';
-        if(lang==='ja') absTrans.innerText='目的：本研究は…（日本語サンプル翻訳）';
-        absCompare.classList.add('on');
-      }
-      menuTrans.style.display='none';
-    });
-    document.getElementById('btnCloseTrans').addEventListener('click',()=>absCompare.classList.remove('on'));
+  /* 参考文献 & 相关文章 */
+  const REFS_DATA = [
+    {title:'基于深度学习的脑肿瘤自动分割研究', author:'李伟', year:'2022', url:'#'},
+    {title:'多模态医学图像配准方法综述', author:'赵颖', year:'2021', url:'#'}
+  ];
+  document.getElementById('refsList').innerHTML = REFS_DATA.map(p=>`
+    <div class="p">
+      <div class="title"><a href="${p.url}">${p.title}</a></div>
+      <div class="meta">作者：${p.author}　年份：${p.year}</div>
+    </div>
+  `).join('');
 
-    // 画廊
-    const imgs=[
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1495562569060-2eec283d3391?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=800&q=80"
-    ];
-    const grid=document.getElementById('grid');
-    grid.innerHTML = imgs.map((u,i)=>`<img class="thumb" src="${u}" alt="thumb${i}" onclick="openModal(${i})">`).join('');
-    const modal=document.getElementById('modal'); const modalImg=document.getElementById('modalImg');
-    window.openModal=(i)=>{modalImg.src=imgs[i]; modal.classList.add('on'); modal.onclick=(e)=>{if(e.target===modal) closeModal();}; document.addEventListener('keydown',escClose);};
-    window.closeModal=()=>{modal.classList.remove('on'); document.removeEventListener('keydown',escClose);};
-    function escClose(e){ if(e.key==='Escape') closeModal(); }
+  const RELATED_DATA = [
+    {title:'Non-invasive BCI for Neuro-rehabilitation', meta:'Zhang Wei · 2022', url:'#'},
+    {title:'Generative Models for Educational Feedback', meta:'Prof. Wang · 2021', url:'#'},
+    {title:'EEG-based Emotion Recognition with GNN', meta:'Liu Yan · 2023', url:'#'},
+    {title:'Clinical Decision Support via Multimodal Fusion', meta:'Chen Bo · 2020', url:'#'},
+    {title:'Brain Lesion Detection using Hybrid Attention', meta:'Huang Lin · 2024', url:'#'}
+  ];
+  document.getElementById('relatedList').innerHTML = RELATED_DATA.map(p=>`
+    <a href="${p.url}">${p.title}<span class="side-meta"> — ${p.meta}</span></a>
+  `).join('');
 
-    // Tabs
-    const tabCited=document.getElementById('tabCited');
-    const tabRelated=document.getElementById('tabRelated');
-    const panelCited=document.getElementById('panelCited');
-    const panelRelated=document.getElementById('panelRelated');
-    tabCited.addEventListener('click',()=>{tabCited.classList.add('on');tabRelated.classList.remove('on');panelCited.style.display='';panelRelated.style.display='none';});
-    tabRelated.addEventListener('click',()=>{tabRelated.classList.add('on');tabCited.classList.remove('on');panelCited.style.display='none';panelRelated.style.display='';});
-  </script>
+  /* 侧栏：与左侧第一个卡片顶部对齐 + 贴住主列右侧 */
+  function placeRelated(){
+    const main = document.getElementById('main');
+    const box  = document.getElementById('sideRelated');
+    const first = document.getElementById('fieldCard');
+    if(!main || !box || getComputedStyle(box).display==='none') return;
+
+    /* 顶部对齐：取第一个卡片在视口内的 top */
+    const firstTopInViewport = first.getBoundingClientRect().top;
+    box.style.top = Math.max(80, firstTopInViewport) + 'px';  // 80 做下限避免过贴顶部
+
+    /* 横向贴边：跟随主列右侧 */
+    const rect = main.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const preferredLeft = rect.left + scrollLeft + rect.width + 24;
+    const maxLeft = (window.innerWidth - box.offsetWidth - 16) + (window.pageXOffset||0);
+    const minLeft = (window.pageXOffset||0) + 16;
+    box.style.left = Math.max(minLeft, Math.min(preferredLeft, maxLeft)) + 'px';
+  }
+  window.addEventListener('load', placeRelated);
+  window.addEventListener('resize', placeRelated);
+  window.addEventListener('scroll', placeRelated);
+</script>
 </body>
 </html>
