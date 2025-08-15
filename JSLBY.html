@@ -8,6 +8,8 @@
   :root{
     --blue:#176be6; --blue-2:#2f6efb; --panel:#fff; --shadow:0 6px 32px rgba(56,101,191,.09);
     --text:#1a1a1a; --muted:#6b7280; --line:#eef0f3;
+    /* 传统检索字段宽度与间距，用于对齐“关系”到输入框左边 */
+    --fieldW:140px; --advGap:8px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -80,12 +82,26 @@
   .adv-clear,.adv-help{border:none;border-radius:8px;height:30px;padding:0 10px;font-weight:700;cursor:pointer;}
   .adv-clear{background:#fff1f1;color:#c43c3c;}
   .adv-help{background:#eef4ff;color:#255fbe;}
-  .adv-row{display:flex;align-items:center;gap:8px;margin:8px 0;}
-  .adv-logic,.adv-field{border:1px solid #dde6f3;border-radius:6px;padding:6px 10px;background:#fff;color:#3269c5;font-size:14px;}
-  .adv-logic{min-width:68px;background:#eaf2ff;font-weight:800;}
-  .adv-field{min-width:120px;}
+
+  /* 将“关系 and/or”对齐到输入框左边：左侧空出字段宽度+间距 */
+  .logic-row{
+    display:grid;
+    grid-template-columns: calc(var(--fieldW) + var(--advGap)) 1fr;
+    align-items:center;
+    gap:10px;
+    margin:6px 0 8px;
+  }
+  .logic-global{display:inline-flex;align-items:center;gap:14px;font-size:13px;color:#3a63b7;font-weight:700;}
+  .logic-global input{width:14px;height:14px;margin:0;accent-color:var(--blue);}
+  .logic-global label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
+  .lb-title{margin-right:4px;}
+
+  /* 行：字段选择 + 检索输入（已删除最左侧逻辑下拉） */
+  .adv-row{display:flex;align-items:center;gap:var(--advGap);margin:8px 0;}
+  .adv-field{min-width:var(--fieldW);border:1px solid #dde6f3;border-radius:6px;padding:6px 10px;background:#fff;color:#3269c5;font-size:14px;}
   .adv-input{flex:1;border:1px solid #dde6f3;border-radius:6px;padding:6px 10px;font-size:14px;background:#fff;}
   .adv-del{border:none;background:none;color:#d73a49;font-size:18px;cursor:pointer;padding:2px 6px;border-radius:6px;}
+
   .adv-add{margin-top:6px;border:none;background:#eaf2ff;color:#1f63c6;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:800;}
   .adv-submit{position:absolute;right:10px;bottom:10px;display:inline-flex;align-items:center;gap:8px;border:none;background:var(--blue-2);color:#fff;padding:8px 14px;border-radius:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(47,110,251,.18);}
   .adv-submit svg{width:18px;height:18px;}
@@ -101,7 +117,7 @@
   .right-side{display:flex;align-items:center;gap:12px;margin-left:auto;}
   .result-total{color:#666;font-size:1.05rem;}
 
-  /* 翻译开关+菜单本体（菜单定位将由脚本改为挂载到 body） */
+  /* 翻译下拉 */
   .t-wrap{position:relative;display:inline-block;}
   .t-switch{display:inline-flex;align-items:center;gap:10px;border:2px solid var(--blue);border-radius:14px;padding:8px 14px;background:#fff;cursor:pointer;user-select:none;box-shadow:0 4px 18px rgba(23,107,230,.08);}
   .t-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--blue);}
@@ -259,7 +275,7 @@
         </div>
         <div id="countryBox"></div>
         <div class="dropdown-btn-row">
-          <button class="filter-toggle" onclick="toggleShow('country')">▼</button>
+          <button class="filter-toggle" onclick="openModal('country')">▼</button>
           <button class="filter-more" onclick="openModal('country')">查看更多</button>
         </div>
       </div>
@@ -304,13 +320,24 @@
                       <button type="button" class="adv-help" id="advHelpBtn">说明</button>
                     </div>
                   </div>
+
+                  <!-- 全局关系：左对齐到输入框 -->
+                  <div class="logic-row">
+                    <div></div>
+                    <div class="logic-global">
+                      <span class="lb-title">关系</span>
+                      <label><input type="radio" name="advGlobalLogic" value="AND" checked> and</label>
+                      <label><input type="radio" name="advGlobalLogic" value="OR"> or</label>
+                    </div>
+                  </div>
+
                   <div id="advRows"></div>
                   <button type="button" class="adv-add" id="advAddBtn">+ 添加检索条件</button>
                   <button class="adv-submit" id="advSubmitBtn" title="搜索">
                     <svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.7 10.7l4.3 4.3 1.4-1.4-4.3-4.3A6 6 0 0 0 10 4z" fill="#fff"/></svg>
                     搜索
                   </button>
-                  <div class="adv-tips" id="advTips">支持字段：标题、作者、关键词、导师、学科、学校、关键信息、摘要、出版年份、语种；逻辑：AND / OR / NOT。</div>
+                  <div class="adv-tips" id="advTips">支持字段：标题、作者、关键词、导师、学科、学校、关键信息、摘要、出版年份、语种。</div>
                 </div>
               </div>
 
@@ -349,7 +376,6 @@
                   <span class="t-value" id="tValue">原文</span>
                   <span class="t-arrow">▼</span>
                 </span>
-                <!-- 菜单会被脚本移动到 body，避免被裁切 -->
                 <div class="t-menu" id="tMenu">
                   <div class="t-item" data-v="原文">原文</div>
                   <div class="t-item" data-v="中文">中文</div>
@@ -393,7 +419,6 @@
               <div class="more-row">
                 <button class="show-more-btn">显示更多</button>
                 <button class="btn-sim" onclick="openSimilar('A Study of Machine Learning in Education')">
-                  <!-- 放大镜 + 星（相似“搜索”） -->
                   <svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.9 10.5l3.9 3.9-1.4 1.4-3.9-3.9A6 6 0 0 0 10 4z" fill="none" stroke="#1e4ed6" stroke-width="2" stroke-linecap="round"/><path d="M10 7l1 2 2 .2-1.6 1.3.5 2-1.9-1.1-1.9 1.1.5-2L6 9.2l2-.2z" fill="#1e4ed6"/></svg>
                   相似搜索
                 </button>
@@ -615,31 +640,45 @@ function switchSearchType(isSemantic){
   document.getElementById('planeBtn').style.display=isSemantic?'inline-flex':'none';
 }
 
-/* 传统检索行 */
-const advFields=[{label:'标题',value:'title'},{label:'作者',value:'author'},{label:'关键词',value:'keyword'},{label:'导师',value:'tutor'},{label:'学科',value:'subject'},{label:'学校',value:'school'},{label:'关键信息',value:'info'},{label:'摘要',value:'abstract'},{label:'出版年份',value:'year'},{label:'语种',value:'language'}];
-const advLogics=['AND','OR','NOT'];
-let advRowsData=[{logic:'AND',field:'title',value:''}];
+/* 传统检索行（删除最左侧逻辑下拉） */
+const advFields=[
+  {label:'标题',value:'title'},{label:'作者',value:'author'},{label:'关键词',value:'keyword'},
+  {label:'导师',value:'tutor'},{label:'学科',value:'subject'},{label:'学校',value:'school'},
+  {label:'关键信息',value:'info'},{label:'摘要',value:'abstract'},{label:'出版年份',value:'year'},{label:'语种',value:'language'}
+];
+let advRowsData=[{field:'title',value:''}];
 function renderAdvRows(){
   const rowsHtml=advRowsData.map((row,idx)=>`
     <div class="adv-row" data-row="${idx}">
-      <select class="adv-logic">${advLogics.map(l=>`<option value="${l}" ${row.logic===l?'selected':''}>${l}</option>`).join('')}</select>
       <select class="adv-field">${advFields.map(f=>`<option value="${f.value}" ${row.field===f.value?'selected':''}>${f.label}</option>`).join('')}</select>
       <input class="adv-input" type="text" value="${row.value||''}" placeholder="请输入检索词">
       ${advRowsData.length>1?`<button class="adv-del" title="删除">×</button>`:''}
     </div>`).join('');
   document.getElementById('advRows').innerHTML=rowsHtml;
   document.querySelectorAll('#advRows .adv-row').forEach((el,idx)=>{
-    el.querySelector('.adv-logic').onchange=e=>advRowsData[idx].logic=e.target.value;
     el.querySelector('.adv-field').onchange=e=>advRowsData[idx].field=e.target.value;
     el.querySelector('.adv-input').oninput=e=>advRowsData[idx].value=e.target.value;
     const del=el.querySelector('.adv-del'); if(del) del.onclick=()=>{advRowsData.splice(idx,1);renderAdvRows();};
   });
 }
 renderAdvRows();
-document.getElementById('advAddBtn').onclick=()=>{advRowsData.push({logic:'AND',field:'title',value:''});renderAdvRows();};
-document.getElementById('advClearBtn').onclick=()=>{advRowsData=[{logic:'AND',field:'title',value:''}];renderAdvRows();};
+document.getElementById('advAddBtn').onclick=()=>{advRowsData.push({field:'title',value:''});renderAdvRows();};
+document.getElementById('advClearBtn').onclick=()=>{advRowsData=[{field:'title',value:''}];renderAdvRows();};
 document.getElementById('advHelpBtn').onclick=()=>{const t=document.getElementById('advTips');t.style.display=t.style.display==='block'?'none':'block';};
-document.getElementById('advSubmitBtn').onclick=()=>{alert('传统检索条件：\n'+JSON.stringify(advRowsData,null,2));};
+
+/* 全局关系（and / or），与输入框左对齐 */
+let advGlobalLogic='AND';
+document.querySelectorAll('input[name="advGlobalLogic"]').forEach(r=>{
+  r.addEventListener('change',e=>advGlobalLogic=e.target.value);
+});
+
+/* 提交 */
+document.getElementById('advSubmitBtn').onclick=()=>{
+  alert('传统检索条件：\n' + JSON.stringify({
+    global_logic: advGlobalLogic,
+    rows: advRowsData
+  }, null, 2));
+};
 
 /* 弹窗（语种/学科/国家/院校/研究方向） */
 let currentModalType=null,modalCheckedSet=new Set(),modalSearchText='';
@@ -680,29 +719,23 @@ document.getElementById('modalSearch').oninput=(e)=>{ modalSearchText=e.target.v
 
 /* —— 修复：翻译下拉被 overflow:hidden 裁切 —— */
 (function () {
-  const sw   = document.getElementById('tSwitch');   // 触发器
-  const menu = document.getElementById('tMenu');     // 下拉菜单
-  const val  = document.getElementById('tValue');    // 当前值展示
+  const sw   = document.getElementById('tSwitch');
+  const menu = document.getElementById('tMenu');
+  const val  = document.getElementById('tValue');
   let originParent = null;
   let opening = false;
 
   function open() {
     if (opening) return;
     opening = true;
-
-    // 记录原父节点并移动到 body，避免被任何 overflow 裁切
     originParent = menu.parentElement;
     document.body.appendChild(menu);
-
-    // 以按钮的可视位置定位（fixed）
     const r  = sw.getBoundingClientRect();
     const vw = document.documentElement.clientWidth;
-
     const w = r.width;
     let left = r.left;
     if (left + w > vw - 8) left = r.right - w;
     if (left < 8) left = 8;
-
     Object.assign(menu.style, {
       position: 'fixed',
       display: 'block',
@@ -713,7 +746,6 @@ document.getElementById('modalSearch').oninput=(e)=>{ modalSearchText=e.target.v
       bottom: 'auto',
       zIndex: 3000
     });
-
     setTimeout(() => {
       document.addEventListener('mousedown', onBody, true);
       document.addEventListener('keydown', onKey, true);
@@ -725,13 +757,11 @@ document.getElementById('modalSearch').oninput=(e)=>{ modalSearchText=e.target.v
   function close() {
     if (!opening) return;
     opening = false;
-
     menu.style.display = 'none';
     menu.style.position = 'absolute';
     if (originParent && !originParent.contains(menu)) {
       originParent.appendChild(menu);
     }
-
     document.removeEventListener('mousedown', onBody, true);
     document.removeEventListener('keydown', onKey, true);
     window.removeEventListener('scroll', close, true);
@@ -747,7 +777,7 @@ document.getElementById('modalSearch').oninput=(e)=>{ modalSearchText=e.target.v
   });
 })();
 
-/* 摘要 “显示更多/收起” —— 事件委托 */
+/* 摘要 “显示更多/收起” */
 document.addEventListener('click',function(e){
   const btn = e.target.closest('.show-more-btn');
   if(!btn) return;
