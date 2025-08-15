@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
   <style>
+    :root{
+      /* 用于把“关系 and/or”与输入框左对齐（字段宽度 + 间距） */
+      --fieldW: 96px;
+      --advGap: 10px;
+    }
     html, body { height: 100%; margin: 0; box-sizing: border-box; }
     body{ min-height: 100vh; font-family: 'Segoe UI','微软雅黑',Arial,sans-serif; background: linear-gradient(135deg,#eaf3fb 0%,#d4e3f7 100%); overflow-x: hidden; }
     .center-main{ width:100vw; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:0; }
@@ -25,6 +30,8 @@
     .optimize-inline{ position:absolute; left:12px; bottom:14px; display:flex; align-items:center; gap:6px; padding:8px 10px; height:40px; border:1px solid #d7e7ff; border-radius:10px; background:#f4f9ff; color:#3a79d4; font-size:.96rem; font-weight:600; cursor:not-allowed; opacity:.6; user-select:none; transition:all .15s ease; }
     .optimize-inline.enabled{ cursor:pointer; opacity:1; background:#eaf4ff; border-color:#bcd9ff; box-shadow:0 3px 10px rgba(54,155,255,.10); }
     .optimize-inline i{ font-size:18px; }
+
+    /* ===== 传统检索 ===== */
     #classicSection{ display:none; }
     .classic-scope .main-flex{ display:flex; justify-content:center; align-items:flex-start; gap:0; margin-top:0; }
     .classic-scope .container{ width:100%; padding:22px 24px 70px; border-radius:18px; background:#fff; position:relative; box-shadow:0 8px 32px rgba(36,72,125,.08); border:1px solid #e6eefc; }
@@ -36,10 +43,23 @@
     .classic-scope .del-all-btn[disabled]{ opacity:.5; cursor:not-allowed; }
     .classic-scope .tips-icon-btn{ background:#f5f9ff; border:1px solid #dfeafe; color:#2b6dce; border-radius:999px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
     .classic-scope #advRows{ margin-bottom:12px; }
-    .classic-scope .search-row{ display:flex; gap:10px; margin-bottom:10px; }
-    .classic-scope .logic-select, .classic-scope .field-select{ height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 10px; background:#f7faff; color:#3269c5; outline:none; }
-    .classic-scope .logic-select{ min-width:84px; font-weight:700; background:#eaf3ff; }
-    .classic-scope .field-select{ min-width:96px; }
+
+    /* 全局关系行：用 grid 在左侧留出“字段宽度+间距”的缩进，使标签与输入框左缘对齐 */
+    .classic-scope .logic-row{
+      display:grid;
+      grid-template-columns: calc(var(--fieldW) + var(--advGap)) 1fr;
+      align-items:center;
+      gap:10px;
+      margin:8px 0 6px;
+    }
+    .classic-scope .logic-global{ display:inline-flex; align-items:center; gap:14px; font-size:13px; color:#3a63b7; font-weight:700; }
+    .classic-scope .logic-global input{ width:14px; height:14px; margin:0; accent-color:#176be6; }
+    .classic-scope .logic-global label{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+    .classic-scope .lb-title{ margin-right:4px; }
+
+    /* 每行：字段 + 关键字输入（已去掉每行逻辑下拉） */
+    .classic-scope .search-row{ display:flex; gap:var(--advGap); margin-bottom:10px; }
+    .classic-scope .field-select{ height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 10px; background:#f7faff; color:#3269c5; outline:none; min-width:var(--fieldW); }
     .classic-scope .kw-input{ flex:1; height:36px; border:1px solid #dde6f3; border-radius:8px; padding:0 12px; background:#fff; outline:none; }
     .classic-scope .del-btn{ border:none; background:#f6f7fb; color:#a6b0bf; border-radius:8px; width:32px; height:32px; cursor:pointer; }
     .classic-scope .del-btn:hover{ background:#ffeef0; color:#cf3a4a; }
@@ -47,6 +67,8 @@
     .classic-scope .search-btn-adv{ position:absolute; right:20px; bottom:16px; display:inline-flex; align-items:center; gap:8px; height:38px; padding:0 16px; border:none; background:linear-gradient(90deg,#2f7af7,#58a7ff); color:#fff; border-radius:12px; cursor:pointer; box-shadow:0 6px 18px rgba(38,127,255,.18); }
     .classic-scope .search-btn-adv i{ font-size:18px; }
     .classic-scope .search-btn-adv:active{ transform:translateY(1px); }
+
+    /* 其余介绍区块 */
     .info-switch-row{ margin-top:12px; display:flex; gap:10px; align-items:center; }
     .info-btn{ padding:7px 14px; border:1px solid #cfe2fb; background:#f5f9ff; color:#2b78d3; border-radius:10px; cursor:pointer; font-size:.98rem; transition:all .15s ease; }
     .info-btn:hover:not(.active){ background:#e6f0ff; color:#1f66c0; }
@@ -83,6 +105,7 @@
         <button class="mode-btn" id="classicBtn" onclick="setMode('classic')">传统检索</button>
       </div>
 
+      <!-- 语义检索 -->
       <div id="semanticSection">
         <textarea id="searchInput" class="search-textarea" maxlength="2000" placeholder="输入完整研究主题或问题，支持语义检索" rows="7"></textarea>
         <button class="optimize-inline" id="optimizeInline" disabled title="优化表达">
@@ -93,11 +116,12 @@
         </button>
       </div>
 
+      <!-- 传统检索（已按要求调整） -->
       <div id="classicSection" class="classic-scope">
         <div class="main-flex">
           <form id="advForm" class="container" autocomplete="off">
             <div class="adv-title-row">
-              <div class="adv-title"><i class="ri-filter-3-line"></i>高级检索</div>
+              <div class="adv-title"><i class="ri-filter-3-line"></i>传统检索</div>
               <div class="actions-bar">
                 <button type="button" id="delAllBtn" class="del-all-btn" title="清空全部条件" disabled>
                   <i class="ri-delete-bin-6-line"></i> 清空
@@ -105,6 +129,16 @@
                 <button type="button" id="showTipsBtn" class="tips-icon-btn" title="使用说明">
                   <i class="ri-question-line"></i>
                 </button>
+              </div>
+            </div>
+
+            <!-- 全局关系，与输入框左边对齐 -->
+            <div class="logic-row">
+              <div></div>
+              <div class="logic-global">
+                <span class="lb-title">关系</span>
+                <label><input type="radio" name="advGlobalLogic" value="AND" checked> and</label>
+                <label><input type="radio" name="advGlobalLogic" value="OR"> or</label>
               </div>
             </div>
 
@@ -119,6 +153,7 @@
         </div>
       </div>
 
+      <!-- 信息块 -->
       <div class="info-switch-row">
         <button class="info-btn active" id="btnFeature" onclick="setInfoBlock('feature')"><i class="ri-layout-2-line"></i> 平台功能</button>
         <button class="info-btn" id="btnData" onclick="setInfoBlock('data')"><i class="ri-database-2-line"></i> 数据规模</button>
@@ -132,7 +167,7 @@
             <div class="fc-desc">支持自然语言提问，自动扩展同义/实体/上下文，实现更高召回与更准排序。</div>
           </div>
           <div class="feat-card">
-            <div class="fc-head"><i class="ri-filter-3-line"></i>高级检索</div>
+            <div class="fc-head"><i class="ri-filter-3-line"></i>传统检索</div>
             <div class="fc-desc">标题/作者/关键词/导师/学科/学校/年份/语种等 10+ 字段组合逻辑检索。</div>
           </div>
           <div class="feat-card">
@@ -162,7 +197,7 @@
   </div>
 
   <script>
-    // 模式切换（原有）
+    /* ===== 模式切换 ===== */
     const semanticBtn  = document.getElementById('semanticBtn');
     const classicBtn   = document.getElementById('classicBtn');
     const semanticSec  = document.getElementById('semanticSection');
@@ -177,7 +212,7 @@
       }
     }
 
-    // 语义检索优化按钮（原有）
+    /* ===== 语义检索优化按钮 ===== */
     const searchInput   = document.getElementById('searchInput');
     const optimizeInline= document.getElementById('optimizeInline');
     searchInput.addEventListener('input', () => {
@@ -191,38 +226,57 @@
       searchInput.value = v.replace(/\s+/g,' ').replace(/[?？]*$/,'') + '（表达优化）';
     });
 
-    // 高级检索（原有）
+    /* ===== 传统检索（按你的要求修改） ===== */
     const fields = [
       {label: '标题', value: 'title'},{label: '作者', value: 'author'},{label: '关键词', value: 'keyword'},
       {label: '导师', value: 'tutor'},{label: '学科', value: 'subject'},{label: '学校', value: 'school'},
       {label: '关键信息', value: 'info'},{label: '摘要', value: 'abstract'},{label: '出版年份', value: 'year'},{label: '语种', value: 'language'}
     ];
-    const logics = ['AND', 'OR', 'NOT'];
-    let advRowsData = [{logic: 'AND', field:'title', value:''}];
+
+    // 每行仅“字段 + 关键词”，去掉行内逻辑下拉
+    let advRowsData = [{ field:'title', value:'' }];
+
     function renderAdvRows() {
       const wrap = document.getElementById('advRows'); if(!wrap) return;
       wrap.innerHTML = advRowsData.map((row, idx) => `
         <div class="search-row" data-row="${idx}">
-          <select class="logic-select">${logics.map(l=>`<option value="${l}" ${row.logic===l?'selected':''}>${l}</option>`).join('')}</select>
-          <select class="field-select">${fields.map(f=>`<option value="${f.value}" ${row.field===f.value?'selected':''}>${f.label}</option>`).join('')}</select>
+          <select class="field-select">
+            ${fields.map(f=>`<option value="${f.value}" ${row.field===f.value?'selected':''}>${f.label}</option>`).join('')}
+          </select>
           <input class="kw-input" type="text" placeholder="请输入检索词" value="${row.value||''}" />
           ${advRowsData.length > 1 ? `<button type="button" class="del-btn" title="删除本行"><i class="ri-close-line"></i></button>` : ''}
         </div>`).join('');
+
       document.querySelectorAll('#classicSection .search-row').forEach((rowEl, idx) => {
-        rowEl.querySelector('.logic-select').onchange = e => advRowsData[idx].logic = e.target.value;
         rowEl.querySelector('.field-select').onchange = e => advRowsData[idx].field = e.target.value;
         rowEl.querySelector('.kw-input').oninput = e => advRowsData[idx].value = e.target.value;
         const del = rowEl.querySelector('.del-btn');
         if (del) del.onclick = () => { advRowsData.splice(idx, 1); renderAdvRows(); };
       });
     }
-    function addRow(){ advRowsData.push({logic:'AND', field:'title', value:''}); renderAdvRows(); }
-    function deleteAllRows(){ advRowsData = [{logic:'AND', field:'title', value:''}]; renderAdvRows(); }
+
+    function addRow(){ advRowsData.push({ field:'title', value:'' }); renderAdvRows(); }
+    function deleteAllRows(){ advRowsData = [{ field:'title', value:'' }]; renderAdvRows(); }
+
     document.getElementById('addRowBtn')?.addEventListener('click', addRow);
     document.getElementById('delAllBtn')?.addEventListener('click', function(){ if(this.disabled) return; if(confirm("确认清空全部检索条件？")) deleteAllRows(); });
-    document.getElementById('advForm')?.addEventListener('submit', function(e){ e.preventDefault(); alert('高级检索条件：\n' + JSON.stringify(advRowsData, null, 2)); });
 
-    // 信息块切换（原有）
+    // 全局关系（and / or），与输入框左对齐
+    let advGlobalLogic = 'AND';
+    document.querySelectorAll('input[name="advGlobalLogic"]').forEach(r=>{
+      r.addEventListener('change', e => advGlobalLogic = e.target.value);
+    });
+
+    // 提交
+    document.getElementById('advForm')?.addEventListener('submit', function(e){
+      e.preventDefault();
+      alert('传统检索条件：\n' + JSON.stringify({
+        global_logic: advGlobalLogic,
+        rows: advRowsData
+      }, null, 2));
+    });
+
+    /* ===== 信息块切换 ===== */
     const blocks = { feature: document.getElementById('featureBlock'), data: document.getElementById('dataBlock'), sample: document.getElementById('sampleBlock') };
     const btns =   { feature: document.getElementById('btnFeature'),  data: document.getElementById('btnData'),  sample: document.getElementById('btnSample') };
     function setInfoBlock(name){
@@ -231,7 +285,7 @@
     }
     window.setInfoBlock = setInfoBlock;
 
-    // 样例渲染（原有）
+    /* ===== 样例渲染 ===== */
     const semanticSamples = [
       "量子计算在材料科学中的潜在应用与挑战",
       "人工智能如何提升高校教学质量与学习效果的实证研究",
@@ -255,10 +309,10 @@
       });
     })();
 
-    // 初始化（原有）
+    // 初始化
     renderAdvRows(); setMode('semantic'); setInfoBlock('feature');
 
-    /* === 新增：路由绑定（主页小飞机→列表页） === */
+    /* === 路由：主页小飞机 → 列表页 === */
     document.getElementById('searchBtn').addEventListener('click', function(){
       window.location.href = 'https://majiko-atao.github.io/-/JSLBY.html';
     });
