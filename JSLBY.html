@@ -298,7 +298,7 @@
               <div class="classic-adv" id="classicAdv">
                 <div class="adv-wrap">
                   <div class="adv-head">
-                    <div class="adv-head-title">高级检索</div>
+                    <div class="adv-head-title">传统检索</div>
                     <div class="adv-tools">
                       <button type="button" class="adv-clear" id="advClearBtn">清空</button>
                       <button type="button" class="adv-help" id="advHelpBtn">说明</button>
@@ -615,7 +615,7 @@ function switchSearchType(isSemantic){
   document.getElementById('planeBtn').style.display=isSemantic?'inline-flex':'none';
 }
 
-/* 高级检索行 */
+/* 传统检索行 */
 const advFields=[{label:'标题',value:'title'},{label:'作者',value:'author'},{label:'关键词',value:'keyword'},{label:'导师',value:'tutor'},{label:'学科',value:'subject'},{label:'学校',value:'school'},{label:'关键信息',value:'info'},{label:'摘要',value:'abstract'},{label:'出版年份',value:'year'},{label:'语种',value:'language'}];
 const advLogics=['AND','OR','NOT'];
 let advRowsData=[{logic:'AND',field:'title',value:''}];
@@ -639,7 +639,7 @@ renderAdvRows();
 document.getElementById('advAddBtn').onclick=()=>{advRowsData.push({logic:'AND',field:'title',value:''});renderAdvRows();};
 document.getElementById('advClearBtn').onclick=()=>{advRowsData=[{logic:'AND',field:'title',value:''}];renderAdvRows();};
 document.getElementById('advHelpBtn').onclick=()=>{const t=document.getElementById('advTips');t.style.display=t.style.display==='block'?'none':'block';};
-document.getElementById('advSubmitBtn').onclick=()=>{alert('高级检索条件：\n'+JSON.stringify(advRowsData,null,2));};
+document.getElementById('advSubmitBtn').onclick=()=>{alert('传统检索条件：\n'+JSON.stringify(advRowsData,null,2));};
 
 /* 弹窗（语种/学科/国家/院校/研究方向） */
 let currentModalType=null,modalCheckedSet=new Set(),modalSearchText='';
