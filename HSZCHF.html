@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ArbiMail · 仲裁测试（右侧自动回复-仅代理律师）</title>
+<style>
+  :root{
+    --ink:#0f172a; --muted:#667085; --line:#e6edf5; --bg:#f6f9fc; --brand:#2f6efb;
+    --left:280px; --mid:520px; --side:360px; --gut:8px;
+    --shadow:0 10px 28px rgba(15,23,42,.08);
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",Arial,sans-serif;color:var(--ink);background:#f6f9fc}
+  .topbar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#fff;border-bottom:1px solid var(--line)}
+  .brand{font-weight:800}
+  .actions{display:flex;gap:8px}
+  .btn{height:32px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}
+  .btn.primary{background:#2f6efb;border-color:#2f6efb;color:#fff}
+  .select{height:32px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 10px}
+
+  /* 身份 & 视图 */
+  .role-switch{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .role-switch button{height:32px;border:0;background:transparent;padding:0 14px;cursor:pointer}
+  .role-switch button.on{background:#2f6efb;color:#fff}
+  .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .seg button{height:32px;border:0;background:transparent;padding:0 14px;cursor:pointer}
+  .seg button.on{background:#eef2ff;color:#1f2a44;font-weight:700}
+  .hidden{display:none !important}
+
+  /* 布局 */
+  .layout{height:calc(100vh - 54px);display:grid;grid-template-columns:var(--left) var(--gut) 1fr var(--gut) var(--side)}
+  .col{min-width:0;overflow:auto}
+  .main{padding:12px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px;margin-bottom:12px}
+  .card h3{margin:0 0 8px}
+  .kv{font-weight:700;color:#475569;width:72px}
+  .row-flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .chip{padding:2px 8px;border:1px solid #e3e8ff;background:#eef2ff;border-radius:999px}
+  .chip.link{cursor:pointer}
+  .mini{height:30px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+  .mini.primary{background:#2f6efb;color:#fff;border-color:#2f6efb}
+  .select.sm{height:28px;padding:0 8px}
+
+  /* 左侧：邮箱/案件/合同文件夹（沿用你之前结构） */
+  .left{background:#fff;border-right:1px solid var(--line);padding:12px 10px}
+  .group{margin-bottom:10px}
+  .g-head{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:10px;font-weight:700;background:#f7fafc;border:1px solid var(--line);cursor:pointer}
+  .g-head:hover{background:#f1f6ff}
+  .g-title{display:flex;align-items:center;gap:8px}
+  .caret{transition:.2s}
+  .g-body{margin-top:6px;border-left:2px solid #eaf1fb;padding-left:8px;display:flex;flex-direction:column;gap:6px}
+  .item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:10px;cursor:pointer}
+  .item:hover{background:#f8fbff}
+  .item.active{background:#e7efff}
+  .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .subctrl{display:flex;align-items:center;gap:8px}
+  .badge{min-width:18px;height:18px;padding:0 6px;border-radius:999px;background:#eef2ff;color:#334155;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+  .tiny{border:1px solid var(--line);border-radius:8px;height:28px;padding:0 10px;background:#fff;cursor:pointer;font-size:12px}
+  .tiny.primary{background:#2f6efb;color:#fff;border-color:#2f6efb}
+  .tiny[data-act="toggle"]{width:28px;padding:0;display:flex;align-items:center;justify-content:center}
+  .sublist{display:flex;flex-direction:column;gap:6px;margin-left:14px}
+  .pdf-list{display:flex;flex-direction:column;gap:6px}
+  .pdf-row{display:grid;grid-template-columns:20px 1fr auto auto;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .pdf-ico{text-align:center}.pdf-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .link-row{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:8px;padding:6px 8px;border:1px dashed #e5eaf5;border-radius:10px;background:#fbfdff}
+  .pdf-empty{padding:8px;border:1px dashed #e5eaf5;border-radius:10px;background:#fbfdff;color:#94a3b8}
+
+  /* 邮件视图（列表+阅读） */
+  .list-wrap{display:flex;flex-direction:column;height:100%;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .toolbar{display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid var(--line);background:#fff}
+  .search{flex:1;display:flex;gap:8px;align-items:center;background:#f7f9fd;border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+  .search input{flex:1;border:none;background:transparent;outline:none}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:#fff;color:#334155}
+  .list{overflow:auto}
+  .section-hd{position:sticky;top:0;background:#fff;padding:6px 10px;color:#7a869f;font-size:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .row-mail{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center;padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+  .row-mail:hover{background:#f8fbff}.dot{width:8px;height:8px;border-radius:50%;background:#d1d9e8;margin-left:2px}
+  .subject{font-weight:650;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .meta{color:#6b7280;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .paper{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:12px;padding:0}
+  .mailbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:8px;border-bottom:1px solid var(--line);background:#fbfbfe;border-top-left-radius:12px;border-top-right-radius:12px}
+  .mb-btn{height:28px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:12px}
+  .mb-btn:hover{background:#f5f7ff}
+  .header{padding:10px 12px;border-bottom:1px solid var(--line)}
+  .h-subject{font-weight:800;font-size:18px;margin-bottom:6px}
+  .h-line{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+  .pill-addr{background:#fff6d7;border:1px solid #f0e3b1;padding:0 8px;height:22px;display:inline-flex;align-items:center;border-radius:999px;font-size:12px}
+  .r-grid{display:grid;grid-template-columns:360px 1fr;gap:14px;padding:12px}
+  .kp{border:1px dashed #dbeafe;background:#f8fbff;border-radius:10px;padding:10px}
+  .info{border:1px solid var(--line);border-radius:10px;padding:10px}
+  .kvline{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .attachments{grid-column:1/3;display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .file{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff}
+  .body{grid-column:1/3;white-space:pre-wrap;margin-top:6px;line-height:1.8}
+  .pdf-card{grid-column:1/3;margin-top:12px;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);background:#fff}
+  .pdf-toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--line);background:#fbfdff;border-top-left-radius:12px;border-top-right-radius:12px}
+  .pdf-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pdf-wrap{height:56vh;overflow:hidden;border-bottom-left-radius:12px;border-bottom-right-radius:12px}
+  .pdf-frame{width:100%;height:100%;border:0;display:block;background:#f6f9fc}
+
+  /* 右侧栏 */
+  .side{background:#fff;border-left:1px solid var(--line);padding:10px}
+  .kvtable{width:100%;border-collapse:collapse}
+  .kvtable td{padding:6px 4px;border-bottom:1px dashed #eef2f7;font-size:13px}
+  .op-group{display:flex;gap:8px;flex-wrap:wrap}
+  .switch{display:inline-flex;align-items:center;gap:6px}
+  .switch input{accent-color:#2f6efb}
+  .bookmark{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:8px}
+  .bookmark:hover{background:#f7faff}
+  .mini-link{font-size:12px;color:#2f6efb;cursor:pointer}
+  .rel-list{display:flex;flex-direction:column;gap:8px}
+  .rel-item{display:flex;justify-content:space-between;gap:8px}
+  .rel-item a{color:#0f172a;text-decoration:none}
+  .rel-meta{color:#64748b;font-size:12px}
+
+  /* 自动回复（右侧卡片） */
+  .rule{border:1px dashed #e5eaf5;border-radius:10px;padding:10px;margin-bottom:10px}
+  .rule-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .rule-title{font-weight:700}
+  .rule-row{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .rule-row label{font-size:12px;color:#64748b}
+  .rule-row input,.rule-row textarea,.rule-row select{
+    border:1px solid var(--line);border-radius:8px;padding:6px 10px;height:32px
+  }
+  .rule-range{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mono{font-family:ui-monospace, Menlo, Consolas, monospace;white-space:pre-wrap}
+  .hint{color:#94a3b8;font-size:12px}
+
+  /* 响应式 */
+  @media (max-width:1360px){
+    :root{--side:0px}
+    #sideCol{display:none}
+    .layout{grid-template-columns:var(--left) var(--gut) 1fr}
+  }
+</style>
+</head>
+<body>
+  <!-- 顶部：身份/案件/视图 -->
+  <div class="topbar">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div class="brand">ArbiMail · 仲裁测试</div>
+
+      <div class="role-switch" id="roleSwitch">
+        <button data-role="counsel">代理律师</button>
+        <button data-role="arbitrator">仲裁员</button>
+      </div>
+
+      <select id="caseSelect" class="select" title="选择案件"></select>
+
+      <div class="seg" id="viewSeg">
+        <button data-view="recap">工作台</button>
+        <button data-view="matrix">矩阵+Recap</button>
+        <button data-view="mail">邮件</button>
+        <button data-view="pdf">PDF</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="window.print()">导出PDF</button>
+      <button class="btn primary">新建案件</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- 左列：邮箱/案件/合同文件夹（省略：与之前一致的 DOM 会在脚本里渲染） -->
+    <div class="col left">
+      <div class="group">
+        <div class="g-head" data-toggle="mbx"><div class="g-title"><span class="caret">▾</span> 邮件箱</div></div>
+        <div class="g-body" id="mbxBody"></div>
+      </div>
+      <div class="group">
+        <div class="g-head" data-toggle="case"><div class="g-title"><span class="caret">▾</span> 我的案件</div></div>
+        <div class="g-body" id="caseBody"></div>
+      </div>
+      <div class="group">
+        <div class="g-head" data-toggle="shelf">
+          <div class="g-title"><span class="caret">▾</span> 合同文件夹</div>
+          <div><button class="tiny" id="btnAddPdf">＋ 添加PDF</button><input id="pdfPicker" type="file" accept="application/pdf" style="display:none"></div>
+        </div>
+        <div class="g-body" id="shelfBody"></div>
+      </div>
+    </div>
+
+    <div></div> <!-- gutter -->
+
+    <!-- 中列：不同视图（为简洁，此处仅放“邮件”完整；其他视图的结构与之前一致） -->
+    <div class="col main" id="mainCol">
+      <!-- 邮件视图 -->
+      <div id="mailView" class="mainview">
+        <div class="row-flex" style="gap:12px; align-items:flex-start">
+          <div style="flex:0 0 480px; min-width:420px">
+            <div class="list-wrap">
+              <div class="toolbar">
+                <div class="search"><span>🔎</span><input id="q" placeholder="搜索（from: party: clause: has:attachment）"></div>
+                <span class="pill" id="viewPill">案件</span>
+              </div>
+              <div id="list" class="list"></div>
+            </div>
+          </div>
+          <div style="flex:1 1 auto; min-width:420px">
+            <article class="paper">
+              <div class="mailbar">
+                <button class="mb-btn" data-roles="counsel,arbitrator">回复</button>
+                <button class="mb-btn" data-roles="counsel,arbitrator">回复全部</button>
+                <button class="mb-btn" data-roles="counsel,arbitrator">转发</button>
+                <button class="mb-btn" data-roles="counsel">自动回复</button>
+              </div>
+              <div class="header" id="mailHeader">
+                <div class="h-subject" id="subj">—</div>
+                <div class="h-line"><div class="kv">发件人</div><div id="hFrom"></div></div>
+                <div class="h-line"><div class="kv">收件人</div><div id="hTo"></div></div>
+                <div class="h-line" id="ccLine" style="display:none;"><div class="kv">抄送</div><div id="hCc"></div></div>
+                <div class="h-line"><div class="kv">时间</div><div id="hTime"></div></div>
+              </div>
+              <section class="r-grid">
+                <div class="kp"><div style="font-weight:700;margin-bottom:6px">关键要点</div><div id="kp"></div></div>
+                <div class="info">
+                  <div style="font-weight:700;margin-bottom:6px">关键词</div>
+                  <div class="kvline" id="chips"></div>
+                </div>
+                <div class="attachments" id="attach"></div>
+                <div class="body" id="body"></div>
+                <div class="pdf-card">
+                  <div class="pdf-toolbar">
+                    <div class="pdf-tools">
+                      <button class="mini" id="btnReload">刷新</button>
+                      <label class="mini" style="display:flex;align-items:center;gap:6px;cursor:pointer">选择PDF
+                        <input type="file" id="filePicker" accept="application/pdf" style="display:none">
+                      </label>
+                      <div class="pdf-chips" id="pdfChips"></div>
+                    </div>
+                    <div>
+                      <input id="pdfPage" placeholder="页码…" style="height:30px;border:1px solid var(--line);border-radius:8px;padding:0 10px;width:90px">
+                      <button class="mini" id="btnPage">跳转</button>
+                      <input id="pdfFind" placeholder="在PDF中查找…" style="height:30px;border:1px solid var(--line);border-radius:8px;padding:0 10px;width:220px;margin-left:8px">
+                      <button class="mini" id="btnFind">查找</button>
+                    </div>
+                  </div>
+                  <div class="pdf-wrap"><iframe id="pdfFrame" class="pdf-frame" title="合同PDF"></iframe></div>
+                </div>
+              </section>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <!-- 其余视图（占位，保留你已有的布局逻辑） -->
+      <div id="recapView" class="mainview hidden"><div class="card">工作台（这里保留你的 Recap/锚点/AI草拟）</div></div>
+      <div id="matrixView" class="mainview hidden"><div class="card">矩阵+Recap（这里保留你的矩阵表）</div></div>
+      <div id="pdfView" class="mainview hidden">
+        <div class="card">
+          <div class="pdf-toolbar">
+            <div class="pdf-tools">
+              <button class="mini" id="btnReload2">刷新</button>
+              <label class="mini" style="display:flex;align-items:center;gap:6px;cursor:pointer">选择PDF
+                <input type="file" id="filePicker2" accept="application/pdf" style="display:none">
+              </label>
+              <div class="pdf-chips" id="pdfChips2"></div>
+            </div>
+            <div>
+              <input id="pdfPage2" placeholder="页码…" style="height:30px;border:1px solid var(--line);border-radius:8px;padding:0 10px;width:90px">
+              <button class="mini" id="btnPage2">跳转</button>
+              <input id="pdfFind2" placeholder="在PDF中查找…" style="height:30px;border:1px solid var(--line);border-radius:8px;padding:0 10px;width:220px;margin-left:8px">
+              <button class="mini" id="btnFind2">查找</button>
+            </div>
+          </div>
+          <div class="pdf-wrap"><iframe id="pdfFrame2" class="pdf-frame" title="合同PDF（放大）"></iframe></div>
+        </div>
+      </div>
+    </div>
+
+    <div></div> <!-- gutter -->
+
+    <!-- 右列：常驻侧栏 + 新的自动回复卡片（仅代理律师） -->
+    <div class="col side" id="sideCol">
+      <div class="card" data-roles="counsel">
+        <h4>AI 摘要</h4><div id="aisum" style="color:#475569">选择一封邮件查看。</div>
+      </div>
+
+      <div class="card" data-roles="counsel">
+        <h4>智能抽取字段</h4>
+        <table class="kvtable" id="kvExtract">
+          <tbody>
+            <tr><td style="width:84px;color:#64748b">案件</td><td id="kvCase">—</td></tr>
+            <tr><td style="color:#64748b">费率/价格</td><td id="kvRate">—</td></tr>
+            <tr><td style="color:#64748b">Laycan</td><td id="kvLaycan">—</td></tr>
+            <tr><td style="color:#64748b">装港</td><td id="kvLoad">—</td></tr>
+            <tr><td style="color:#64748b">卸港</td><td id="kvDisc">—</td></tr>
+            <tr><td style="color:#64748b">规则</td><td id="kvRules">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 新：自动回复（阈值策略） 仅代理律师可见 -->
+      <div class="card" data-roles="counsel">
+        <h4 style="display:flex;justify-content:space-between;align-items:center">
+          <span>自动回复（阈值策略）</span>
+          <label class="switch"><input type="checkbox" id="autoReplyEnable"> 启用</label>
+        </h4>
+
+        <div class="op-group" style="margin:6px 0 8px">
+          <label>应用案件</label>
+          <select id="arCaseSelect" class="select sm"></select>
+          <button class="mini" id="btnTestReply">测试当前邮件</button>
+        </div>
+
+        <div id="ruleList"></div>
+        <div class="op-group" style="margin:6px 0">
+          <button class="mini" id="btnAddRule">＋ 添加字段</button>
+          <button class="mini" id="btnSaveRules">保存</button>
+          <button class="mini" id="btnResetRules">重置</button>
+        </div>
+
+        <div class="hint">说明：上面为字段内容，下面设置区间范围/允许列表。命中全部启用字段时将建议“同意”。</div>
+
+        <textarea id="replyDraft" class="mono" placeholder="自动生成的回复草稿…" style="width:100%;height:120px;margin-top:8px;"></textarea>
+        <div class="op-group" style="margin-top:6px">
+          <button class="mini primary" id="btnCopyReply">复制草稿</button>
+        </div>
+      </div>
+
+      <div class="card" data-roles="counsel">
+        <h4>关联信息</h4>
+        <div id="relInfo" style="color:#475569">—</div>
+      </div>
+
+      <div class="card" data-roles="counsel,arbitrator">
+        <h4>快速操作</h4>
+        <div class="op-group">
+          <label class="switch"><input type="checkbox" id="opFlag"> 红旗</label>
+          <label class="switch"><input type="checkbox" id="opArch"> 归档</label>
+          <button class="mini" id="opToCase">移至当前案件</button>
+        </div>
+      </div>
+
+      <div class="card" data-roles="counsel,arbitrator">
+        <h4>相关邮件</h4>
+        <div class="rel-list" id="relEmails">—</div>
+      </div>
+
+      <div class="card" data-roles="counsel,arbitrator">
+        <h4>PDF 书签</h4>
+        <div class="op-group" style="margin-bottom:8px">
+          <button class="mini" id="bmAddPage">添加页码书签</button>
+          <button class="mini" id="bmAddSearch">添加关键字书签</button>
+          <button class="mini" id="bmClear">清空</button>
+        </div>
+        <div id="bmList">暂无书签</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========= 数据示例 ========= */
+var PDFS=[{id:'pdfA',name:'Test Contract (ClickDimensions)',url:'https://www.clickdimensions.com/links/TestPDFfile.pdf'},
+          {id:'pdfB',name:'W3C Dummy PDF',url:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'},
+          {id:'pdfC',name:'Mozilla Sample (PDF.js)',url:'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf'}];
+var CASES=[{id:'C-001',name:'[ICSID] Procedural Order No.1 对齐',color:'#3b82f6',pdfIds:['pdfC']},
+           {id:'C-002',name:'MV Ocean Star — Main Terms',color:'#10b981',pdfIds:['pdfA']},
+           {id:'C-003',name:'MV Silver Wave — Spot Voyage',color:'#f59e0b',pdfIds:[]}];
+var MAILBOXES=[{id:'inbox',name:'收件箱'},{id:'sent',name:'已发送'},{id:'flag',name:'红旗邮件'},{id:'arch',name:'已归档'},{id:'unfiled',name:'未归档'}];
+var EMAILS=[{id:'e1',folder:'inbox',flag:true,arch:false,subject:'Proposed edits — Quorum & Procedural Language',from:'claimant.counsel@example.com',to:['respondent.counsel@example.com'],cc:[],date:'2025-08-12 10:30',body:'We propose: (i) Option 1 (two-person quorum) in §4; (ii) Procedural Language: English only (Option 1) in §11; (iii) transcript be available in real-time; (iv) Production of Documents to follow ICSID Rules 33–36.',attachments:[{name:'TestPDFfile.pdf',url:'https://www.clickdimensions.com/links/TestPDFfile.pdf'}],tags:{topic:['Quorum','Procedural Language','Hearings','Production of Documents']},caseId:'C-001'},
+            {id:'e2',folder:'inbox',flag:false,arch:false,subject:'Re: Edits — Publication Option 2',from:'respondent.counsel@example.com',to:['claimant.counsel@example.com'],cc:[],date:'2025-08-12 14:10',body:'In §23, we prefer Publication Option 2 (award published only with both parties consent).',attachments:[],tags:{topic:['Publication','Option 2']},caseId:'C-001'},
+            {id:'e3',folder:'inbox',flag:false,arch:false,subject:'Offer freight at USD 56,000 PDPR for 12 months',from:'broker@ship.com',to:['owners@co.com','charterer@qs.com'],cc:[],date:'2025-08-11 09:12',body:'Laycan 19–25 Nov. Load port Beira, discharge Tianjin. Time counting SHINC. Please confirm.',attachments:[{name:'W3C Dummy.pdf',url:'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'}],tags:{topic:['Laycan','PDPR','NOR','SHINC','Beira','Tianjin']},caseId:'C-002'},
+            {id:'e4',folder:'inbox',flag:true,arch:false,subject:'NOR validity question at Beira (SHINC)',from:'charterer@qs.com',to:['owners@co.com'],cc:[],date:'2025-08-10 08:23',body:'Please confirm NOR tendering window at Beira and applicable SHINC rule.',attachments:[],tags:{topic:['NOR','SHINC','Beira']},caseId:'C-002'},
+            {id:'e5',folder:'inbox',flag:false,arch:false,subject:'MV Silver Wave — recap (Busan to Manila, 25–27 Aug)',from:'broker@sea.com',to:['ops@ship.com'],cc:[],date:'2025-08-11 16:05',body:'Fixture recap attached; laycan 25–27 Aug, Busan to Manila.',attachments:[{name:'Mozilla Sample.pdf',url:'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf'}],tags:{topic:['Laycan','Recap','Busan','Manila']},caseId:'C-003'}];
+
+/* ========= 工具 ========= */
+function $(s){return document.querySelector(s);}
+function fmtDate(s){var d=new Date(s);function p(n){return (n<10?'0':'')+n;}return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function groupLabel(d){var dd=Math.floor((new Date()-new Date(d))/86400000);return dd<=0?'今天':dd===1?'昨天':'更早';}
+function findOne(a,p){for(var i=0;i<a.length;i++){if(p(a[i]))return a[i];}return null;}
+function strip(html){var n=document.createElement('div'); n.innerHTML=html; return n.innerText||n.textContent||'';}
+
+/* ========= 顶部状态 ========= */
+var APP={role:localStorage.getItem('arbimail.role')||'counsel', view:location.hash.replace('#','')||'mail', caseId:localStorage.getItem('arbimail.case')|| (CASES[0]&&CASES[0].id) };
+function setHash(v){location.hash=v;}
+
+function applyRole(){
+  document.querySelectorAll('#roleSwitch button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-role')===APP.role); });
+  document.querySelectorAll('[data-roles]').forEach(function(el){
+    var allow = el.getAttribute('data-roles').split(',').map(function(s){return s.trim();});
+    el.classList.toggle('hidden', allow.indexOf(APP.role)===-1);
+  });
+}
+function applyView(){
+  document.querySelectorAll('#viewSeg button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-view')===APP.view); });
+  document.querySelectorAll('.mainview').forEach(function(v){ v.classList.toggle('hidden', v.id!==APP.view+'View'); });
+  if(APP.view==='mail'){ state.scope={type:'case',id:APP.caseId}; renderList(); }
+  if(APP.view==='pdf'){ syncPdfToBigView(); }
+}
+function initTopBar(){
+  document.querySelectorAll('#roleSwitch button').forEach(function(b){
+    b.onclick=function(){ APP.role=this.getAttribute('data-role'); localStorage.setItem('arbimail.role',APP.role); applyRole(); };
+  });
+  document.querySelectorAll('#viewSeg button').forEach(function(b){
+    b.onclick=function(){ APP.view=this.getAttribute('data-view'); setHash(APP.view); applyView(); };
+  });
+  window.addEventListener('hashchange', function(){ APP.view=location.hash.replace('#','')||'mail'; applyView(); });
+
+  var sel=$('#caseSelect'); sel.innerHTML=CASES.map(function(c){return '<option value="'+c.id+'">'+c.name+'</option>';}).join('');
+  sel.value=APP.caseId;
+  sel.onchange=function(){ APP.caseId=this.value; localStorage.setItem('arbimail.case',APP.caseId); refreshForCase(); };
+}
+
+/* ========= 左侧：邮箱/案件/合同 ========= */
+var state={scope:{type:'case',id:APP.caseId}, selected:null};
+function setBadgeCounts(){
+  var c={inbox:EMAILS.filter(function(e){return e.folder==='inbox';}).length,
+         sent:EMAILS.filter(function(e){return e.folder==='sent';}).length,
+         flag:EMAILS.filter(function(e){return e.flag;}).length,
+         arch:EMAILS.filter(function(e){return e.arch;}).length,
+         unfiled:EMAILS.filter(function(e){return !e.caseId;}).length};
+  ['inbox','sent','flag','arch','unfiled'].forEach(function(k){
+    var el=document.getElementById('b_'+k); if(el) el.textContent=c[k]||0;
+  });
+}
+function renderMailboxes(){
+  var box=$('#mbxBody'); box.innerHTML='';
+  MAILBOXES.forEach(function(m){
+    var row=document.createElement('div'); row.className='item';
+    row.innerHTML='<div class="name">'+m.name+'</div><div class="subctrl"><span class="badge" id="b_'+m.id+'">0</span></div>';
+    row.onclick=function(){ state.scope={type:'mailbox',id:m.id}; renderList(); };
+    box.appendChild(row);
+  });
+  setBadgeCounts();
+}
+function renderCaseGroup(){
+  var wrap=$('#caseBody'); wrap.innerHTML='';
+  CASES.forEach(function(c){
+    var row=document.createElement('div'); row.className='item';
+    row.innerHTML='<div class="name" style="display:flex;align-items:center;gap:8px">'
+                 +'<span style="width:8px;height:8px;border-radius:50%;background:'+c.color+'"></span>'+c.name+'</div>'
+                 +'<div class="subctrl"><button class="tiny" data-act="toggle">▾</button><span class="badge">'
+                 +EMAILS.filter(function(e){return e.caseId===c.id;}).length+'</span></div>';
+    row.onclick=function(ev){
+      if(ev.target && ev.target.getAttribute('data-act')==='toggle'){
+        var box = wrap.querySelector('.sublist[data-case="'+c.id+'"]');
+        box.style.display = box.style.display==='none'?'':'none'; ev.stopPropagation(); return;
+      }
+      APP.caseId=c.id; $('#caseSelect').value=c.id; refreshForCase();
+    };
+    wrap.appendChild(row);
+
+    var sub=document.createElement('div'); sub.className='sublist pdf-list'; sub.setAttribute('data-case',c.id);
+    if(!c.pdfIds.length){ sub.innerHTML='<div class="pdf-empty">（未关联合同）</div>'; }
+    else {
+      c.pdfIds.forEach(function(pid){
+        var p=findOne(PDFS,function(x){return x.id===pid;}); if(!p) return;
+        var s=document.createElement('div'); s.className='pdf-row';
+        s.innerHTML='<div class="pdf-ico">📎</div><div class="pdf-name" title="'+p.name+'">'+p.name+'</div>'
+                   +'<button class="tiny primary" data-act="open">打开</button><button class="tiny" data-act="unlink">移除</button>';
+        s.onclick=function(ev){
+          var act=ev.target && ev.target.getAttribute('data-act');
+          if(act==='open'){ openPdf(p.url,{zoom:'page-fit'}); openPdfBig(p.url,{zoom:'page-fit'}); APP.view='pdf'; setHash('pdf'); applyView(); ev.stopPropagation(); }
+          if(act==='unlink'){ c.pdfIds=c.pdfIds.filter(function(x){return x!==pid;}); renderCaseGroup(); ev.stopPropagation(); }
+        };
+        sub.appendChild(s);
+      });
+    }
+    var ctrl=document.createElement('div'); ctrl.className='link-row';
+    var sel='<select class="tiny" style="width:100%">'; PDFS.forEach(function(p){ sel+='<option value="'+p.id+'">'+p.name+'</option>'; }); sel+='</select>';
+    ctrl.innerHTML='<div class="pdf-ico">➕</div>'+sel+'<button class="tiny" data-act="link">关联</button>';
+    ctrl.onclick=function(ev){
+      if(ev.target && ev.target.getAttribute('data-act')==='link'){
+        var s=ctrl.querySelector('select'); var pid=s.value; if(pid && c.pdfIds.indexOf(pid)<0){ c.pdfIds.push(pid); renderCaseGroup(); }
+        ev.stopPropagation();
+      }
+    };
+    sub.appendChild(ctrl);
+    wrap.appendChild(sub);
+  });
+}
+function renderShelf(){
+  var wrap=$('#shelfBody'); wrap.innerHTML='';
+  if(!PDFS.length){ wrap.innerHTML='<div class="pdf-empty">暂无PDF</div>'; return; }
+  PDFS.forEach(function(p){
+    var row=document.createElement('div'); row.className='item';
+    row.innerHTML='<div class="name">📄 '+p.name+'</div><div class="subctrl"><span class="badge">PDF</span></div>';
+    row.onclick=function(){ openPdf(p.url,{zoom:'page-fit'}); openPdfBig(p.url,{zoom:'page-fit'}); APP.view='pdf'; setHash('pdf'); applyView(); };
+    wrap.appendChild(row);
+  });
+}
+
+/* ========= 邮件列表/阅读 ========= */
+function pool(){
+  if(state.scope.type==='case') return EMAILS.filter(function(e){return e.caseId===state.scope.id;});
+  if(state.scope.id==='flag') return EMAILS.filter(function(e){return e.flag;});
+  if(state.scope.id==='arch') return EMAILS.filter(function(e){return e.arch;});
+  if(state.scope.id==='unfiled') return EMAILS.filter(function(e){return !e.caseId;});
+  return EMAILS.filter(function(e){return e.folder==='inbox';});
+}
+function renderList(){
+  var arr=pool().sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  $('#viewPill').textContent = state.scope.type==='case'
+    ? ('案件 · '+(findOne(CASES,function(c){return c.id===state.scope.id;})||{}).name) :
+      (findOne(MAILBOXES,function(m){return m.id===state.scope.id;})||{name:'视图'}).name;
+
+  var box=$('#list'); box.innerHTML='';
+  var last=''; arr.forEach(function(e){
+    var lb=groupLabel(e.date);
+    if(lb!==last){ last=lb; var hd=document.createElement('div'); hd.className='section-hd'; hd.innerText=lb; box.appendChild(hd); }
+    var row=document.createElement('div'); row.className='row-mail';
+    row.innerHTML='<div class="dot"></div><div style="min-width:0"><div class="subject">'+e.subject+'</div><div class="meta">'
+                 +e.from+' · '+(e.to||[]).join(', ')+'</div></div><div class="meta">'+fmtDate(e.date)+'</div>';
+    row.onclick=function(){ selectMail(e.id); };
+    box.appendChild(row);
+  });
+}
+var currentPdfUrl='';
+function pills(a){return (a||[]).map(function(x){return '<span class="pill-addr">'+x+'</span>';}).join(' ');}
+function selectMail(id){
+  var e=findOne(EMAILS,function(x){return x.id===id;}); if(!e) return; state.selected=id; APP.caseId=e.caseId; $('#caseSelect').value=APP.caseId; $('#arCaseSelect').value=APP.caseId;
+
+  $('#subj').textContent=e.subject;
+  $('#hFrom').innerHTML=pills([e.from]);
+  $('#hTo').innerHTML=pills(e.to||[]);
+  if(e.cc && e.cc.length){ $('#ccLine').style.display='flex'; $('#hCc').innerHTML=pills(e.cc); } else { $('#ccLine').style.display='none'; }
+  $('#hTime').textContent=fmtDate(e.date);
+
+  $('#kp').innerHTML='• 议题：'+((e.tags&&e.tags.topic)||[]).join('、')+'<br>• 关联案件：'+((findOne(CASES,function(c){return c.id===e.caseId;})||{}).name||'—');
+  var kws=extractKeywords(e), chips=kws.map(function(k){return '<span class="chip link" data-k="'+k.replace(/"/g,'&quot;')+'">'+k+'</span>';});
+  $('#chips').innerHTML=chips.join(' '); document.querySelectorAll('.chip.link').forEach(function(x){x.onclick=function(){ jumpSearch(this.getAttribute('data-k')); jumpSearchBig(this.getAttribute('data-k')); };});
+  $('#attach').innerHTML=(e.attachments||[]).map(function(a){return '<span class="file">📎 '+a.name+'</span>';}).join(' ');
+  $('#body').textContent=e.body||'';
+
+  var url=null, att=(e.attachments||[]).filter(function(a){return /\.pdf$/i.test(a.name);})[0];
+  if(att) url=att.url||att.name;
+  if(!url && e.caseId){ var c=findOne(CASES,function(x){return x.id===e.caseId;}); if(c && c.pdfIds.length){ var p=findOne(PDFS,function(pp){return pp.id===c.pdfIds[0];}); url=p&&p.url; } }
+  if(!url && PDFS.length) url=PDFS[0].url;
+  if(url){ openPdf(url,{zoom:'page-fit'}); openPdfBig(url,{zoom:'page-fit'}); }
+
+  updateSidePanels(e);
+  // 若开启自动回复，自动计算草稿
+  if($('#autoReplyEnable').checked){ doTestAutoReply(); }
+}
+function extractKeywords(e){
+  var p={},add=function(s){if(s&&!p[s])p[s]=1;}; var t=(e.subject+' '+e.body).toLowerCase(); var a=(e.tags&&e.tags.topic)||[]; a.forEach(add);
+  ['Applicable Arbitration Rules','Constitution of the Tribunal','Fees and Expenses','Presence and Quorum','Rulings of the Tribunal','Power to Fix Time Limits','Secretary of the Tribunal','Representation of the Parties','Apportionment of Costs','Place of Proceeding','Procedural Language','Routing of Communications','Number of Copies','Sequence of Pleadings','Production of Documents','Submission of Documents','Witness Statements','Examination of Witnesses','Pre-Hearing','Hearings','Records of Hearings','Post-Hearing','Publication']
+    .forEach(function(x){ if(t.indexOf(x.toLowerCase().split(' ')[0])>-1) add(x); });
+  ['Laycan','PDPR','NOR','SHINC','Demurrage','Beira','Tianjin','Recap','Busan','Manila']
+    .forEach(function(x){ if(t.indexOf(x.toLowerCase())>-1) add(x); });
+  (e.body.match(/Option\s*\d/ig)||[]).forEach(add);
+  return Object.keys(p).slice(0,12);
+}
+
+/* ========= PDF 小/大视图 ========= */
+function openPdf(url,opts){opts=opts||{};currentPdfUrl=url;var ps=[];if(opts.page)ps.push('page='+opts.page);if(opts.search)ps.push('search='+encodeURIComponent(opts.search));if(opts.zoom)ps.push('zoom='+opts.zoom);$('#pdfFrame').src=url+(ps.length?'#'+ps.join('&'):'#zoom=page-fit');}
+function openPdfBig(url,opts){opts=opts||{};var ps=[];if(opts.page)ps.push('page='+opts.page);if(opts.search)ps.push('search='+encodeURIComponent(opts.search));if(opts.zoom)ps.push('zoom='+opts.zoom);$('#pdfFrame2').src=url+(ps.length?'#'+ps.join('&'):'#zoom=page-fit');}
+function jumpSearch(q){ if(!currentPdfUrl) return; openPdf(currentPdfUrl,{search:q}); $('#pdfFind').value=q; }
+function jumpSearchBig(q){ var url=$('#pdfFrame2').src || currentPdfUrl; if(!url) return; var base=url.split('#')[0]; $('#pdfFrame2').src=base+'#search='+encodeURIComponent(q); $('#pdfFind2').value=q; }
+function syncPdfToBigView(){ var url=$('#pdfFrame').src || currentPdfUrl || (PDFS[0]&&PDFS[0].url); if(url) $('#pdfFrame2').src=url; }
+$('#btnReload').onclick=function(){ openPdf(currentPdfUrl || (PDFS[0]&&PDFS[0].url), {zoom:'page-fit'}); };
+$('#filePicker').onchange=function(ev){ var f=ev.target.files[0]; if(!f) return; openPdf(URL.createObjectURL(f),{zoom:'page-fit'}); };
+$('#btnPage').onclick=function(){ var p=parseInt($('#pdfPage').value||''); if(p>0) openPdf(currentPdfUrl || (PDFS[0]&&PDFS[0].url), {page:p}); };
+$('#btnFind').onclick=function(){ var q=$('#pdfFind').value.trim(); if(q) {jumpSearch(q); jumpSearchBig(q);} };
+$('#btnReload2').onclick=function(){ var url=$('#pdfFrame2').src || currentPdfUrl || (PDFS[0]&&PDFS[0].url); $('#pdfFrame2').src=url.split('#')[0]+'#zoom=page-fit'; };
+$('#filePicker2').onchange=function(ev){ var f=ev.target.files[0]; if(!f) return; openPdfBig(URL.createObjectURL(f),{zoom:'page-fit'}); };
+$('#btnPage2').onclick=function(){ var p=parseInt($('#pdfPage2').value||''); if(p>0){ var base=($('#pdfFrame2').src||'').split('#')[0]; $('#pdfFrame2').src=base+'#page='+(parseInt(p,10)||1); } };
+$('#btnFind2').onclick=function(){ var q=$('#pdfFind2').value.trim(); if(q) jumpSearchBig(q); };
+$('#btnAddPdf').onclick=function(){ $('#pdfPicker').click(); };
+$('#pdfPicker').onchange=function(ev){
+  var f=ev.target.files[0]; if(!f) return; var id='pdf_'+Math.random().toString(36).slice(2,8); var url=URL.createObjectURL(f);
+  PDFS.unshift({id:id,name:f.name,url:url}); renderShelf(); renderCaseGroup();
+};
+
+/* ========= 右侧：摘要/抽取/关联合同/相关邮件 ========= */
+function extractFields(t){
+  var f={rate:null,laycan:null,load:null,disc:null,rules:null};
+  var m=t.match(/USD[\s$]*([0-9,]+)\s*PDPR/i); if(m) f.rate='USD '+m[1]+' PDPR';
+  m=t.match(/Laycan[^0-9]*([0-3]?\d[\-\–—][0-3]?\d\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))/i); if(m) f.laycan=m[1];
+  m=t.match(/Load\s*port\s*([A-Za-z][A-Za-z\s\-]+)/i); if(m) f.load=m[1].trim();
+  m=t.match(/discharge\s*([A-Za-z][A-Za-z\s\-]+)/i); if(m) f.disc=m[1].trim();
+  if(/SHINC/i.test(t)) f.rules='SHINC';
+  if(/ICSID/i.test(t)) f.rules=f.rules?f.rules+', ICSID':'ICSID';
+  return f;
+}
+function updateSidePanels(email){
+  var caseObj=email.caseId?findOne(CASES,function(c){return c.id===email.caseId;}):null;
+  var topics=(email.tags&&email.tags.topic)||[],brief=topics.length?('本邮件涉及：'+topics.join('、')+'。可在合同中快速检索并核对相应条款。'):'根据关键词在下方合同中定位条款并高亮；必要时切换案件关联合同。';
+  $('#aisum').textContent=brief;
+  var f=extractFields(email.subject+' '+email.body);
+  $('#kvCase').textContent=caseObj?caseObj.name:'—'; $('#kvRate').textContent=f.rate||'—'; $('#kvLaycan').textContent=f.laycan||'—'; $('#kvLoad').textContent=f.load||'—'; $('#kvDisc').textContent=f.disc||'—'; $('#kvRules').textContent=f.rules||'—';
+
+  var html=''; if(caseObj){ html+='<div style="margin-bottom:6px"><b>案件：</b>'+caseObj.name+'</div>';
+    if(caseObj.pdfIds.length){
+      caseObj.pdfIds.forEach(function(id){ var p=findOne(PDFS,function(x){return x.id===id;}); if(p){ html+='<div class="bookmark"><span>📄 '+p.name+'</span><span class="mini-link" data-open="'+p.url+'">打开</span></div>'; } });
+    } else { html+='<div class="pdf-empty">暂无关联合同</div>'; }
+  } else { html='未关联到任何案件。'; }
+  $('#relInfo').innerHTML=html; document.querySelectorAll('[data-open]').forEach(function(a){ a.onclick=function(){ openPdf(a.getAttribute('data-open'),{zoom:'page-fit'}); openPdfBig(a.getAttribute('data-open'),{zoom:'page-fit'}); APP.view='pdf'; setHash('pdf'); applyView(); }; });
+
+  $('#opFlag').checked=!!email.flag; $('#opArch').checked=!!email.arch;
+  $('#opFlag').onchange=function(){ email.flag=this.checked; setBadgeCounts(); renderList(); };
+  $('#opArch').onchange=function(){ email.arch=this.checked; setBadgeCounts(); renderList(); };
+  $('#opToCase').onclick=function(){ if(!caseObj){ alert('该邮件未绑定案件'); return; } email.caseId=caseObj.id; renderList(); setBadgeCounts(); alert('已移动到案件：'+caseObj.name); };
+
+  var list=$('#relEmails'); list.innerHTML=''; var rel=EMAILS.filter(function(e){return e.caseId && caseObj && e.caseId===caseObj.id && e.id!==email.id;}).sort(function(a,b){return new Date(b.date)-new Date(a.date);}).slice(0,5);
+  if(!rel.length){ list.textContent='暂无'; } rel.forEach(function(r){ var d=document.createElement('div'); d.className='rel-item'; d.innerHTML='<div><a href="javascript:void(0)">'+r.subject+'</a><div class="rel-meta">'+fmtDate(r.date)+'</div></div><div class="rel-meta">'+(r.from||'')+'</div>'; d.onclick=function(){ selectMail(r.id); }; list.appendChild(d); });
+
+  renderBookmarks(email.caseId||'GLOBAL');
+}
+
+/* ========= PDF 书签 ========= */
+function bmKey(c){return 'arbimail.bm.'+(c||'GLOBAL');}
+function getBookmarks(c){try{var t=localStorage.getItem(bmKey(c));return t?JSON.parse(t):[];}catch(e){return[]}}
+function setBookmarks(c,a){try{localStorage.setItem(bmKey(c),JSON.stringify(a));}catch(e){}}
+function renderBookmarks(c){var box=$('#bmList'),arr=getBookmarks(c); if(!arr.length){box.textContent='暂无书签';return;} box.innerHTML=''; arr.forEach(function(b,idx){ var row=document.createElement('div'); row.className='bookmark'; row.innerHTML='<span>'+(b.type==='page'?'页码 ':'关键字 ')+b.value+'</span><span><span class="mini-link" data-goto="'+idx+'">跳转</span> · <span class="mini-link" data-del="'+idx+'">删除</span></span>'; box.appendChild(row);}); box.querySelectorAll('[data-goto]').forEach(function(g){ g.onclick=function(){ var a=getBookmarks(c)[parseInt(g.getAttribute('data-goto'),10)]; if(a){ if(a.type==='page'){ openPdf(currentPdfUrl||(PDFS[0]&&PDFS[0].url),{page:parseInt(a.value,10)||1}); openPdfBig($('#pdfFrame2').src.split('#')[0]||currentPdfUrl,{page:parseInt(a.value,10)||1}); } else { jumpSearch(a.value); jumpSearchBig(a.value); } } };}); box.querySelectorAll('[data-del]').forEach(function(g){ g.onclick=function(){ var idx=parseInt(g.getAttribute('data-del'),10); var arr=getBookmarks(c); arr.splice(idx,1); setBookmarks(c,arr); renderBookmarks(c); }; });}
+$('#bmAddPage').onclick=function(){ var page = prompt('输入要添加的页码：'); if(!page) return; var key=APP.caseId||'GLOBAL'; var arr=getBookmarks(key); arr.push({type:'page',value:page,ts:Date.now()}); setBookmarks(key,arr); renderBookmarks(key); };
+$('#bmAddSearch').onclick=function(){ var kw = $('#pdfFind').value.trim() || $('#pdfFind2').value.trim() || prompt('输入关键字：'); if(!kw) return; var key=APP.caseId||'GLOBAL'; var arr=getBookmarks(key); arr.push({type:'search',value:kw,ts:Date.now()}); setBookmarks(key,arr); renderBookmarks(key); };
+$('#bmClear').onclick=function(){ var key=APP.caseId||'GLOBAL'; setBookmarks(key,[]); renderBookmarks(key); };
+
+/* ========= 自动回复（仅代理律师） ========= */
+/* 规则结构：
+   {id, type:'amount'|'laycan'|'place'|'clause', label, content, min, max, list:[], enabled:true}
+   - amount: content 如 "USD PDPR"，min/max 为数值（例如 50000,60000）
+   - laycan: content 文字，min/max 为装期日（数字，如19,25）
+   - place:  content 说明，list=["Beira","Tianjin"]
+   - clause: content 关键子串（如 "Option 2" / "§23"），list 可空
+*/
+function rulesKey(caseId){ return 'arbimail.autoreply.rules.'+caseId; }
+function enableKey(caseId){ return 'arbimail.autoreply.enable.'+caseId; }
+function loadRules(caseId){
+  try{ var t=localStorage.getItem(rulesKey(caseId)); if(t) return JSON.parse(t); }catch(e){}
+  // 默认给三条示例
+  return [
+    {id:rid(), type:'amount', label:'金额（USD/PDPR）', content:'USD PDPR', min:52000, max:60000, list:[], enabled:true},
+    {id:rid(), type:'laycan', label:'Laycan（装期）', content:'装期日区间', min:19, max:27, list:[], enabled:true},
+    {id:rid(), type:'place',  label:'港口（装/卸）', content:'装卸港允许列表', list:['Beira','Tianjin','Busan','Manila'], enabled:false}
+  ];
+}
+function saveRules(caseId,arr){ try{ localStorage.setItem(rulesKey(caseId), JSON.stringify(arr)); }catch(e){} }
+function rid(){ return Math.random().toString(36).slice(2,8); }
+
+function renderAutoReplyPanel(){
+  var sel=$('#arCaseSelect'); sel.innerHTML=CASES.map(function(c){return '<option value="'+c.id+'">'+c.name+'</option>';}).join('');
+  sel.value=APP.caseId;
+
+  $('#autoReplyEnable').checked = localStorage.getItem(enableKey(sel.value))==='1';
+  $('#autoReplyEnable').onchange=function(){ localStorage.setItem(enableKey(sel.value), this.checked?'1':'0'); };
+
+  var data = loadRules(sel.value);
+  drawRules(data);
+
+  sel.onchange=function(){
+    localStorage.setItem('arbimail.case', this.value);
+    APP.caseId=this.value; $('#caseSelect').value=this.value;
+    var d=loadRules(this.value); drawRules(d);
+  };
+
+  $('#btnAddRule').onclick=function(){
+    var arr=loadRules(sel.value);
+    arr.unshift({id:rid(), type:'amount', label:'金额（USD/PDPR）', content:'USD PDPR', min:50000, max:60000, list:[], enabled:true});
+    saveRules(sel.value,arr); drawRules(arr);
+  };
+  $('#btnSaveRules').onclick=function(){ alert('规则已保存到本地（按案件独立存储）。'); };
+  $('#btnResetRules').onclick=function(){ localStorage.removeItem(rulesKey(sel.value)); drawRules(loadRules(sel.value)); };
+  $('#btnCopyReply').onclick=function(){ navigator.clipboard.writeText($('#replyDraft').value||''); };
+  $('#btnTestReply').onclick=doTestAutoReply;
+}
+
+function drawRules(arr){
+  var box=$('#ruleList'); box.innerHTML='';
+  arr.forEach(function(r){
+    var wrap=document.createElement('div'); wrap.className='rule'; wrap.setAttribute('data-id',r.id);
+    wrap.innerHTML = ''+
+      '<div class="rule-top">'+
+        '<div class="rule-title"><label class="switch" style="gap:6px"><input type="checkbox" class="r-enable"> 启用</label> · <select class="r-type select sm"><option value="amount">金额(USD/PDPR)</option><option value="laycan">Laycan</option><option value="place">地点</option><option value="clause">条款</option></select></div>'+
+        '<button class="mini" data-act="del">删除</button>'+
+      '</div>'+
+      '<div class="rule-row"><label>字段名称 / 内容说明</label><input class="r-label" placeholder="例如：金额（USD/PDPR）" /></div>'+
+      '<div class="rule-row r-content"><label>字段内容</label><input class="r-content-input" placeholder="如：USD PDPR / Option 2 / §23" /></div>'+
+      // 范围或列表
+      (r.type==='place'
+        ? ('<div class="rule-row"><label>允许列表（用英文逗号分隔）</label><input class="r-list" placeholder="Beira,Tianjin,Busan" /></div>')
+        : ('<div class="rule-row"><label>区间范围</label><div class="rule-range"><input class="r-min" placeholder="下限（金额：50000；装期日：19）"><input class="r-max" placeholder="上限（金额：60000；装期日：27）"></div></div>')
+      )+
+      '';
+    // 挂载
+    box.appendChild(wrap);
+
+    // 初值
+    wrap.querySelector('.r-enable').checked=!!r.enabled;
+    wrap.querySelector('.r-type').value=r.type;
+    wrap.querySelector('.r-label').value=r.label||'';
+    wrap.querySelector('.r-content-input').value=r.content||'';
+    var listEl=wrap.querySelector('.r-list');
+    if(listEl) listEl.value=(r.list||[]).join(',');
+    var minEl=wrap.querySelector('.r-min'), maxEl=wrap.querySelector('.r-max');
+    if(minEl) minEl.value=(r.min!=null?r.min:'');
+    if(maxEl) maxEl.value=(r.max!=null?r.max:'');
+
+    // 事件：删除
+    wrap.querySelector('[data-act="del"]').onclick=function(){
+      var all=loadRules($('#arCaseSelect').value).filter(function(x){return x.id!==r.id;});
+      saveRules($('#arCaseSelect').value,all); drawRules(all);
+    };
+    // 事件：类型切换 -> 重新渲染该条
+    wrap.querySelector('.r-type').onchange=function(){
+      r.type=this.value;
+      // 保存类型后重绘全部（简单处理）
+      var all=collectRulesFromUI(); all=all.map(function(x){ if(x.id===r.id) x.type=r.type; return x; });
+      saveRules($('#arCaseSelect').value,all); drawRules(all);
+    };
+    // 持久化（简化：失焦保存）
+    function persist(){ saveRules($('#arCaseSelect').value, collectRulesFromUI()); }
+    wrap.querySelectorAll('input,textarea,select').forEach(function(el){
+      el.onblur=persist; el.onchange=persist;
+    });
+  });
+}
+function collectRulesFromUI(){
+  var arr=[]; document.querySelectorAll('#ruleList .rule').forEach(function(wrap){
+    var type=wrap.querySelector('.r-type').value;
+    var r={id:wrap.getAttribute('data-id'), type:type, enabled:wrap.querySelector('.r-enable').checked,
+           label:wrap.querySelector('.r-label').value.trim(),
+           content:wrap.querySelector('.r-content-input').value.trim(),
+           min:null,max:null,list:[]};
+    var minEl=wrap.querySelector('.r-min'), maxEl=wrap.querySelector('.r-max'), listEl=wrap.querySelector('.r-list');
+    if(minEl) r.min = parseFloat(minEl.value)||null;
+    if(maxEl) r.max = parseFloat(maxEl.value)||null;
+    if(listEl) r.list = listEl.value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+    arr.push(r);
+  });
+  return arr;
+}
+
+function doTestAutoReply(){
+  if(APP.role!=='counsel'){ alert('仅代理律师可用'); return; }
+  if(!state.selected){ alert('请先选择一封邮件'); return; }
+  var e=findOne(EMAILS,function(x){return x.id===state.selected;}); if(!e) return;
+  var rules=collectRulesFromUI(); var res = evaluateEmail(e, rules);
+  $('#replyDraft').value = buildReplyDraft(e,res);
+}
+
+function evaluateEmail(email, rules){
+  var text=(email.subject||'')+'\n'+(email.body||''); var okAll=true, fails=[], hits={};
+  // 简单抽取
+  var m=text.match(/USD[\s$]*([\d,]+)\s*PDPR/i); var price = m? parseFloat(m[1].replace(/,/g,'')) : null;
+  var l=text.match(/Laycan[^0-9]*([0-3]?\d)\s*[\-\–—]\s*([0-3]?\d)/i); var layMin = l?parseInt(l[1],10):null, layMax = l?parseInt(l[2],10):null;
+  var places=['Beira','Tianjin','Busan','Manila','Qingdao','Shanghai'].filter(function(p){return new RegExp('\\b'+p+'\\b','i').test(text);});
+
+  rules.filter(function(r){return r.enabled;}).forEach(function(r){
+    if(r.type==='amount'){
+      if(price==null){ okAll=false; fails.push('金额未识别'); }
+      else{
+        if(r.min!=null && price<r.min){ okAll=false; fails.push('金额低于下限'); }
+        if(r.max!=null && price>r.max){ okAll=false; fails.push('金额高于上限'); }
+        hits.amount=price;
+      }
+    }else if(r.type==='laycan'){
+      if(layMin==null||layMax==null){ okAll=false; fails.push('Laycan 未识别'); }
+      else{
+        if(r.min!=null && layMin<r.min){ okAll=false; fails.push('Laycan 开始日低于下限'); }
+        if(r.max!=null && layMax>r.max){ okAll=false; fails.push('Laycan 结束日高于上限'); }
+        hits.laycan=layMin+'–'+layMax;
+      }
+    }else if(r.type==='place'){
+      if(!r.list || !r.list.length){ /* 无列表则跳过 */ }
+      var hit = r.list.some(function(p){ return new RegExp('\\b'+p+'\\b','i').test(text); });
+      if(!hit){ okAll=false; fails.push('地点不在允许列表'); } else { hits.place=(places.join(', ')||r.list.join(',')); }
+    }else if(r.type==='clause'){
+      if(r.content && !new RegExp(r.content.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'i').test(text)){
+        okAll=false; fails.push('未包含条款：'+r.content);
+      } else { hits.clause=r.content||''; }
+    }
+  });
+  return {ok:okAll, fails:fails, hits:hits, price:price, lay: (layMin&&layMax)?(layMin+'–'+layMax):null, places:places};
+}
+function buildReplyDraft(email, res){
+  var head = res.ok ? '同意 / Agree' : '不同意 / Not agreeable';
+  var lines = [
+    'Subject: Re: '+(email.subject||''),
+    '',
+    (res.ok?'我方同意贵方在邮件所述条件内的报价/条款，具体如下：'
+           :'经核对，以下要素未满足我方预设阈值，暂不予同意：'),
+    ''
+  ];
+  if(res.ok){
+    if(res.price!=null) lines.push('• 价格：USD '+res.price+' PDPR');
+    if(res.lay) lines.push('• Laycan：'+res.lay);
+    if(res.places && res.places.length) lines.push('• 涉及港口：'+res.places.join(', '));
+    if(res.hits && res.hits.clause) lines.push('• 条款：包含 '+res.hits.clause);
+  }else{
+    res.fails.forEach(function(f){ lines.push('• '+f); });
+  }
+  lines.push('', '此致');
+  return lines.join('\n');
+}
+
+/* ========= 初始化 ========= */
+function init(){
+  initTopBar(); applyRole(); applyView();
+  renderMailboxes(); renderCaseGroup(); renderShelf();
+  // 邮件列表默认显示当前案
+  state.scope={type:'case',id:APP.caseId}; renderList();
+
+  // 渲染右侧自动回复面板（仅代理律师）
+  renderAutoReplyPanel();
+
+  // 默认选第一封该案邮件
+  var first = EMAILS.find(function(e){return e.caseId===APP.caseId;}) || EMAILS[0];
+  if(first) selectMail(first.id);
+}
+function refreshForCase(){
+  state.scope={type:'case',id:APP.caseId};
+  renderList(); renderAutoReplyPanel();
+}
+init();
+</script>
+</body>
+</html>
