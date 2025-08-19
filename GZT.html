@@ -3,79 +3,98 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ArbiMail · 工作台（矩阵 + 宽版采纳清单 + 时间轴 + 合同生成）</title>
+<title>ArbiMail · 工作台（矩阵弹窗｜清单↔时间轴等高）</title>
 <style>
   :root{
     --ink:#0f172a; --muted:#667085; --line:#e6edf5; --bg:#f6f9fc; --brand:#2f6efb;
-    --left:280px; --right:560px; --gut:10px;
-    --shadow:0 10px 28px rgba(15,23,42,.08);
+    --left:280px; --gut:12px;
+    --shadow:0 12px 30px rgba(15,23,42,.06);
+    --shadow-sm:0 6px 16px rgba(15,23,42,.05);
+    --radius:14px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",Arial,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",Arial,sans-serif}
 
   /* 顶部 */
-  .topbar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#fff;border-bottom:1px solid var(--line)}
-  .brand{font-weight:800}
+  .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#fff;border-bottom:1px solid var(--line)}
+  .brand{font-weight:800;letter-spacing:.2px}
   .tabs{display:flex;border:1px solid var(--line);background:#fff;border-radius:10px;overflow:hidden}
   .tabs button{height:32px;border:0;background:transparent;padding:0 14px;cursor:pointer}
   .tabs button.on{background:#eef2ff;font-weight:700}
+  .btn{height:32px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
 
-  /* 布局 */
-  .wrap{height:calc(100vh - 54px);display:grid;grid-template-columns:var(--left) var(--gut) 1fr var(--gut) var(--right);gap:0}
-  .col{min-width:0;overflow:auto}
-  .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px}
+  /* 主布局 */
+  .wrap{height:calc(100vh - 56px);display:grid;grid-template-columns:var(--left) var(--gut) 1fr}
+  .col{min-width:0}
+  .left{background:#fff;border-right:1px solid var(--line);padding:12px 10px;overflow:auto}
+  /* 右侧改为纵向布局：上面“板块”等高、下面“生成器”固定可见 */
+  .right{padding:12px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+
+  /* 左侧导航 */
+  .group{margin-bottom:10px}
+  .g-head{display:flex;align-items:center;justify-content:space-between;padding:10px 10px;border:1px solid var(--line);border-radius:12px;background:#f8fbff;font-weight:700}
+  .g-body{margin-top:8px;border-left:2px solid #eaf1fb;padding-left:8px;display:flex;flex-direction:column;gap:6px}
+  .item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer}
+  .item:hover{background:#f3f6ff}
+  .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badge{min-width:18px;height:20px;padding:0 8px;border-radius:999px;background:#eef2ff;color:#334155;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+  .pdf-row{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:var(--shadow-sm)}
+
+  /* 卡片与按钮 */
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px}
   .card h3{margin:0 0 8px}
   .mini{height:28px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:12px}
-  .mini.primary{background:#2f6efb;border-color:#2f6efb;color:#fff}
+  .mini.primary{background:var(--brand);border-color:var(--brand);color:#fff}
   .muted{color:#94a3b8}
   .select{height:28px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:#fff}
 
-  /* 左侧导航 */
-  .left{background:#fff;border-right:1px solid var(--line);padding:12px 10px}
-  .group{margin-bottom:10px}
-  .g-head{display:flex;align-items:center;justify-content:space-between;padding:8px;border:1px solid var(--line);border-radius:10px;background:#f7fafc;font-weight:700}
-  .g-body{margin-top:6px;border-left:2px solid #eaf1fb;padding-left:8px;display:flex;flex-direction:column;gap:6px}
-  .item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:10px;cursor:pointer}
-  .item:hover{background:#f8fbff}
-  .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .badge{min-width:18px;height:18px;padding:0 6px;border-radius:999px;background:#eef2ff;color:#334155;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
-  .pdf-row{display:grid;grid-template-columns:20px 1fr auto;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  /* 右侧“板块”上半部：清单↔时间轴 等高 */
+  .board{flex:1;min-height:0}
+  .right-grid{height:100%;display:grid;grid-template-columns:1.6fr 1fr;gap:12px;align-items:stretch}
+  .card.stretch{display:flex;flex-direction:column;min-height:0}
+  .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .scroll{flex:1;min-height:0;overflow:auto;border:1px dashed #eef2f7;border-radius:10px;padding:8px;background:#fcfdff}
 
-  /* 中列：矩阵 */
-  .matrix-card .bar{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:6px}
-  .matrix-wrap{border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:54vh}
+  /* 已采纳清单 */
+  .pick-list{display:flex;flex-direction:column;gap:10px}
+  .pick-row{display:grid;grid-template-columns:1fr auto;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff}
+  .pick-title{font-weight:800}
+  .cite{font-size:12px;color:#64748b}
+  .quote{background:#f8fbff;border:1px dashed #dbeafe;border-radius:8px;padding:8px;margin-top:6px;color:#475569;white-space:pre-wrap}
+
+  /* 时间轴 */
+  .timeline{display:flex;flex-direction:column;gap:12px}
+  .t-item{display:grid;grid-template-columns:18px 1fr;gap:10px}
+  .t-dot{width:10px;height:10px;border-radius:50%;background:#93c5fd;margin-top:6px;box-shadow:0 0 0 3px #e8f2ff}
+  .t-body{border-left:2px solid #e5e7eb;padding-left:12px}
+  .t-title{font-weight:700}
+  .t-time{font-size:12px;color:#94a3b8;margin-top:2px}
+
+  /* 文书生成：固定在底部可见 */
+  .gen-card{position:sticky;bottom:8px;z-index:1}
+  .gen-card textarea{width:100%;min-height:22vh;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;background:#fbfdff}
+
+  /* 矩阵弹窗 */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.35);z-index:40}
+  .panel{width:min(1080px,96vw);height:min(84vh,96vh);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:#fbfdff;border-top-left-radius:12px;border-top-right-radius:12px}
+  .panel-body{padding:10px;overflow:auto}
+  .matrix-wrap{border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:100%;background:#fff}
   table{border-collapse:collapse;width:100%}
   th,td{border-bottom:1px solid #eef2f7;padding:8px 10px;vertical-align:top;font-size:13px}
   th{position:sticky;top:0;background:#fbfdff;z-index:1}
-  .topic{font-weight:700}
-  .topic-sub{font-size:12px;color:#64748b}
+  .topic{font-weight:700}.topic-sub{font-size:12px;color:#64748b}
   .m-badge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#fbfdff;font-size:12px;color:#475569;margin-right:4px}
   .m-badge.us{background:#eef2ff;border-color:#dbeafe}
   .m-badge.them{background:#fff1f2;border-color:#ffe4e6}
   .mini-link{font-size:12px;color:#2f6efb;cursor:pointer}
 
-  /* 右列：采纳清单（宽版） + 时间轴 */
-  .pick-list{display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto}
-  .pick-row{display:grid;grid-template-columns:1fr auto;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px}
-  .pick-title{font-weight:800}
-  .cite{font-size:12px;color:#64748b}
-  .quote{background:#f8fbff;border:1px dashed #dbeafe;border-radius:8px;padding:8px;margin-top:6px;color:#475569;white-space:pre-wrap}
-  .timeline{display:flex;flex-direction:column;gap:10px;max-height:28vh;overflow:auto}
-  .t-item{display:grid;grid-template-columns:18px 1fr;gap:8px}
-  .t-dot{width:10px;height:10px;border-radius:50%;background:#a5b4fc;margin-top:5px}
-  .t-body{border-left:2px solid #e5e7eb;padding-left:10px}
-  .t-time{font-size:12px;color:#94a3b8}
-
-  /* 底部：合同生成（跨两列） */
-  .gen{grid-column:1 / -1}
-  .gen textarea{width:100%;min-height:22vh;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
-
-  @media (max-width:1360px){
-    :root{--right:0px}
-    #rightCol{display:none}
-    .wrap{grid-template-columns:var(--left) var(--gut) 1fr}
-    .gen{grid-column:1 / -1}
+  /* 引用弹窗 */
+  .panel.small{width:min(760px,96vw);height:auto;max-height:84vh}
+  @media (max-width:1200px){
+    .right-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -83,14 +102,17 @@
   <!-- 顶部 -->
   <div class="topbar">
     <div class="brand">ArbiMail · 仲裁测试</div>
-    <div class="tabs">
-      <button class="on">工作台</button>
-      <button onclick="alert('占位：跳转到“邮件”页由整体路由接入')">邮件</button>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="tabs">
+        <button class="on">工作台</button>
+        <button onclick="alert('占位：保留“邮件”按钮（暂不跳转）')">邮件</button>
+      </div>
+      <button class="btn primary" id="btnOpenMatrix">显示矩阵</button>
     </div>
   </div>
 
   <div class="wrap">
-    <!-- 左：三块导航 -->
+    <!-- 左：导航 -->
     <div class="col left">
       <div class="group">
         <div class="g-head">我负责的法律事务</div>
@@ -108,64 +130,43 @@
 
     <div></div>
 
-    <!-- 中：矩阵 -->
-    <div class="col">
-      <div class="card matrix-card">
-        <div class="bar">
-          <div style="display:flex;align-items:center;gap:8px">
-            <h3 style="margin:0">矩阵（按案件切换）</h3>
-            <span class="muted" id="matrixHint">—</span>
-          </div>
-          <div>
-            <button class="mini" id="btnPickAi">AI 一键采纳</button>
-            <button class="mini" id="btnClearPick">清空采纳</button>
-          </div>
-        </div>
-        <div class="matrix-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:220px">议题</th>
-                <th>我方意见</th>
-                <th>对方意见</th>
-                <th style="width:180px">采纳</th>
-                <th style="width:120px">证据</th>
-              </tr>
-            </thead>
-            <tbody id="matrixBody">
-              <tr><td colspan="5" style="text-align:center;color:#94a3b8">— 请选择左侧案件 —</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <!-- 右：主功能 -->
+    <div class="col right" id="rightCol">
 
-    <div></div>
+      <!-- 上：等高区域 -->
+      <div class="board">
+        <div class="right-grid">
+          <!-- 已采纳清单（更宽，等高） -->
+          <div class="card stretch">
+            <div class="card-head">
+              <h3 style="margin:0">已采纳清单</h3>
+              <div style="display:flex;gap:8px">
+                <button class="mini" id="btnCopyList">复制清单</button>
+                <button class="mini" id="btnSaveList">保存</button>
+                <button class="mini" id="btnLoadList">恢复</button>
+              </div>
+            </div>
+            <div class="scroll">
+              <div id="pickList" class="pick-list"><div class="muted">暂无采纳项。</div></div>
+            </div>
+          </div>
 
-    <!-- 右：清单（宽） + 时间轴 -->
-    <div class="col" id="rightCol">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <h3 style="margin:0">已采纳清单</h3>
-          <div>
-            <button class="mini" id="btnCopyList">复制清单</button>
-            <button class="mini" id="btnSaveList">保存</button>
-            <button class="mini" id="btnLoadList">恢复</button>
+          <!-- 时间轴（等高） -->
+          <div class="card stretch">
+            <div class="card-head">
+              <h3 style="margin:0">时间轴</h3>
+              <span class="muted" id="tlHint"></span>
+            </div>
+            <div class="scroll">
+              <div id="timeline" class="timeline"><div class="muted">—</div></div>
+            </div>
           </div>
         </div>
-        <div id="pickList" class="pick-list"><div class="muted">暂无采纳项。</div></div>
       </div>
 
-      <div class="card">
-        <h3 style="margin:0 0 6px">时间轴</h3>
-        <div id="timeline" class="timeline"><div class="muted">—</div></div>
-      </div>
-    </div>
-
-    <!-- 底部：合同生成 -->
-    <div class="col gen">
-      <div class="card">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+      <!-- 下：合同 / 仲裁文件 生成（固定） -->
+      <div class="card gen-card">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
           <h3 style="margin:0">合同 / 仲裁文件 生成</h3>
           <select id="tplSelect" class="select">
             <option value="recap">Recap（确认函）</option>
@@ -181,16 +182,53 @@
     </div>
   </div>
 
+  <!-- 矩阵弹窗 -->
+  <div id="mxModal" class="modal">
+    <div class="panel">
+      <div class="panel-head">
+        <div style="display:flex;gap:10px;align-items:center">
+          <strong>矩阵（按案件切换）</strong>
+          <span class="muted" id="mxHint">—</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="mini" id="btnPickAi">AI 一键采纳</button>
+          <button class="mini" id="btnClearPick">清空采纳</button>
+          <button class="mini" id="btnCloseMatrix">关闭</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="matrix-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:220px">议题</th>
+                <th>我方意见</th>
+                <th>对方意见</th>
+                <th style="width:180px">采纳</th>
+                <th style="width:120px">证据</th>
+              </tr>
+            </thead>
+            <tbody id="mxBody">
+              <tr><td colspan="5" style="text-align:center;color:#94a3b8">— 请选择左侧案件 —</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 引用弹窗 -->
-  <div id="dlg" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.35)">
-    <div style="width:720px;max-width:92vw;background:#fff;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow);padding:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+  <div id="dlg" class="modal">
+    <div class="panel small">
+      <div class="panel-head">
         <div style="font-weight:800">引用邮件</div>
         <button class="mini" onclick="hideDlg()">关闭</button>
       </div>
-      <div id="dlgBody" class="quote"></div>
-      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
-        <button class="mini" onclick="copyDlg()">复制引用</button>
+      <div class="panel-body">
+        <div id="dlgBody" class="quote"></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="mini" onclick="copyDlg()">复制引用</button>
+        </div>
       </div>
     </div>
   </div>
@@ -228,34 +266,32 @@ var EMAILS=[
   tags:{topic:['Laycan','Recap','Busan','Manila']},caseId:'C-003'}
 ];
 
-/* ===== 工具 & 状态 ===== */
+/* ===== 工具与状态 ===== */
 function $(s){return document.querySelector(s);}
 function el(tag,html){var d=document.createElement(tag); d.innerHTML=html||''; return d;}
-function fmtDate(s){var d=new Date(s);function p(n){return (n<10?'0':'')+n;}return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function fmtDate(s){var d=new Date(s); if(!isFinite(d)){d=new Date(Number(s));} function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
 function findOne(a,p){for(var i=0;i<a.length;i++){if(p(a[i]))return a[i];}return null;}
 function keyPick(){return 'arbimail.picks.'+APP.caseId;}
 function keyAct(){return 'arbimail.activity.'+APP.caseId;}
 function getPicks(){try{return JSON.parse(localStorage.getItem(keyPick())||'{}');}catch(e){return{}}}
 function setPicks(o){localStorage.setItem(keyPick(),JSON.stringify(o));}
-function pushAct(a){var arr=getActs(); arr.unshift(a); localStorage.setItem(keyAct(),JSON.stringify(arr.slice(0,50))); renderTimeline();}
+function pushAct(a){var arr=getActs(); arr.unshift(a); localStorage.setItem(keyAct(),JSON.stringify(arr.slice(0,80))); renderTimeline();}
 function getActs(){try{return JSON.parse(localStorage.getItem(keyAct())||'[]');}catch(e){return[]}}
-
-/* 当前案件（默认选第一个 legal） */
 var APP={caseId:(CASES.find(c=>c.category==='legal')||CASES[0]).id};
 
-/* ===== 左侧渲染 ===== */
+/* ===== 左侧导航 ===== */
 function countEmails(cid){return EMAILS.filter(e=>e.caseId===cid).length;}
 function renderLeft(){
   var legal=$('#legalList'); legal.innerHTML='';
   CASES.filter(c=>c.category==='legal').forEach(c=>{
     var row=el('div','<div class="item"><div class="name" style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+c.color+'"></span>'+c.name+'</div><span class="badge">'+countEmails(c.id)+'</span></div>');
-    row.onclick=function(){APP.caseId=c.id; refreshAll();};
+    row.onclick=function(){APP.caseId=c.id; refreshAll(); renderMatrixModal();};
     legal.appendChild(row);
   });
   var arb=$('#arbList'); arb.innerHTML='';
   CASES.filter(c=>c.category==='arb').forEach(c=>{
     var row=el('div','<div class="item"><div class="name" style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:'+c.color+'"></span>'+c.name+'</div><span class="badge">'+countEmails(c.id)+'</span></div>');
-    row.onclick=function(){APP.caseId=c.id; refreshAll();};
+    row.onclick=function(){APP.caseId=c.id; refreshAll(); renderMatrixModal();};
     arb.appendChild(row);
   });
   var shelf=$('#pdfShelf'); shelf.innerHTML='';
@@ -278,13 +314,12 @@ function normalizeOpinion(topic,text){
   if(/publication/.test(t)){ var m=text.match(/option\s*(\d)/i); return 'Publication Option '+(m?m[1]:'（未指明）'); }
   if(/production of documents/i.test(t)){ return '依 ICSID 规则 33–36'; }
   if(/laycan/.test(t)){ var m=text.match(/Laycan[^0-9]*([0-3]?\d[\-–—][0-3]?\d\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?)/i); return m?('Laycan '+m[1]):'Laycan 未明确'; }
-  if(/pdpr/.test(text)) { var m=text.match(/USD[\s$]*([\d,]+)/i); return m?('USD '+m[1]+' PDPR'):'费率未明'; }
+  if(/pdpr/i.test(text)) { var m2=text.match(/USD[\s$]*([\d,]+)/i); return m2?('USD '+m2[1]+' PDPR'):'费率未明'; }
   return text.length>140?text.slice(0,140)+'…':text;
 }
-
 function buildMatrixRows(caseId){
   var mails=EMAILS.filter(e=>e.caseId===caseId).sort((a,b)=>new Date(a.date)-new Date(b.date));
-  var map={}; // topic -> array of rounds
+  var map={};
   mails.forEach(m=>{
     var topics=(m.tags&&m.tags.topic)||[];
     topics.forEach(tp=>{
@@ -304,13 +339,28 @@ function buildMatrixRows(caseId){
   return map;
 }
 
-/* ===== 矩阵渲染 & 采纳（阻止空意见） ===== */
-function renderMatrix(){
-  var body=$('#matrixBody'); body.innerHTML='';
+/* ===== AI 一键采纳（默认填充清单） ===== */
+function aiAutoPick(){
+  var rows=buildMatrixRows(APP.caseId), saved={};
+  Object.keys(rows).forEach(tp=>{
+    var rr=rows[tp][rows[tp].length-1];
+    if(rr.us && !rr.them) saved[tp]=rr.id+':us';
+    else if(rr.them && !rr.us) saved[tp]=rr.id+':them';
+    else if(rr.us && rr.them){
+      saved[tp]=rr.id+':us';
+    }
+  });
+  setPicks(saved);
+}
+
+/* ===== 矩阵弹窗渲染 ===== */
+function renderMatrixModal(){
+  var body=$('#mxBody'); body.innerHTML='';
   var rows=buildMatrixRows(APP.caseId);
   var topics=Object.keys(rows);
-  if(!topics.length){ body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8">该案件下未识别到可结构化的议题。</td></tr>'; $('#matrixHint').textContent=''; renderPickList(); return; }
-  $('#matrixHint').textContent='已识别 '+topics.length+' 个议题';
+  var hint=$('#mxHint');
+  if(!topics.length){ body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8">该案件下未识别到可结构化的议题。</td></tr>'; hint.textContent=''; return; }
+  hint.textContent='已识别 '+topics.length+' 个议题';
   var saved=getPicks();
   topics.forEach(tp=>{
     rows[tp].forEach((r,i)=>{
@@ -339,7 +389,6 @@ function renderMatrix(){
     });
   });
 
-  // 保存前校验，防止“空意见”被存入
   body.querySelectorAll('input[type=radio]').forEach(r=>{
     r.onchange=function(){
       var topic=this.name.replace('pick_',''); var val=this.value;
@@ -364,31 +413,26 @@ function renderMatrix(){
       showDlg('【'+(m.subject||'无主题')+'】 '+fmtDate(m.date)+'\nFrom: '+(m.from||'')+'\n\n'+(m.body||''));
     };
   });
-
-  renderPickList();
 }
 
-/* ===== 右侧：采纳清单（宽版+内嵌引用） ===== */
+/* ===== 右侧：采纳清单 ===== */
 function renderPickList(){
   var list=$('#pickList'); var picks=getPicks(); list.innerHTML='';
   var topics=Object.keys(picks);
   if(!topics.length){ list.innerHTML='<div class="muted">暂无采纳项。</div>'; return; }
 
+  var allRows=buildMatrixRows(APP.caseId);
   topics.forEach(tp=>{
     var val=picks[tp]; var rowId=val.split(':')[0]; var side=val.split(':')[1];
-    var rr=(buildMatrixRows(APP.caseId)[tp]||[]).find(x=>x.id===rowId);
+    var tpRows=allRows[tp]||[];
+    var rr=tpRows.find(x=>x.id===rowId);
     var text = rr ? (side==='us'?rr.us:rr.them) : '';
-    if(!text || !String(text).trim()){
-      // 自动清理历史空数据
-      delete picks[tp]; setPicks(picks);
-      var warn=el('div','<div class="muted">已移除无内容的采纳项：'+tp+'</div>');
-      list.appendChild(warn);
-      return;
-    }
+    if(!text || !String(text).trim()){ delete picks[tp]; setPicks(picks); return; }
+
     var row=el('div',''); row.className='pick-row';
     row.innerHTML =
       '<div style="min-width:0">'+
-        '<div class="pick-title">'+tp+' <span class="muted">（'+(side==='us'?'我方':'对方')+'）</span></div>'+
+        '<div class="pick-title">'+tp+' <span class="muted">（采纳：'+(side==='us'?'我方':'对方')+'）</span></div>'+
         '<div>'+text+'</div>'+
         '<div class="cite" style="margin-top:6px">引用：<b>'+((rr&&rr.subject)||'无主题')+'</b> · '+fmtDate(rr&&rr.date||Date.now())+' · '+(rr&&rr.from||'')+
         '　<a href="javascript:void(0)" class="mini-link" data-view="'+(rr&&rr.mailId)+'">查看原邮件</a> · <a href="javascript:void(0)" class="mini-link" data-copy="'+(rr&&rr.mailId)+'">复制引用</a></div>'+
@@ -402,7 +446,6 @@ function renderPickList(){
     list.appendChild(row);
   });
 
-  // 操作：排序/删除
   list.querySelectorAll('button[data-act]').forEach(b=>{
     b.onclick=function(){
       var picks=getPicks(); var act=this.getAttribute('data-act'); var t=this.getAttribute('data-topic');
@@ -414,7 +457,6 @@ function renderPickList(){
     };
   });
 
-  // 引用展开/复制
   list.querySelectorAll('[data-view]').forEach(a=>{
     a.onclick=function(){
       var mid=this.getAttribute('data-view'); var m=findOne(EMAILS,e=>e.id===mid);
@@ -450,19 +492,21 @@ $('#btnLoadList').onclick=function(){ renderPickList(); };
 /* ===== 时间轴 ===== */
 function renderTimeline(){
   var box=$('#timeline'); box.innerHTML='';
-  var acts = getActs();
+  var acts = getActs().slice(); // 复制
   EMAILS.filter(e=>e.caseId===APP.caseId).forEach(m=>{
     acts.push({kind:'email',time:new Date(m.date).getTime(),title:m.subject,meta:{from:m.from}});
   });
   acts.sort((a,b)=>b.time-a.time);
+  $('#tlHint').textContent = acts.length ? ('共 '+acts.length+' 条') : '';
   if(!acts.length){ box.innerHTML='<div class="muted">—</div>'; return; }
-  acts.slice(0,20).forEach(a=>{
-    var row=el('div','<div class="t-item"><div class="t-dot"></div><div class="t-body"><div>'+a.title+'</div><div class="t-time">'+fmtDate(a.time)+'</div></div></div>');
+  acts.slice(0,40).forEach(a=>{
+    var ts = typeof a.time==='number' ? a.time : (new Date(a.time).getTime());
+    var row=el('div','<div class="t-item"><div class="t-dot"></div><div class="t-body"><div class="t-title">'+(a.title||'')+'</div><div class="t-time">'+fmtDate(ts)+'</div></div></div>');
     box.appendChild(row);
   });
 }
 
-/* ===== 合同生成 ===== */
+/* ===== 文书生成 ===== */
 function summaryFromPicks(){
   var picks=getPicks(), topics=Object.keys(picks);
   var arr=[]; topics.forEach(tp=>{
@@ -502,21 +546,13 @@ $('#btnDownload').onclick=function(){
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=((findOne(CASES,c=>c.id===APP.caseId)||{}).name||'document')+'.txt'; a.click();
 };
 
-/* ===== 顶部：AI一键采纳/清空 ===== */
-$('#btnPickAi').onclick=function(){
-  var rows=buildMatrixRows(APP.caseId), saved={};
-  Object.keys(rows).forEach(tp=>{
-    var rr=rows[tp][rows[tp].length-1];
-    if(rr.us && String(rr.us).trim() && (!rr.them || !String(rr.them).trim())) saved[tp]=rr.id+':us';
-    else if(rr.them && String(rr.them).trim() && (!rr.us || !String(rr.us).trim())) saved[tp]=rr.id+':them';
-    else if(rr.us && String(rr.us).trim()) saved[tp]=rr.id+':us';
-  });
-  setPicks(saved); renderPickList();
-  pushAct({kind:'auto-pick',time:Date.now(),title:'AI 一键采纳（'+Object.keys(saved).length+' 项）',caseId:APP.caseId});
-};
-$('#btnClearPick').onclick=function(){ setPicks({}); renderPickList(); };
+/* ===== 弹窗控制 ===== */
+$('#btnOpenMatrix').onclick=function(){ renderMatrixModal(); $('#mxModal').style.display='flex'; };
+$('#btnCloseMatrix').onclick=function(){ $('#mxModal').style.display='none'; };
+$('#btnPickAi').onclick=function(){ aiAutoPick(); renderPickList(); renderMatrixModal(); pushAct({kind:'auto-pick',time:Date.now(),title:'AI 一键采纳（'+Object.keys(getPicks()).length+' 项）',caseId:APP.caseId}); };
+$('#btnClearPick').onclick=function(){ setPicks({}); renderPickList(); renderMatrixModal(); };
 
-/* ===== 引用弹窗 ===== */
+/* 引用弹窗 */
 function showDlg(text){ $('#dlgBody').textContent=text; $('#dlg').style.display='flex'; }
 function hideDlg(){ $('#dlg').style.display='none'; }
 function copyDlg(){ navigator.clipboard.writeText($('#dlgBody').textContent||''); }
@@ -524,7 +560,9 @@ function copyDlg(){ navigator.clipboard.writeText($('#dlgBody').textContent||'')
 /* ===== 刷新 ===== */
 function refreshAll(){
   renderLeft();
-  renderMatrix(); renderPickList(); renderTimeline();
+  aiAutoPick();          // 默认用 AI 生成“已采纳清单”
+  renderPickList();
+  renderTimeline();
   $('#docBox').value=''; $('#genHint').textContent='';
 }
 
